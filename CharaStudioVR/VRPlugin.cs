@@ -37,8 +37,8 @@ namespace KKS_VR
             var vrActivated = Environment.CommandLine.Contains("--vr") || Environment.CommandLine.Contains("--studiovr");
             if (vrActivated)
             {
+                BepInExVrLogBackend.ApplyYourself();
                 OpenVRHelperTempfixHook.Patch();
-                VRLogRedirectPatch.Patch();
                 StartCoroutine(LoadDevice());
             }
         }

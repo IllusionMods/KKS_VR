@@ -34,8 +34,8 @@ namespace KKS_VR
             var vrActivated = Environment.CommandLine.Contains("--vr");
             if (vrActivated)
             {
+                BepInExVrLogBackend.ApplyYourself();
                 OpenVRHelperTempfixHook.Patch();
-                VRLogRedirectPatch.Patch();
 
                 var settings = SettingsManager.Create(Config);
                 StartCoroutine(LoadDevice(settings));
