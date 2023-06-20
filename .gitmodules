@@ -1,0 +1,3 @@
+[submodule "VRGIN_OpenXR"]
+	path = VRGIN_OpenXR
+	url = https://github.com/ManlyMarco/VRGIN_OpenXR

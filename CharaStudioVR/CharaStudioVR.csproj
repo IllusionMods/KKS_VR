@@ -103,16 +103,13 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.Subsystem.Registration">
-      <HintPath>..\lib\Unity.Subsystem.Registration.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\VRGIN_OpenXR\Libs\Unity.Subsystem.Registration.dll</HintPath>
     </Reference>
     <Reference Include="Unity.XR.Management">
-      <HintPath>..\lib\Unity.XR.Management.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\VRGIN_OpenXR\Libs\Unity.XR.Management.dll</HintPath>
     </Reference>
     <Reference Include="Unity.XR.OpenVR">
-      <HintPath>..\lib\Unity.XR.OpenVR.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\VRGIN_OpenXR\Libs\Unity.XR.OpenVR.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\IllusionLibs.KoikatsuSunshine.UnityEngine.CoreModule.2019.4.9\lib\net46\UnityEngine.dll</HintPath>
@@ -151,8 +148,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.SpatialTracking">
-      <HintPath>..\lib\UnityEngine.SpatialTracking.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\VRGIN_OpenXR\Libs\UnityEngine.SpatialTracking.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.TextRenderingModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\IllusionLibs.KoikatsuSunshine.UnityEngine.TextRenderingModule.2019.4.9\lib\net46\UnityEngine.TextRenderingModule.dll</HintPath>
@@ -171,24 +167,20 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.XR.LegacyInputHelpers">
-      <HintPath>..\lib\UnityEngine.XR.LegacyInputHelpers.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\VRGIN_OpenXR\Libs\UnityEngine.XR.LegacyInputHelpers.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.XRModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\IllusionLibs.KoikatsuSunshine.UnityEngine.XRModule.2019.4.9\lib\net46\UnityEngine.XRModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Valve.Newtonsoft.Json">
-      <HintPath>..\lib\Valve.Newtonsoft.Json.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\VRGIN_OpenXR\Libs\Valve.Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="VRGIN_OpenXR">
-      <HintPath>..\lib\VRGIN_OpenXR.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\VRGIN_OpenXR\bin\VRGIN_OpenXR.dll</HintPath>
     </Reference>
     <Reference Include="WindowsInput">
-      <HintPath>..\lib\WindowsInput.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\VRGIN_OpenXR\Libs\WindowsInput.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

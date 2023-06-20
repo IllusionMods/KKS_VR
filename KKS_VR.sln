@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31402.337
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33424.131
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MainGameVR", "MainGameVR\MainGameVR.csproj", "{1F634B93-F4C6-45E9-894D-2F3556A74D67}"
 EndProject
@@ -9,12 +9,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CharaStudioVR", "CharaStudi
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared", "Shared\Shared.shproj", "{C21C1A1B-5045-4BBE-818B-8574756D1F34}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Submodules", "Submodules", "{CAEA7F44-149D-486A-8791-77C3C44ED139}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRGIN_OpenXR", "VRGIN_OpenXR\VRGIN_OpenXR.csproj", "{4B6E4305-C95A-4274-94A6-B04A1B01989D}"
+EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Shared\Shared.projitems*{07ecd6a8-61d0-4409-a009-c138e76dfa1f}*SharedItemsImports = 4
-		Shared\Shared.projitems*{1f634b93-f4c6-45e9-894d-2f3556a74d67}*SharedItemsImports = 4
-		Shared\Shared.projitems*{c21c1a1b-5045-4bbe-818b-8574756d1f34}*SharedItemsImports = 13
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
@@ -38,11 +37,27 @@ Global
 		{07ECD6A8-61D0-4409-A009-C138E76DFA1F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{07ECD6A8-61D0-4409-A009-C138E76DFA1F}.Release|x64.ActiveCfg = Release|Any CPU
 		{07ECD6A8-61D0-4409-A009-C138E76DFA1F}.Release|x64.Build.0 = Release|Any CPU
+		{4B6E4305-C95A-4274-94A6-B04A1B01989D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B6E4305-C95A-4274-94A6-B04A1B01989D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B6E4305-C95A-4274-94A6-B04A1B01989D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4B6E4305-C95A-4274-94A6-B04A1B01989D}.Debug|x64.Build.0 = Debug|Any CPU
+		{4B6E4305-C95A-4274-94A6-B04A1B01989D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B6E4305-C95A-4274-94A6-B04A1B01989D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B6E4305-C95A-4274-94A6-B04A1B01989D}.Release|x64.ActiveCfg = Release|Any CPU
+		{4B6E4305-C95A-4274-94A6-B04A1B01989D}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4B6E4305-C95A-4274-94A6-B04A1B01989D} = {CAEA7F44-149D-486A-8791-77C3C44ED139}
+	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6A44D8C4-D4F0-4951-A1F2-B64FFDD9A290}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Shared\Shared.projitems*{07ecd6a8-61d0-4409-a009-c138e76dfa1f}*SharedItemsImports = 4
+		Shared\Shared.projitems*{1f634b93-f4c6-45e9-894d-2f3556a74d67}*SharedItemsImports = 4
+		Shared\Shared.projitems*{c21c1a1b-5045-4bbe-818b-8574756d1f34}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal
