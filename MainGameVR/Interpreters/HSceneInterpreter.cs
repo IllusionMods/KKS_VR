@@ -20,6 +20,16 @@ namespace KKS_VR.Interpreters
 
         public override void OnUpdate()
         {
+            if (!Manager.Config.HData.Map)
+            {
+                VR.Camera.SteamCam.camera.backgroundColor = Manager.Config.HData.BackColor;
+                VR.Camera.SteamCam.camera.clearFlags = CameraClearFlags.SolidColor;
+            }
+            else
+            {
+                VR.Camera.SteamCam.camera.clearFlags = CameraClearFlags.Skybox;
+            }
+
             if (_active && (!_proc || !_proc.enabled))
             {
                 // The HProc scene is over, but there may be one more coming.
@@ -41,6 +51,7 @@ namespace KKS_VR.Interpreters
         {
             if (_active)
             {
+                VR.Camera.SteamCam.camera.clearFlags = CameraClearFlags.Skybox;
                 Object.Destroy(_vrMouth);
                 DestroyControllerComponent<Caress.CaressController>();
                 _proc = null;
