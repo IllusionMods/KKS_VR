@@ -9,8 +9,14 @@ namespace KKS_VR.Interpreters
         private HSceneProc _proc;
         private Caress.VRMouth _vrMouth;
 
+        private Color _currentBackgroundColor;
+        private bool _currentShowMap;
+
         public override void OnStart()
         {
+            _currentBackgroundColor = Manager.Config.HData.BackColor;
+            _currentShowMap = Manager.Config.HData.Map;
+            UpdateCameraState();
         }
 
         public override void OnDisable()
@@ -20,14 +26,9 @@ namespace KKS_VR.Interpreters
 
         public override void OnUpdate()
         {
-            if (!Manager.Config.HData.Map)
+            if (_currentShowMap != Manager.Config.HData.Map || _currentBackgroundColor != Manager.Config.HData.BackColor)
             {
-                VR.Camera.SteamCam.camera.backgroundColor = Manager.Config.HData.BackColor;
-                VR.Camera.SteamCam.camera.clearFlags = CameraClearFlags.SolidColor;
-            }
-            else
-            {
-                VR.Camera.SteamCam.camera.clearFlags = CameraClearFlags.Skybox;
+                UpdateCameraState();
             }
 
             if (_active && (!_proc || !_proc.enabled))
@@ -57,6 +58,21 @@ namespace KKS_VR.Interpreters
                 _proc = null;
                 _active = false;
             }
+        }
+
+        private void UpdateCameraState()
+        {
+            if (!Manager.Config.HData.Map)
+            {
+                VR.Camera.SteamCam.camera.backgroundColor = Manager.Config.HData.BackColor;
+                VR.Camera.SteamCam.camera.clearFlags = CameraClearFlags.SolidColor;
+            }
+            else
+            {
+                VR.Camera.SteamCam.camera.clearFlags = CameraClearFlags.Skybox;
+            }
+            _currentBackgroundColor = Manager.Config.HData.BackColor;
+            _currentShowMap = Manager.Config.HData.Map;
         }
     }
 }
