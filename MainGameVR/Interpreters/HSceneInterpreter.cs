@@ -8,12 +8,19 @@ namespace KKS_VR.Interpreters
         private bool _active;
         private HSceneProc _proc;
         private Caress.VRMouth _vrMouth;
+        private Caress.CaressController _leftController;
+        private Caress.CaressController _rightController;
+        private Camera.POV _pov;
 
         private Color _currentBackgroundColor;
         private bool _currentShowMap;
 
         public override void OnStart()
         {
+            _leftController = VR.Mode.Left.gameObject.AddComponent<Caress.CaressController>();
+            _rightController = VR.Mode.Left.gameObject.AddComponent<Caress.CaressController>();
+            _pov = VR.Camera.gameObject.AddComponent<Camera.POV>();
+            _pov.Initialize(_leftController.getController(), _rightController.getController());
             _currentBackgroundColor = Manager.Config.HData.BackColor;
             _currentShowMap = Manager.Config.HData.Map;
             UpdateCameraState();
@@ -22,13 +29,17 @@ namespace KKS_VR.Interpreters
         public override void OnDisable()
         {
             Deactivate();
+            Object.Destroy(_pov);
+            Object.Destroy(_leftController);
+            Object.Destroy(_rightController);
         }
 
         public override void OnUpdate()
         {
             if (_currentShowMap != Manager.Config.HData.Map || _currentBackgroundColor != Manager.Config.HData.BackColor)
             {
-                UpdateCameraState();
+                if (!_active || !_pov.IsActive())
+                    UpdateCameraState();
             }
 
             if (_active && (!_proc || !_proc.enabled))
@@ -42,7 +53,6 @@ namespace KKS_VR.Interpreters
                 proc.enabled)
             {
                 _vrMouth = VR.Camera.gameObject.AddComponent<Caress.VRMouth>();
-                AddControllerComponent<Caress.CaressController>();
                 _proc = proc;
                 _active = true;
             }
@@ -54,7 +64,6 @@ namespace KKS_VR.Interpreters
             {
                 VR.Camera.SteamCam.camera.clearFlags = CameraClearFlags.Skybox;
                 Object.Destroy(_vrMouth);
-                DestroyControllerComponent<Caress.CaressController>();
                 _proc = null;
                 _active = false;
             }

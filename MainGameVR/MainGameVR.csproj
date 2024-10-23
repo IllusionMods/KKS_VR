@@ -237,6 +237,7 @@
     <Compile Include="VRPlugin.cs" />
     <Compile Include="Controls\GameplayTool.cs" />
     <Compile Include="Settings\KoikatuSettings.cs" />
+    <Compile Include="Camera\POV.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

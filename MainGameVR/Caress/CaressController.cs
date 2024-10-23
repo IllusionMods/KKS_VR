@@ -32,6 +32,11 @@ namespace KKS_VR.Caress
         private KoikatuSettings _settings;
         private bool _triggerPressed; // Whether the trigger is currently pressed. false if _lock is null.
 
+        public Controller getController()
+        {
+            return _controller;
+        }
+
         protected override void OnAwake()
         {
             base.OnAwake();

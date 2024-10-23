@@ -126,6 +126,18 @@ namespace KKS_VR.Settings
         }
 
         private float _NearClipPlane;
+
+        public bool EnablePOV
+        {
+            get => _EnablePOV;
+            set
+            {
+                _EnablePOV = value;
+                TriggerPropertyChanged("EnablePOV");
+            }
+        }
+
+        private bool _EnablePOV = true;
     }
 
     public class KeySet

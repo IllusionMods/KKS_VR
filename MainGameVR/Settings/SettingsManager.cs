@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using BepInEx.Configuration;
 using KKAPI.Utilities;
 using VRGIN.Core;
+using UnityEngine;
 
 namespace KKS_VR.Settings
 {
@@ -172,6 +173,8 @@ namespace KKS_VR.Settings
             keySetsConfig = new KeySetsConfig(config, updateKeySets);
             updateKeySets();
 
+            POVConfig pOVConfig = new POVConfig(config, settings);
+
             // Fixed settings
             settings.ApplyEffects = false; // We manage effects ourselves.
 
@@ -282,6 +285,33 @@ namespace KKS_VR.Settings
                 _right.Value,
                 _left.Value,
                 _center.Value);
+        }
+    }
+
+   public class POVConfig
+    {
+        private const string sectionPOV = "4. POV between characters (Hand Tool in free H)";
+        public static ConfigEntry<KeyboardShortcut> switchPOVModeKey { get; private set; }
+
+        public POVConfig(ConfigFile config, KoikatuSettings settings)
+        {
+            var enablePOV = config.Bind(sectionPOV, "POV", true,
+                "Switch POV between characters in free H scenes (only works in Hand Tool)");
+            Tie(enablePOV, v => settings.EnablePOV = v);
+
+            switchPOVModeKey = config.Bind(sectionPOV, "Switch POV Mode", new KeyboardShortcut(KeyCode.Y),
+                new ConfigDescription(
+                    "Use VR Trigger Button to switch POV between characters. " +
+                    "Two Modes:\r\n" +
+                    "1: POV follows character's head position with forward rotation once\r\n" +
+                    "2: No POV",
+                    null,
+                    new ConfigurationManagerAttributes { Order = -1 }));
+        }
+        private static void Tie<T>(ConfigEntry<T> entry, Action<T> set)
+        {
+            set(entry.Value);
+            entry.SettingChanged += (_, _1) => set(entry.Value);
         }
     }
 }
