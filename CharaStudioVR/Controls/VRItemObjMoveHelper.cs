@@ -8,7 +8,7 @@ using UnityEngine.UI;
 using VRGIN.Core;
 using VRGIN.Helpers;
 
-namespace KKS_VR.Controls
+namespace KK_VR.Controls
 {
     public class VRItemObjMoveHelper : MonoBehaviour
     {

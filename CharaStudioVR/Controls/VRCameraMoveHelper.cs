@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using VRGIN.Core;
 
-namespace KKS_VR.Controls
+namespace KK_VR.Controls
 {
     public class VRCameraMoveHelper : MonoBehaviour
     {

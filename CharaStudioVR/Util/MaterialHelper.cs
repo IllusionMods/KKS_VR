@@ -2,7 +2,7 @@ using System;
 using KKAPI.Utilities;
 using UnityEngine;
 
-namespace KKS_VR.Util
+namespace KK_VR.Util
 {
     internal class MaterialHelper
     {

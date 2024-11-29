@@ -4,7 +4,7 @@ using Studio;
 using UnityEngine;
 using VRGIN.Core;
 
-namespace KKS_VR.Util
+namespace KK_VR.Util
 {
     public class MoveableGUIObject : MonoBehaviour
     {

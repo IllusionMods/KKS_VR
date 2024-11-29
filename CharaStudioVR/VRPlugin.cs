@@ -3,18 +3,19 @@ using System.Collections;
 using System.Runtime.InteropServices;
 using BepInEx;
 using BepInEx.Logging;
+using KK_VR;
 using KKAPI;
-using KKS_VR.Controls;
-using KKS_VR.Fixes;
-using KKS_VR.Interpreters;
-using KKS_VR.Settings;
+using KK_VR.Controls;
+using KK_VR.Fixes;
+using KK_VR.Interpreters;
+using KK_VR.Settings;
 using Unity.XR.OpenVR;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Valve.VR;
 using VRGIN.Core;
 
-namespace KKS_VR
+namespace KK_VR
 {
     /// <summary>
     /// Studio code was forked from KKS_CharaStudioVR at https://vr-erogamer.com/archives/1065
@@ -136,7 +137,7 @@ namespace KKS_VR
 
         private void UpdateNearClipPlane()
         {
-            VR.Camera.GetComponent<Camera>().nearClipPlane = StudioSettings.NearClipPlane.Value;
+            VR.Camera.GetComponent<UnityEngine.Camera>().nearClipPlane = StudioSettings.NearClipPlane.Value;
         }
 
         private static class NativeMethods

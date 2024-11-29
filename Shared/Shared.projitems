@@ -3,26 +3,117 @@
   <PropertyGroup>
     <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
     <HasSharedItems>true</HasSharedItems>
-    <SharedGUID>c21c1a1b-5045-4bbe-818b-8574756d1f34</SharedGUID>
+    <SharedGUID>447ca481-4806-48d1-8e95-d545d8294620</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
     <Import_RootNamespace>Shared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Camera\ActionCameraControl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Camera\BackgroundDisplayer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Camera\CameraControlControl.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Camera\CameraMoveHooks.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Camera\MoveToPoi.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Camera\VRCameraMover.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Camera\VREffector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Camera\VRMoverH.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Caress\CaressUtil.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Caress\HandCtrlHooks.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Constants.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Controls\BetterMenuTool.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Controls\BetterWarpTool.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Controls\ToolUtil.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Fixes\OpenVRHelperTempfixHook.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Fixes\TopmostToolIcons.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Fixes\BepInExVrLogBackend.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\GameplayTool.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\GripMove.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\GripMoveLag.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\KoikatuMenuTool.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Controls\LocationPicker.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\CrossFader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\HideMaleHead.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\LoadVoice.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\OldVRFade.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Pov.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\PrivacyScreen.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\VoiceBundles.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\VRBoop.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\VRFade.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Fixes\BepInExVrLogBackend.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Fixes\GameFixes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Fixes\Mirror\Manager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Fixes\Mirror\VRReflection.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Fixes\ObiControlFix.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Fixes\ReduceAssetUnloads.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Fixes\UnityPatches.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Fixes\Util.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GameStandingMode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Grasp\GraspController.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Grasp\GraspHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Grasp\HandScroll.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Grasp\IKCaress.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Grasp\SlapReaction.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Grasp\TouchReaction.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Grasp\VisualObject.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\ForGrasp\BodyPartGuide.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\ForGrasp\HeadPartGuide.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\ForGrasp\PartGuide.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\ForScenes\ActionSceneHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\ForScenes\HSceneHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\ForScenes\TalkSceneHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\Handler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\Helpers\AibuItemMover.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\Helpers\CameraLag.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\Helpers\ItemLag.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\Helpers\KissHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\Helpers\SmoothDamp.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\ItemHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\MouthGuide.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Holders\HandHolder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Holders\HandNoise.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Holders\Holder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Holders\TongueHolder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IK\Amplifier.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IK\AnimLoaderHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IK\BeforeIK.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IK\FBBIK.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IK\LookAt.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IK\OffsetEffector.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IK\OffsetManipulator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IK\OffsetModifier.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IK\VRIK.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IK\VRIKGuide.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interactors\Undresser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interpreters\ActionSceneInterpreter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interpreters\CustomSceneInterpreter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interpreters\Extras\TalkSceneExtras.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interpreters\HSceneHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interpreters\HSceneInterpreter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interpreters\InterpreterHooks.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interpreters\KoikatuGameInterpreter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interpreters\NightMenuSceneInterpreter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interpreters\OtherSceneInterpreter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interpreters\Patches\ActionScenePatches.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interpreters\Patches\GraspPatches.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interpreters\Patches\HScenePatches.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interpreters\Patches\TalkScenePatches.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interpreters\SceneInterpreter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interpreters\TalkSceneInterpreter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AssemblyInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Obsolete\Controls\BetterMenuTool.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Obsolete\Controls\BetterWarpTool.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Obsolete\Controls\ToolUtil.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Obsolete\Features\VRBoop.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Obsolete\Fixes\BepInExVrLogBackend.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Obsolete\Fixes\OpenVRHelperTempfixHook.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Obsolete\Fixes\TopmostToolIcons.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\KoikatuContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\KoikatuSettings.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Settings\SettingsManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Trackers\ControllerTracker.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Trackers\Tracker.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\DebugHooks.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\Extensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Utils\WindowTools.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Fixes\topmostguishader" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)Fixes\topmostgui.shader" />
+    <None Include="$(MSBuildThisFileDirectory)Fixes\Mirror\mirror-shader" />
+    <None Include="$(MSBuildThisFileDirectory)Obsolete\Fixes\topmostgui.shader" />
+    <None Include="$(MSBuildThisFileDirectory)Obsolete\Fixes\topmostguishader" />
   </ItemGroup>
 </Project>
