@@ -2,7 +2,7 @@ using System.Diagnostics;
 using BepInEx.Logging;
 using VRGIN.Core;
 
-namespace KKS_VR.Fixes
+namespace KK_VR.Fixes
 {
     public class BepInExVrLogBackend : ILoggerBackend
     {

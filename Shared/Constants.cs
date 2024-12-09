@@ -1,4 +1,4 @@
-﻿namespace KKS_VR
+namespace KK_VR
 {
     internal static class Constants
     {

@@ -1,0 +1,204 @@
+{
+   "action_manifest_version" : 0,
+   "alias_info" : {},
+   "app_key" : "application.generated.kks_charastudio.exe",
+   "bindings" : {
+      "/actions/legacy_emulate" : {
+         "poses" : [
+            {
+               "output" : "/actions/legacy_emulate/in/pose",
+               "path" : "/user/hand/left/pose/raw"
+            },
+            {
+               "output" : "/actions/legacy_emulate/in/pose",
+               "path" : "/user/hand/right/pose/raw"
+            }
+         ],
+         "sources" : [
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/legacy_emulate/in/grip_press"
+                  },
+                  "pull" : {
+                     "output" : "/actions/legacy_emulate/in/grip_1d"
+                  },
+                  "touch" : {
+                     "output" : "/actions/legacy_emulate/in/grip_touch"
+                  }
+               },
+               "mode" : "trigger",
+               "path" : "/user/hand/left/input/grip"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/legacy_emulate/in/grip_press"
+                  },
+                  "pull" : {
+                     "output" : "/actions/legacy_emulate/in/grip_1d"
+                  },
+                  "touch" : {
+                     "output" : "/actions/legacy_emulate/in/grip_touch"
+                  }
+               },
+               "mode" : "trigger",
+               "path" : "/user/hand/right/input/grip"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/legacy_emulate/in/applicationmenu_press"
+                  },
+                  "touch" : {
+                     "output" : "/actions/legacy_emulate/in/applicationmenu_touch"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/x"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/legacy_emulate/in/applicationmenu_press"
+                  },
+                  "touch" : {
+                     "output" : "/actions/legacy_emulate/in/applicationmenu_touch"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/x"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/legacy_emulate/in/axis0_press"
+                  },
+                  "position" : {
+                     "output" : "/actions/legacy_emulate/in/axis0_2d"
+                  },
+                  "touch" : {
+                     "output" : "/actions/legacy_emulate/in/axis0_touch"
+                  }
+               },
+               "mode" : "joystick",
+               "path" : "/user/hand/left/input/joystick"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/legacy_emulate/in/axis0_press"
+                  },
+                  "position" : {
+                     "output" : "/actions/legacy_emulate/in/axis0_2d"
+                  },
+                  "touch" : {
+                     "output" : "/actions/legacy_emulate/in/axis0_touch"
+                  }
+               },
+               "mode" : "joystick",
+               "path" : "/user/hand/right/input/joystick"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/legacy_emulate/in/system_press"
+                  },
+                  "touch" : {
+                     "output" : "/actions/legacy_emulate/in/system_touch"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/system"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/legacy_emulate/in/system_press"
+                  },
+                  "touch" : {
+                     "output" : "/actions/legacy_emulate/in/system_touch"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/system"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/legacy_emulate/in/axis1_press"
+                  },
+                  "pull" : {
+                     "output" : "/actions/legacy_emulate/in/axis1_1d"
+                  },
+                  "touch" : {
+                     "output" : "/actions/legacy_emulate/in/axis1_touch"
+                  }
+               },
+               "mode" : "trigger",
+               "path" : "/user/hand/left/input/trigger"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/legacy_emulate/in/axis1_press"
+                  },
+                  "pull" : {
+                     "output" : "/actions/legacy_emulate/in/axis1_1d"
+                  },
+                  "touch" : {
+                     "output" : "/actions/legacy_emulate/in/axis1_touch"
+                  }
+               },
+               "mode" : "trigger",
+               "path" : "/user/hand/right/input/trigger"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/legacy_emulate/in/axis0_press"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/y"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/legacy_emulate/in/axis0_press"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/y"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/legacy_emulate/in/applicationmenu_press"
+                  },
+                  "touch" : {
+                     "output" : "/actions/legacy_emulate/in/applicationmenu_touch"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/a"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/legacy_emulate/in/axis0_press"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/right/input/b"
+            }
+         ]
+      }
+   },
+   "category" : "steamvr_input",
+   "controller_type" : "oculus_touch",
+   "description" : "",
+   "name" : "oculus_touch",
+   "options" : {},
+   "simulated_actions" : []
+}
