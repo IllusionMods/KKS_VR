@@ -1,11 +1,11 @@
 using System;
 using BepInEx.Logging;
 using HarmonyLib;
-using KKS_VR.Interpreters;
+using KK_VR.Interpreters;
 using Studio;
 using VRGIN.Core;
 
-namespace KKS_VR.Fixes
+namespace KK_VR.Fixes
 {
     public static class LoadFixHook
     {

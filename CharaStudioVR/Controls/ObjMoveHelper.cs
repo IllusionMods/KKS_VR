@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Studio;
 using UnityEngine;
 
-namespace KKS_VR.Controls
+namespace KK_VR.Controls
 {
     internal class ObjMoveHelper
     {

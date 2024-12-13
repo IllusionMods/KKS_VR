@@ -5,7 +5,7 @@ using UnityEngine;
 using VRGIN.Core;
 using VRGIN.Helpers;
 
-namespace KKS_VR.Interpreters
+namespace KK_VR.Interpreters
 {
     public class TransientHead : ProtectedBehaviour
     {

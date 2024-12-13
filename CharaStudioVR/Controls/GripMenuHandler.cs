@@ -1,5 +1,5 @@
 using System.Linq;
-using KKS_VR.Settings;
+using KK_VR.Settings;
 using UnityEngine;
 using Valve.VR;
 using VRGIN.Controls;
@@ -7,7 +7,7 @@ using VRGIN.Core;
 using VRGIN.Native;
 using VRGIN.Visuals;
 
-namespace KKS_VR.Controls
+namespace KK_VR.Controls
 {
     public class GripMenuHandler : ProtectedBehaviour
     {

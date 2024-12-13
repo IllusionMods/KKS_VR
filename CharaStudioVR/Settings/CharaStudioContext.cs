@@ -4,7 +4,7 @@ using UnityEngine;
 using VRGIN.Core;
 using VRGIN.Visuals;
 
-namespace KKS_VR.Settings
+namespace KK_VR.Settings
 {
     [XmlRoot("Context")]
     public class CharaStudioContext : IVRManagerContext
