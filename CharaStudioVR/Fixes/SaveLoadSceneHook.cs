@@ -2,17 +2,17 @@ using System;
 using System.Reflection;
 using BepInEx.Logging;
 using HarmonyLib;
-using KKS_VR.Controls;
+using KK_VR.Controls;
 using Manager;
 using Studio;
 using UnityEngine;
 using VRGIN.Core;
 
-namespace KKS_VR.Fixes
+namespace KK_VR.Fixes
 {
     public static class SaveLoadSceneHook
     {
-        private static Camera[] backupRenderCam;
+        private static UnityEngine.Camera[] backupRenderCam;
 
         private static Sprite sceneLoadScene_spriteLoad;
 
@@ -24,17 +24,17 @@ namespace KKS_VR.Fixes
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(Studio.Studio), "SaveScene", new Type[] { })]
-        public static bool SaveScenePreHook(Studio.Studio __instance, ref Camera[] __state)
+        public static bool SaveScenePreHook(Studio.Studio __instance, ref UnityEngine.Camera[] __state)
         {
             VRPlugin.Logger.Log(LogLevel.Debug, "Update Camera position and rotation for Scene Capture and last Camera data.");
             try
             {
                 VRCameraMoveHelper.Instance.CurrentToCameraCtrl();
                 var field = typeof(Studio.GameScreenShot).GetField("renderCam", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                var obj = field.GetValue(Singleton<Studio.Studio>.Instance.gameScreenShot) as Camera[];
+                var obj = field.GetValue(Singleton<Studio.Studio>.Instance.gameScreenShot) as UnityEngine.Camera[];
                 VRPlugin.Logger.Log(LogLevel.Debug, "Backup Screenshot render cam.");
                 backupRenderCam = obj;
-                var value = new Camera[1] { VR.Camera.SteamCam.camera };
+                var value = new UnityEngine.Camera[1] { VR.Camera.SteamCam.camera };
                 __state = backupRenderCam;
                 field.SetValue(Singleton<Studio.Studio>.Instance.gameScreenShot, value);
             }
@@ -49,7 +49,7 @@ namespace KKS_VR.Fixes
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(Studio.Studio), "SaveScene", new Type[] { })]
-        public static void SaveScenePostHook(Studio.Studio __instance, Camera[] __state)
+        public static void SaveScenePostHook(Studio.Studio __instance, UnityEngine.Camera[] __state)
         {
             VRPlugin.Logger.Log(LogLevel.Debug, "Restore backup render cam.");
             try

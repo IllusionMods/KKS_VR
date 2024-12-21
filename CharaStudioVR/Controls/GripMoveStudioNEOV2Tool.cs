@@ -1,8 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using KKS_VR.Settings;
-using KKS_VR.Util;
+using KK_VR.Settings;
+using KK_VR.Util;
 using Studio;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -15,7 +15,7 @@ using VRGIN.Core;
 using VRGIN.Helpers;
 using VRGIN.Visuals;
 
-namespace KKS_VR.Controls
+namespace KK_VR.Controls
 {
     internal class GripMoveStudioNEOV2Tool : Tool
     {
@@ -89,7 +89,7 @@ namespace KKS_VR.Controls
             }
         }
 
-        protected override void OnDestroy()
+        private void OnDestroy()
         {
             if (marker != null) Destroy(marker);
             if (mirror1 != null) Destroy(mirror1);

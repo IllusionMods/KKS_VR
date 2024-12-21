@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using HarmonyLib;
 using UnityEngine;
-using UnityEngine.XR;
+using VRGIN.Core;
 using VRGIN.Controls;
+using System.Linq;
+using System.Collections;
 
-namespace KKS_VR.Features
+namespace KK_VR.Features
 {
     /// <summary>
     /// Adds colliders to the controllers so you can boop things
@@ -14,30 +16,38 @@ namespace KKS_VR.Features
     /// </summary>
     public static class VRBoop
     {
-        internal const string LeftColliderName = "Left_Boop_Collider";
-        internal const string RightColliderName = "Right_Boop_Collider";
-
-        private static DynamicBoneCollider _leftCollider;
-        private static DynamicBoneCollider _rightCollider;
-
-        public static void Initialize(Controller controller, EyeSide controllerSide)
+        private readonly static List<DynamicBoneCollider> _activeDBC = [];
+        public static void Initialize()
         {
             // Hooks in here don't get patched by the whole assembly PatchAll since the class has no HarmonyPatch attribute
             Harmony.CreateAndPatchAll(typeof(VRBoop), typeof(VRBoop).FullName);
-
-            switch (controllerSide)
+        }
+        public static void AddDB(DynamicBoneCollider DBCollider)
+        {
+            _activeDBC.Add(DBCollider);
+        }
+        public static void RefreshDynamicBones(IEnumerable<ChaControl> charas)
+        {
+            // Hooks don't give us BetterPenetration dynamic bones.
+            foreach (var chara in charas)
             {
-                case EyeSide.Left:
-                    _leftCollider = GetOrAttachCollider(controller.gameObject, LeftColliderName);
-                    break;
-                case EyeSide.Right:
-                    _rightCollider = GetOrAttachCollider(controller.gameObject, RightColliderName);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(controllerSide), controllerSide, null);
+                var dbList = chara.GetComponentsInChildren<DynamicBone>();
+                foreach (var db in dbList)
+                {
+                    AttachControllerColliders(db);
+                }
+                var dbList01 = chara.GetComponentsInChildren<DynamicBone_Ver01>();
+                foreach (var db in dbList01)
+                {
+                    AttachControllerColliders(db);
+                }
+                var dbList02 = chara.GetComponentsInChildren<DynamicBone_Ver02>();
+                foreach (var db in dbList02)
+                {
+                    AttachControllerColliders(db);
+                }
             }
         }
-
         [HarmonyPostfix]
         [HarmonyWrapSafe]
         [HarmonyPatch(typeof(DynamicBone), nameof(DynamicBone.SetupParticles))]
@@ -63,7 +73,7 @@ namespace KKS_VR.Features
                 {
                     var colliders = newBone.m_Colliders;
                     if (colliders != null)
-                        AttachControllerColliders(colliders);
+                        AddColliders(colliders);
                 }
             };
         }
@@ -71,18 +81,20 @@ namespace KKS_VR.Features
         private static void AttachControllerColliders(MonoBehaviour dynamicBone)
         {
             var colliderList = GetColliderList(dynamicBone);
-            if (colliderList == null) return;
-            AttachControllerColliders(colliderList);
+            if (colliderList != null)
+            {
+                AddColliders(colliderList);
+            }
         }
-
-        private static void AttachControllerColliders(List<DynamicBoneCollider> colliderList)
+        private static void AddColliders(List<DynamicBoneCollider> colliderList)
         {
-            if (colliderList == null) throw new ArgumentNullException(nameof(colliderList));
-
-            if (_leftCollider && !colliderList.Contains(_leftCollider))
-                colliderList.Add(_leftCollider);
-            if (_rightCollider && !colliderList.Contains(_rightCollider))
-                colliderList.Add(_rightCollider);
+            foreach (var dbc in _activeDBC)
+            {
+                if (!colliderList.Contains(dbc))
+                {
+                    colliderList.Add(dbc);
+                }
+            }
         }
 
         private static List<DynamicBoneCollider> GetColliderList(MonoBehaviour dynamicBone)
@@ -95,36 +107,6 @@ namespace KKS_VR.Features
                 null => throw new ArgumentNullException(nameof(dynamicBone)),
                 _ => throw new ArgumentException(@"Not a DynamicBone - " + dynamicBone.GetType(), nameof(dynamicBone)),
             };
-        }
-
-        private static DynamicBoneCollider GetOrAttachCollider(GameObject controllerGameObject, string colliderName)
-        {
-            if (controllerGameObject == null) throw new ArgumentNullException(nameof(controllerGameObject));
-            if (colliderName == null) throw new ArgumentNullException(nameof(colliderName));
-
-            //Check for existing DB collider that may have been attached earlier
-            var existingCollider = controllerGameObject.GetComponentInChildren<DynamicBoneCollider>();
-            if (existingCollider == null)
-            {
-                //Add a DB collider to the controller
-                return AddDbCollider(controllerGameObject, colliderName);
-            }
-
-            return existingCollider;
-        }
-
-        private static DynamicBoneCollider AddDbCollider(GameObject controllerGameObject, string colliderName,
-            float colliderRadius = 0.05f, float collierHeight = 0f, Vector3 colliderCenter = new Vector3(), DynamicBoneCollider.Direction colliderDirection = default)
-        {
-            //Build the dynamic bone collider
-            var colliderObject = new GameObject(colliderName);
-            var collider = colliderObject.AddComponent<DynamicBoneCollider>();
-            collider.m_Radius = colliderRadius;
-            collider.m_Height = collierHeight;
-            collider.m_Center = colliderCenter;
-            collider.m_Direction = colliderDirection;
-            colliderObject.transform.SetParent(controllerGameObject.transform, false);
-            return collider;
         }
     }
 }

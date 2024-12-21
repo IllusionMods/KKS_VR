@@ -24,7 +24,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <LangVersion>8</LangVersion>
+    <LangVersion>Preview</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>embedded</DebugType>
@@ -36,6 +36,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>8</LangVersion>
     <DebugSymbols>true</DebugSymbols>
+    <LangVersion>Preview</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony, Version=2.9.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -65,6 +66,12 @@
     <Reference Include="KKS_ExtensibleSaveFormat, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ExtensibleSaveFormat.KoikatsuSunshine.16.8.1\lib\net46\KKS_ExtensibleSaveFormat.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="KK_FinalIK">
+      <HintPath>..\..\KK_SensibleH\Libs\KK_FinalIK.dll</HintPath>
+    </Reference>
+    <Reference Include="Obi">
+      <HintPath>..\Libs\Obi.dll</HintPath>
     </Reference>
     <Reference Include="Sirenix.Serialization, Version=2.1.13.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\IllusionLibs.KoikatsuSunshine.UnityEngine.CoreModule.2019.4.9\lib\net46\Sirenix.Serialization.dll</HintPath>
@@ -184,6 +191,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\BetterMenuTool.cs" />
+    <Compile Include="Controls\BetterWarpTool.cs" />
+    <Compile Include="Features\VRBoop.cs" />
+    <Compile Include="Fixes\OpenVRHelperTempfixHook.cs" />
+    <Compile Include="Fixes\TopmostToolIcons.cs" />
     <Compile Include="Settings\CharaStudioContext.cs" />
     <Compile Include="Settings\StudioSettings.cs" />
     <Compile Include="StudioStandingMode.cs" />
@@ -204,6 +216,8 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Util\ColorZOrderShader" />
+    <None Include="Fixes\topmostgui.shader" />
+    <None Include="Fixes\topmostguishader" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

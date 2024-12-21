@@ -3,7 +3,7 @@ using BepInEx.Configuration;
 using KKAPI.Utilities;
 using VRGIN.Core;
 
-namespace KKS_VR.Settings
+namespace KK_VR.Settings
 {
     public static class StudioSettings
     {

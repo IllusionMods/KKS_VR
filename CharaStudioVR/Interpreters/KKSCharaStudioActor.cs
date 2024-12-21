@@ -1,11 +1,11 @@
 using System;
 using System.Configuration;
-using KKS_VR.Settings;
+using KK_VR.Settings;
 using UnityEngine;
 using VRGIN.Core;
 using VRGIN.Helpers;
 
-namespace KKS_VR.Interpreters
+namespace KK_VR.Interpreters
 {
     public class KKSCharaStudioActor : DefaultActorBehaviour<ChaControl>
     {
@@ -38,7 +38,7 @@ namespace KKS_VR.Interpreters
             base.OnLateUpdate();
             var eyeLookCtrl = Actor.eyeLookCtrl;
             var neckLookCtrl = Actor.neckLookCtrl;
-            var transform = Camera.main.transform;
+            var transform = UnityEngine.Camera.main.transform;
             if ((bool)transform)
             {
                 if ((bool)eyeLookCtrl && eyeLookCtrl.target == transform) eyeLookCtrl.target = _TargetController.Target;
@@ -73,7 +73,7 @@ namespace KKS_VR.Interpreters
 
             var eyeLookCtrl = Actor.eyeLookCtrl;
             var neckLookCtrl = Actor.neckLookCtrl;
-            var transform = Camera.main.transform;
+            var transform = UnityEngine.Camera.main.transform;
             if ((bool)transform)
             {
                 if ((bool)eyeLookCtrl && eyeLookCtrl.target == _TargetController.Target) eyeLookCtrl.target = transform;

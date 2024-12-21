@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
-using KKS_VR.Controls;
-using KKS_VR.Features;
-using KKS_VR.Settings;
+using KK_VR.Controls;
+using KK_VR.Features;
+using KK_VR.Settings;
 using UnityEngine.XR;
 using VRGIN.Controls;
 using VRGIN.Modes;
 
-namespace KKS_VR
+namespace KK_VR
 {
     internal class StudioStandingMode : StandingMode
     {
@@ -35,7 +35,7 @@ namespace KKS_VR
         private static void AddComponents(Controller controller, EyeSide controllerSide)
         {
             if (StudioSettings.EnableBoop.Value)
-                VRBoop.Initialize(controller, controllerSide);
+                VRBoopStudio.Initialize(controller, controllerSide);
         }
     }
 }

@@ -1,0 +1,212 @@
+{
+  "actions": [
+    {
+      "name": "/actions/legacy_emulate/in/Grip_Press",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/Grip_Touch",
+      "type": "boolean",
+      "requirement": "optional"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/Grip_2D",
+      "type": "vector2",
+      "requirement": "optional"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/ApplicationMenu_Press",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/ApplicationMenu_Touch",
+      "type": "boolean",
+      "requirement": "optional"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/A_Press",
+      "type": "boolean",
+      "requirement": "optional"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/A_Touch",
+      "type": "boolean",
+      "requirement": "optional"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/Axis0_Press",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/Axis0_Touch",
+      "type": "boolean",
+      "requirement": "optional"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/Axis0_2D",
+      "type": "vector2"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/Axis1_Press",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/Axis1_Touch",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/Axis1_2D",
+      "type": "vector2"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/Axis2_Press",
+      "type": "boolean",
+      "requirement": "optional"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/Axis2_Touch",
+      "type": "boolean",
+      "requirement": "optional"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/Axis2_2D",
+      "type": "vector2",
+      "requirement": "optional"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/Axis3_Press",
+      "type": "boolean",
+      "requirement": "optional"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/Axis3_Touch",
+      "type": "boolean",
+      "requirement": "optional"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/Axis3_2D",
+      "type": "vector2",
+      "requirement": "optional"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/Axis4_Press",
+      "type": "boolean",
+      "requirement": "optional"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/Axis4_Touch",
+      "type": "boolean",
+      "requirement": "optional"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/Axis4_2D",
+      "type": "vector2",
+      "requirement": "optional"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/System_Press",
+      "type": "boolean",
+      "requirement": "optional"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/System_Touch",
+      "type": "boolean",
+      "requirement": "optional"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/Axis1_1D",
+      "type": "vector1",
+      "requirement": "optional"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/Grip_1D",
+      "type": "vector1",
+      "requirement": "optional"
+    },
+    {
+      "name": "/actions/legacy_emulate/in/Pose",
+      "type": "pose"
+    },
+    {
+      "name": "/actions/legacy_emulate/out/Huptic",
+      "type": "vibration"
+    }
+  ],
+  "action_sets": [
+    {
+      "name": "/actions/legacy_emulate",
+      "usage": "single"
+    }
+  ],
+  "default_bindings": [
+    {
+      "controller_type": "vive_controller",
+      "binding_url": "bindings_vive_controller.json"
+    },
+    {
+      "controller_type": "oculus_touch",
+      "binding_url": "bindings_oculus_touch.json"
+    },
+    {
+      "controller_type": "knuckles",
+      "binding_url": "bindings_knuckles.json"
+    },
+    {
+      "controller_type": "holographic_controller",
+      "binding_url": "bindings_holographic_controller.json"
+    },
+    {
+      "controller_type": "vive_cosmos_controller",
+      "binding_url": "bindings_vive_cosmos_controller.json"
+    },
+    {
+      "controller_type": "logitech_stylus",
+      "binding_url": "bindings_logitech_stylus.json"
+    },
+    {
+      "controller_type": "vive_cosmos",
+      "binding_url": "binding_vive_cosmos.json"
+    },
+    {
+      "controller_type": "vive",
+      "binding_url": "binding_vive.json"
+    },
+    {
+      "controller_type": "indexhmd",
+      "binding_url": "binding_index_hmd.json"
+    },
+    {
+      "controller_type": "vive_pro",
+      "binding_url": "binding_vive_pro.json"
+    },
+    {
+      "controller_type": "rift",
+      "binding_url": "binding_rift.json"
+    },
+    {
+      "controller_type": "holographic_hmd",
+      "binding_url": "binding_holographic_hmd.json"
+    },
+    {
+      "controller_type": "vive_tracker_camera",
+      "binding_url": "binding_vive_tracker_camera.json"
+    }
+  ],
+  "localization": [
+    {
+      "language_tag": "en_US",
+      "/actions/legacy_emulate/in/Axis0_Press": "Touchpad (Press)",
+      "/actions/legacy_emulate/in/Axis0_Touch": "Touchpad (Touch)",
+      "/actions/legacy_emulate/in/Axis0_2D": "Touchpad (Location)",
+      "/actions/legacy_emulate/in/Axis1_Press": "Trigger (Press)",
+      "/actions/legacy_emulate/in/Axis1_Touch": "Trigger (Touch)",
+      "/actions/legacy_emulate/in/Axis1_2D": "Trigger (Analog)",
+      "/actions/legacy_emulate/in/Grip_Press": "Vive Grip (Press) | Touch Hand Trigger (Press)",
+      "/actions/legacy_emulate/in/Grip_Touch": "Vive Grip (Touch) | Touch Hand Trigger (Touch)",
+      "/actions/legacy_emulate/in/Grip_2D": "Vive Grip (Analog) | Touch Hand Trigger (Analog)",
+      "/actions/legacy_emulate/in/Axis1_1D": "Trigger (Analog)",
+      "/actions/legacy_emulate/in/Grip_1D": "Grip (Analog)",
+      "/actions/legacy_emulate/in/Pose": "Pose"
+    }
+  ]
+}

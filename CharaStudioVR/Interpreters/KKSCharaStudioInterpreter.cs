@@ -9,7 +9,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using VRGIN.Core;
 
-namespace KKS_VR.Interpreters
+namespace KK_VR.Interpreters
 {
     internal class KKSCharaStudioInterpreter : GameInterpreter
     {
@@ -35,7 +35,7 @@ namespace KKS_VR.Interpreters
             FixMenuCanvasLayers();
         }
 
-        public override Camera FindCamera()
+        public override UnityEngine.Camera FindCamera()
         {
             return null;
         }
@@ -82,7 +82,7 @@ namespace KKS_VR.Interpreters
 
         private void UpdateMainCameraCullingMask()
         {
-            var component = VR.Camera.SteamCam.GetComponent<Camera>();
+            var component = VR.Camera.SteamCam.GetComponent<UnityEngine.Camera>();
             var list = new List<string>();
             var obj = new List<string> { "Studio/Col", "Studio/Select" };
 

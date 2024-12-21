@@ -1,12 +1,12 @@
 using System;
 using System.Collections;
-using KKS_VR.Util;
+using KK_VR.Util;
 using Studio;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
-namespace KKS_VR.Controls
+namespace KK_VR.Controls
 {
     public class IKTool : MonoBehaviour
     {
