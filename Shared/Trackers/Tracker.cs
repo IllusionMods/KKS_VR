@@ -47,7 +47,6 @@ namespace KK_VR.Trackers
 
         internal static void Initialize(IEnumerable<ChaControl> charas)
         {
-            charas = charas.Distinct();
             _referenceTrackDic.Clear();
             foreach (var chara in charas)
             {

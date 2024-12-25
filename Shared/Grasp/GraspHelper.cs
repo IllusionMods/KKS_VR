@@ -40,22 +40,23 @@ namespace KK_VR.Grasp
         internal BaseHold baseHold;
 
         // Switch from chara root to objAnim.
-        private static readonly List<OrigOrient> _origOrientList = [];
+        //private static readonly List<OrigOrient> _origOrientList = [];
 
-        private class OrigOrient
-        {
-            internal OrigOrient(ChaControl chara)
-            {
-                _chara = chara.transform;
-                _position = _chara.position;
-                _rotation = _chara.rotation;
-            }
-            private readonly Transform _chara;
-            private readonly Vector3 _position;
-            private readonly Quaternion _rotation;
+        // Obsolete ?
+        //private class OrigOrient
+        //{
+        //    internal OrigOrient(ChaControl chara)
+        //    {
+        //        _chara = chara.transform;
+        //        _position = _chara.position;
+        //        _rotation = _chara.rotation;
+        //    }
+        //    private readonly Transform _chara;
+        //    private readonly Vector3 _position;
+        //    private readonly Quaternion _rotation;
 
-            internal void Restore() => _chara.SetPositionAndRotation(_position, _rotation);
-        }
+        //    internal void Restore() => _chara.SetPositionAndRotation(_position, _rotation);
+        //}
         private class IKStuff
         {
             internal KK.RootMotion.FinalIK.FullBodyBipedIK newFbik;
@@ -72,11 +73,17 @@ namespace KK_VR.Grasp
             {
                 // Dude will have VRIK. Guess we'll need both and hot swap option for all of them. 
                 // hot swap can't be pretty though, but if it happens on the time of pov exit, then it should be fine.
-                if (chara.sex == 1)
-                {
+
+                // Adapting VRIK proves to be the pure pain. Perhaps will stick to the single mode only for each situation.
+                // One being half animated/half controlled by VRIK, with some boundaries to keep player going nuts in intercourse/service.
+                // Another one fully controlled by VRIK with custom advanced locomotion animController.
+                // Hopefully AgiShark has all the proper animations for advanced locomotion, otherwise I've no clue how to retarget animation for our rig.
+
+                //if (chara.sex == 1)
+                //{
                     AddChara(chara);
-                    _origOrientList.Add(new(chara));
-                }
+                    //_origOrientList.Add(new(chara));
+                //}
             }
         }
         internal void DestroyComponents()
@@ -184,27 +191,22 @@ namespace KK_VR.Grasp
             AddExtraColliders(chara);
             foreach (var bodyPart in _bodyPartsDic[chara])
             {
-                bodyPart.anchor.SetParent(bodyPart.beforeIK, false);
-                if (bodyPart.name == PartName.Head)
+                bodyPart.anchor.SetParent(bodyPart.beforeIK, worldPositionStays: false);
+                if (bodyPart is BodyPartHead head)
                 {
-                    ((BodyPartHead)bodyPart).headEffector.enabled = KoikatuInterpreter.Settings.IKHeadEffector == KoikatuSettings.HeadEffector.Always;
+                    head.headEffector.enabled = KoikatuInterpreter.Settings.IKHeadEffector == KoikatuSettings.HeadEffector.Always;
                 }
                 bodyPart.guide.Init(bodyPart);
 
-                if (KoikatuInterpreter.Settings.IKShowDebug)
+                //if (KoikatuInterpreter.Settings.IKShowDebug)
+                //{
+                //    Fixes.Util.CreatePrimitive(PrimitiveType.Sphere, new Vector3(0.06f, 0.06f, 0.06f), bodyPart.anchor, Color.yellow, 0.5f);
+                //    //Util.CreatePrimitive(PrimitiveType.Sphere, new Vector3(0.12f, 0.12f, 0.12f), bodyPart.afterIK, Color.yellow, 0.4f);
+                //}
+                if (bodyPart.IsLimb())
                 {
-                    Fixes.Util.CreatePrimitive(PrimitiveType.Sphere, new Vector3(0.06f, 0.06f, 0.06f), bodyPart.anchor, Color.yellow, 0.5f);
-                    //Util.CreatePrimitive(PrimitiveType.Sphere, new Vector3(0.12f, 0.12f, 0.12f), bodyPart.afterIK, Color.yellow, 0.4f);
+                    FindColliders(bodyPart, chara);
                 }
-                if (bodyPart.name > PartName.ThighR && bodyPart.name != PartName.Head)
-                {
-                    bodyPart.colliders = FindColliders(chara, bodyPart.name);
-                }
-                else
-                {
-                    bodyPart.colliders = [];
-                }
-
             }
             SetWorkingState(chara);
 
@@ -261,6 +263,7 @@ namespace KK_VR.Grasp
 
             { "khs_f_00", [ 1f, 1f ] },
         };
+
         private readonly List<string> _extraColliders =
         [
             "cf_n_height/cf_j_hips/cf_j_waist01/cf_j_waist02/cf_j_thigh00_L/cf_j_leg01_L/cf_j_leg03_L/cf_j_foot_L/cf_hit_leg02_L",
@@ -282,10 +285,9 @@ namespace KK_VR.Grasp
                 AddFeetCollider(chara.objBodyBone.transform.Find(path));
             }
         }
-        private Dictionary<Collider, bool> FindColliders(ChaControl chara, PartName partName)
+        private void FindColliders(BodyPart bodyPart, ChaControl chara)
         {
-            var dic = new Dictionary<Collider, bool>();
-            foreach (var str in _limbColliders[partName])
+            foreach (var str in _limbColliders[bodyPart.name])
             {
                 var target = chara.objBodyBone.transform.Find(str);
 #if KK
@@ -294,17 +296,16 @@ namespace KK_VR.Grasp
                     var col = target.GetComponent<Collider>();
                     if (col != null)
                     {
-                        dic.Add(col, col.isTrigger);
+                        bodyPart.colliders.Add(col);
                     }
                 }
 #else
                 if (target != null && target.TryGetComponent<Collider>(out var col))
                 {
-                    dic.Add(col, col.isTrigger);
+                    bodyPart.colliders.Add(col);
                 }
 #endif
             }
-            return dic;
         }
 
         internal static void SetWorkingState(ChaControl chara)
@@ -522,7 +523,10 @@ namespace KK_VR.Grasp
         //}
         internal void TouchReaction(ChaControl chara, Vector3 handPosition, Tracker.Body body)
         {
-            if (_auxDic.ContainsKey(chara) && !_auxDic[chara].reaction.IsBusy)
+            if (((KoikatuInterpreter.CurrentScene == KoikatuInterpreter.SceneType.HScene && HSceneInterpreter.mode == HFlag.EMode.aibu)
+                || (KoikatuInterpreter.CurrentScene != KoikatuInterpreter.SceneType.HScene))
+                && _auxDic.ContainsKey(chara) 
+                && !_auxDic[chara].reaction.IsBusy)
             {
                 Features.LoadVoice.PlayVoice(Features.LoadVoice.VoiceType.Short, chara);
                 foreach (var bodyPart in _bodyPartsDic[chara])
@@ -605,9 +609,9 @@ namespace KK_VR.Grasp
         }
 
         
-        internal void StartBaseHold(BodyPart bodyPart, Transform objAnim, Transform attachPoint)
+        internal void StartBaseHold(BodyPart spine, Transform objAnim, Transform attachPoint)
         {
-            baseHold = new BaseHold(bodyPart, objAnim, attachPoint);
+            baseHold = new BaseHold(spine, objAnim, attachPoint);
         }
 
         internal void StopBaseHold()
@@ -628,7 +632,6 @@ namespace KK_VR.Grasp
             _animChange = false;
             _animChangeDic.Clear();
         }
-
         private static readonly Dictionary<PartName, List<string>> _limbColliders = new()
         {
             {

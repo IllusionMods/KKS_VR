@@ -245,7 +245,9 @@ namespace KK_VR.Handlers
         {
             _aibu = mode == HFlag.EMode.aibu;
             if (Instance != null)
+            {
                 Instance.Halt(disengage: false);
+            }
         }
         internal void UpdateOrientationOffsets()
         {

@@ -443,23 +443,21 @@ namespace KK_VR.Holders
             UpdateDynamicBoneColliders();
         }
 
-        /// <summary>
-        /// Sets current item to an empty one and returns it's anchor.
-        /// </summary>
-        internal Transform GetEmptyAnchor()
+
+        internal void OnLimbSyncStart()
         {
-            // Broken probably?
-
             DeactivateItem();
-            _activeItem = _itemList[_itemList.Count - 1];
+            AddLag(10);
+        }
 
+        internal void OnLimbSyncStop()
+        {
             ActivateItem();
-            return _anchor;
+            RemoveLag();
         }
 
 
-
-        internal Transform OnGraspHold()
+        internal void OnGraspHold()
         {
             // We adjust position after release of rigidBody, as it most likely had some velocity on it.
             // Can't arbitrary move controller with this SteamVR version, kinda given tbh.
@@ -472,7 +470,6 @@ namespace KK_VR.Holders
             {
                 Shackle(20);
             }
-            return _anchor;
         }
         internal void Shackle(int amount)
         {
@@ -501,9 +498,9 @@ namespace KK_VR.Holders
             _rigidBody.isKinematic = false;
             _activeOffsetPos = _activeItem.animParam.positionOffset;
         }
-        internal void AddLag(int number)
+        internal void AddLag(int numberOfFrames)
         {
-            _itemLag = new ItemLag(_anchor, KoikatuInterpreter.ScaleWithFps(number));
+            _itemLag = new ItemLag(_anchor, KoikatuInterpreter.ScaleWithFps(numberOfFrames));
         }
         internal void RemoveLag()
         {

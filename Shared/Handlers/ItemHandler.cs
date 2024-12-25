@@ -156,10 +156,10 @@ namespace KK_VR.Handlers
         {
             return tryToAvoidChara == null && preferredSex == -1 ? _tracker.GetGraspBodyPart() : _tracker.GetGraspBodyPart(tryToAvoidChara, preferredSex);
         }
-        internal void RemoveGuideObjects()
-        {
-            _tracker.RemoveGuideObjects();
-        }
+        //internal void RemoveGuideObjects()
+        //{
+        //    _tracker.RemoveGuideObjects();
+        //}
         internal void RemoveCollider(Collider other)
         {
             _tracker.RemoveCollider(other);

@@ -18,37 +18,32 @@ namespace KK_VR.Handlers
         private readonly Transform _origin = VR.Camera.SteamCam.origin;
         private readonly Transform _head = VR.Camera.SteamCam.head;
         private readonly Transform _controller;
-        private readonly int _frameFloor;
-        private readonly int _frameCeiling;
-        //internal int _frameAvg;
+        private readonly int _frameAmount;
+        private readonly float _frameAmountCoef;
         private int _frameIndex;
-        private int _frameCurAmount;
-        private float _frameCurAmountCoef;
         private readonly float[] _frameCoefs;
         private readonly Quaternion[] _prevRotations;
         private readonly Vector3[] _prevPositions;
         private Vector3 _lastAvgPos;
         private bool _resetRequired;
-        internal GripMoveLag(Transform controller, int frameAvg)
+        internal GripMoveLag(Transform controller, int frameAvg, Vector3 inheritedPosition = default)
         {
             _controller = controller;
-            _frameCurAmount = frameAvg;
-            _frameCurAmountCoef = 1f / frameAvg;
-            _frameFloor = frameAvg - 5;
-            _frameCeiling = frameAvg + 5;
-            _prevRotations = new Quaternion[_frameCeiling];
-            _prevPositions = new Vector3[_frameCeiling];
-            _frameCoefs = new float[_frameCeiling];
+            _frameAmount = frameAvg;
+            _frameAmountCoef = 1f / frameAvg;
+            _prevRotations = new Quaternion[frameAvg];
+            _prevPositions = new Vector3[frameAvg];
+            _frameCoefs = new float[frameAvg];
             _lastAvgPos = _controller.position;
 
             // Coefficients can be customized to change rotation follow type, even non-linear should look good.
-            for (var i = 0; i < _frameCeiling; i++)
+            for (var i = 0; i < frameAvg; i++)
             {
                 _frameCoefs[i] = 1f / (i + 2f);
             }
-            var pos = _controller.position;
+            var pos = inheritedPosition == Vector3.zero ? _controller.position : inheritedPosition;
             var rot = Quaternion.identity;
-            for (var i = 0; i < _frameCurAmount; i++)
+            for (var i = 0; i < frameAvg; i++)
             {
                 _prevRotations[i] = rot;
                 _prevPositions[i] = pos;
@@ -59,7 +54,7 @@ namespace KK_VR.Handlers
         /// </summary>
         internal void ResetPositions(Vector3 position)
         {
-            for (var i = 0; i < _frameCeiling; i++)
+            for (var i = 0; i < _frameAmount; i++)
             {
                 _prevPositions[i] = position;
             }
@@ -74,21 +69,21 @@ namespace KK_VR.Handlers
             _resetRequired = true;
             _prevRotations[_frameIndex] = rotation;
             _frameIndex++;
-            if (_frameIndex == _frameCurAmount) _frameIndex = 0;
+            if (_frameIndex == _frameAmount) _frameIndex = 0;
             UpdateRotation();
         }
         private void UpdateRotation()
         {
             // Not average at all, is a biased catch-up. All averages I've seen suck tremendously.
             // The most stale frame is grabbed on init part.
-            var count = _frameCurAmount - 1;
+            var count = _frameAmount - 1;
 
             // The most stale rotation. Doesn't get touched in the loop.
             var avgRot = _prevRotations[_frameIndex];
             var j = _frameIndex;
             for (var i = 0; i < count; i++)
             {
-                if (++j == _frameCurAmount) j = 0;
+                if (++j == _frameAmount) j = 0;
                 avgRot = Quaternion.Lerp(avgRot, _prevRotations[j], _frameCoefs[i]);
             }
             _origin.rotation = avgRot * _origin.rotation;
@@ -108,7 +103,7 @@ namespace KK_VR.Handlers
                 _prevPositions[_frameIndex] = position;
             }
             _frameIndex++;
-            if (_frameIndex == _frameCurAmount) _frameIndex = 0;
+            if (_frameIndex == _frameAmount) _frameIndex = 0;
             UpdatePositionAndRotation();
         }
         internal void SetDeltaPositionAndRotation(Vector3 deltaPosition, Quaternion deltaRotation)
@@ -116,13 +111,13 @@ namespace KK_VR.Handlers
             _prevRotations[_frameIndex] = deltaRotation;
             _prevPositions[_frameIndex] = deltaPosition;
             _frameIndex++;
-            if (_frameIndex == _frameCurAmount) _frameIndex = 0;
+            if (_frameIndex == _frameAmount) _frameIndex = 0;
             UpdateDeltaPositionAndRotation();
         }
         private void UpdateDeltaPositionAndRotation()
         {
             // The most stale frame is grabbed on init part.
-            var count = _frameCurAmount - 1;
+            var count = _frameAmount - 1;
 
             // The most stale rotation. Doesn't get touched in the loop.
             var avgRot = _prevRotations[_frameIndex];
@@ -132,12 +127,12 @@ namespace KK_VR.Handlers
             var j = _frameIndex;
             for (var i = 0; i < count; i++)
             {
-                if (++j == _frameCurAmount) j = 0;
+                if (++j == _frameAmount) j = 0;
                 avgRot = Quaternion.Lerp(avgRot, _prevRotations[j], _frameCoefs[i]);
                 avgPos += _prevPositions[i];
             }
 
-            avgPos *= _frameCurAmountCoef;
+            avgPos *= _frameAmountCoef;
             var preRotPos = _head.position;
             _origin.rotation = avgRot * _origin.rotation;
             _origin.position += (preRotPos - _head.position) + avgPos;
@@ -161,13 +156,13 @@ namespace KK_VR.Handlers
                 _prevPositions[_frameIndex] = _controller.position;
             }
             _frameIndex++;
-            if (_frameIndex == _frameCurAmount) _frameIndex = 0;
+            if (_frameIndex == _frameAmount) _frameIndex = 0;
             UpdatePositionAndRotation();
         }
         private void UpdatePositionAndRotation()
         {
             // The most stale frame is grabbed on init part.
-            var count = _frameCurAmount - 1;
+            var count = _frameAmount - 1;
 
             // The most stale rotation. Doesn't get touched in the loop.
             var avgRot = _prevRotations[_frameIndex];
@@ -177,12 +172,12 @@ namespace KK_VR.Handlers
             var j = _frameIndex;
             for (var i = 0; i < count; i++)
             {
-                if (++j == _frameCurAmount) j = 0;
+                if (++j == _frameAmount) j = 0;
                 avgRot = Quaternion.Lerp(avgRot, _prevRotations[j], _frameCoefs[i]);
                 avgPos += _prevPositions[i];
             }
 
-            avgPos *= _frameCurAmountCoef;
+            avgPos *= _frameAmountCoef;
             var preRotPos = _head.position;
             _origin.rotation = avgRot * _origin.rotation;
             //_origin.position += (preRotPos - _origin.position) + (_lastAvgPos - avgPos);
@@ -203,7 +198,7 @@ namespace KK_VR.Handlers
                 _prevPositions[_frameIndex] = _controller.position;
             }
             _frameIndex++;
-            if (_frameIndex == _frameCurAmount) _frameIndex = 0;
+            if (_frameIndex == _frameAmount) _frameIndex = 0;
             UpdatePosition(inverse: true);
         }
         /// <summary>
@@ -220,28 +215,28 @@ namespace KK_VR.Handlers
             _prevPositions[_frameIndex] = deltaPosition;
             //}
             _frameIndex++;
-            if (_frameIndex == _frameCurAmount) _frameIndex = 0;
+            if (_frameIndex == _frameAmount) _frameIndex = 0;
             UpdatePositionDelta();
         }
         private void UpdatePositionDelta()
         {
             var avgPos = Vector3.zero;
-            for (var i = 0; i < _frameCurAmount; i++)
+            for (var i = 0; i < _frameAmount; i++)
             {
                 avgPos += _prevPositions[i];
             }
-            avgPos *= _frameCurAmountCoef;
+            avgPos *= _frameAmountCoef;
             _origin.position += avgPos;
         }
 
         private void UpdatePosition(bool inverse)
         {
             var avgPos = Vector3.zero;
-            for (var i = 0; i < _frameCurAmount; i++)
+            for (var i = 0; i < _frameAmount; i++)
             {
                 avgPos += _prevPositions[i];
             }
-            avgPos *= _frameCurAmountCoef;
+            avgPos *= _frameAmountCoef;
             if (inverse)
             {
                 _origin.position += _lastAvgPos - avgPos;

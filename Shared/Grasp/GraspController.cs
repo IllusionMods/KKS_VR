@@ -17,6 +17,8 @@ using Unity.Linq;
 using UnityEngine;
 using VRGIN.Core;
 using BodyPart = KK_VR.Grasp.BodyPart;
+using static KK_VR.Grasp.GraspController;
+using System.Runtime.CompilerServices;
 
 namespace KK_VR.Grasp
 {
@@ -30,7 +32,6 @@ namespace KK_VR.Grasp
 
     internal class GraspController
     {
-        //private readonly AnimHelper _animHelper = new();
         private readonly HandHolder _hand;
         private static GraspHelper _helper;
         private static readonly List<GraspController> _instances = [];
@@ -42,14 +43,10 @@ namespace KK_VR.Grasp
             [PartName.ShoulderL, PartName.ShoulderR],
             [PartName.ThighL, PartName.ThighR]
         ];
-        // Clutch.
 
         private ChaControl _heldChara;
         private ChaControl _syncedChara;
 
-        //private static readonly List<BodyPart> _attachedBodyParts = new List<BodyPart>();
-        //private readonly Dictionary<ChaControl, string> _animChangeDic = new Dictionary<ChaControl, string>();
-        // private readonly Dictionary<BodyPart, List<bool>> _disabledCollidersDic = new Dictionary<BodyPart, List<bool>>();
         // For Grip.
         private readonly List<BodyPart> _heldBodyParts = [];
         // For Trigger conditional long press. 
@@ -106,7 +103,6 @@ namespace KK_VR.Grasp
         internal GraspController(HandHolder hand)
         {
             _hand = hand;
-            // visual = GraspVisualizer.Instance;
             _instances.Add(this);
         }
         internal static void Init(IEnumerable<ChaControl> charas)
@@ -162,9 +158,31 @@ namespace KK_VR.Grasp
             _tempHeldBodyParts.Clear();
             UpdateBlackList();
         }
-        private void StopSync()
+        private void StopSync(bool instant)
         {
+            foreach (var bodyPart in _syncedBodyParts)
+            {
+                if (bodyPart.anchor.parent != null && bodyPart.anchor.parent.name.StartsWith("dispos", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Check shouldn't be necessary tbh.
+                    GameObject.Destroy(bodyPart.anchor.parent.gameObject);
+                }
+                bodyPart.anchor.SetParent(bodyPart.beforeIK, worldPositionStays: true);
+                if (instant || KoikatuInterpreter.Settings.ReturnBodyPartAfterSync)
+                {
+                    bodyPart.guide.Sleep(instant);
+                }
+                else
+                {
+                    bodyPart.guide.Stay();
+                }
+                foreach (var collider in bodyPart.colliders)
+                {
+                    collider.enabled = true;
+                }
+            }
             _syncedBodyParts.Clear();
+            _hand.OnLimbSyncStop();
             if (_syncedChara != null)
             {
                 _syncedChara = null;
@@ -191,51 +209,7 @@ namespace KK_VR.Grasp
                 _ => PartName.Spine,
             };
         }
-        /*
-         * Plan.
-         * - Attach currently hooked BodyPart to collider after long Trigger (on release of Trigger)
-         * - On Grip, flush + repurpose tracker, reparent handler to held BodyPart, 
-         * enable big collider on handler, set BodyPart of that character to blacklist alongside our limb (if active).
-         * If trigger pressed while BodyPart is being held with grip and tracker is busy, parent BodyPart to collider.
-         * 
-         * When grabbing body, remove targets from thighs, and put gravity driven rigidBodie + collider on each feet 
-         * and autoTracker-attacher for floor (extra object if ever implemented?)
-         * 
-         * ToLookUp:
-         *     Effector's positionOffset as means to work with underlying animation.
-         *     Re: Doesn't work if we want effector to actually function.
-         * 
-         * 
-         * ToResolve:
-         *   - HitReaction works by default with anim, we need effectors. Repurpose for effector targets?
-         *     kPlug implements something alike, lookUp.
-         *     
-         *     
-         * IKPartsDefinitions:
-         *     Limb - hand/foot
-         *     Joint - shoulder/thigh
-         *     Core - body
-         *     
-         * How we define what to grab.
-         *     - if collider of a hand/forearm or foot/calf:
-         *         * init grab   - we go for Limb,
-         *         * add trigger -
-         *         
-         *     - if collider of thigh/upperArm or groin/upperChest(boobs actually, given how big colliders for them are)
-         *         * init grab   - we go for Joint and corresponding Limb,
-         *         * add trigger - we also add Core to it (its pair too?)
-         *         
-         *     - if body
-         *         * init grab   - based on distance to, we also grab upper/lower joints and their limbs
-         *         * add trigger - we grab everything
-         *         
-         * On joystick click -> reset + turn off (set back to orig target)        
-         * 
-         * Fix broken hitReaction with patch for HitReactionPlay of handCtrl and HitsEffector of type with same name. 
-         * Catch AibuColliderKind that is about to play, and apply corresponding offset at next prefix if bodyPart is active.
-         * 
-         * How to handle head ?
-         */
+
         private PartName GetChild(PartName parent)
         {
             // Shoulders/thighs found separately based on the distance.
@@ -264,21 +238,7 @@ namespace KK_VR.Grasp
             // 0 - Shoulders, 1 - thighs
             return list[0] - 0.1f > list[1] ? PartName.LowerBody : PartName.UpperBody;
         }
-        //private List<BodyPart> FindJoints(List<BodyPart> lstBodyPart, Vector3 pos)
-        //{
-        //    // Finds joint pair that was closer to the core and returns it as abnormal index for further processing.
-        //    var list = new List<float>();
-        //    foreach (var partNames in _jointGroupList)
-        //    {
-        //        // Avg distance to both joints
-        //        list.Add(
-        //            (Vector3.Distance(lstBodyPart[(int)partNames[0]].effector.bone.position, pos)
-        //            + Vector3.Distance(lstBodyPart[(int)partNames[1]].effector.bone.position, pos))
-        //            * 0.5f);
-        //    }
-        //    // 0 - Shoulders, 1 - thighs
-        //    return FindJoint(lstBodyPart, _jointGroupList[list[0] - 0.1f > list[1] ? 1 : 0], pos);
-        //}
+
         private List<PartName> FindJoint(List<BodyPart> lstBodyPart, List<PartName> partNames, Vector3 pos)
         {
             // Works with abnormal index, returns closer joint or both based on the distance.
@@ -307,7 +267,6 @@ namespace KK_VR.Grasp
             var bodyPartList = new List<BodyPart>();
             if (target == PartName.Spine)
             {
-               //VRPlugin.Logger.LogDebug($"GetTargetParts:Add:{target} -> {lstBodyPart[(int)target].name}");
                 bodyPartList.Add(lstBodyPart[(int)target]);
                 target = FindJoints(lstBodyPart, pos);
             }
@@ -358,7 +317,6 @@ namespace KK_VR.Grasp
                 {
                     foreach (var bodyPart in bodyPartsLimbs)
                     {
-                       //VRPlugin.Logger.LogDebug($"OnTrigger:Attach:Grasped:{bodyPart.name} -> {bodyPart.guide.GetTrackTransform.name}");
                         AttachBodyPart(bodyPart, bodyPart.guide.GetTrackTransform, bodyPart.guide.GetChara);
                     }
                     ReleaseBodyParts(heldBodyParts);
@@ -372,12 +330,11 @@ namespace KK_VR.Grasp
             else if (_syncedChara != null)
             {
                 var bodyParts = _syncedBodyParts
-                    .Where(b => b.IsLimb() && b.guide.IsBusy);
+                    .Where(b => b.guide.IsBusy);
                 if (bodyParts.Any())
                 {
                     foreach (var bodyPart in bodyParts)
                     {
-                       //VRPlugin.Logger.LogDebug($"OnTrigger:Attach:Synced:{bodyPart.name} -> {bodyPart.guide.GetTrackTransform.name}");
                         AttachBodyPart(bodyPart, bodyPart.guide.GetTrackTransform, bodyPart.guide.GetChara);
                     }
                     ReleaseBodyParts(bodyParts);
@@ -394,7 +351,6 @@ namespace KK_VR.Grasp
         private bool ExtendGrasp(bool temporarily)
         {
             // Attempts to grasp BodyPart(s) higher in hierarchy or everything if already top.
-           //VRPlugin.Logger.LogDebug($"OnTriggerExtendGrasp:{_heldBodyParts.Count}:{_heldChara}");
             var bodyPartList = _bodyPartsDic[_heldChara];
             var closestToCore = _heldBodyParts
                 .OrderBy(bodyPart => bodyPart.name)
@@ -404,8 +360,6 @@ namespace KK_VR.Grasp
             {
                 nearbyPart = GetParent(closestToCore);
             }
-           //VRPlugin.Logger.LogDebug($"OnTriggerExtendGrasp:Temporarily[{temporarily}]:{closestToCore} -> {nearbyPart}");
-
             var attachPoint = bodyPartList[(int)closestToCore].anchor;
             if (nearbyPart != PartName.Everything)
             {
@@ -422,10 +376,7 @@ namespace KK_VR.Grasp
             {
                 ReleaseBodyParts(bodyPartList);
                 HoldChara();
-                //StopGrasp();
-                //UpdateBlackList();
             }
-            //_hand.Handler.DebugShowActive();
             return true;
         }
         private void HoldChara()
@@ -439,29 +390,26 @@ namespace KK_VR.Grasp
                 ReleaseBodyParts(_tempHeldBodyParts);
                 StopTempGrasp();
                 UpdateBlackList();
-               //VRPlugin.Logger.LogDebug($"OnTriggerRelease");
-                //_hand.Handler.DebugShowActive();
             }
         }
-
+        // Reset currently held body parts.
         internal bool OnTouchpadResetHeld()
         {
             if (_heldBodyParts.Count > 0)
             {
-               //VRPlugin.Logger.LogDebug($"ResetHeldBodyPart[PressVersion]:[Temp]");
-                ResetBodyParts(_heldBodyParts, true);
-                ResetBodyParts(_tempHeldBodyParts, true);
+                ResetBodyParts(_heldBodyParts, false);
+                ResetBodyParts(_tempHeldBodyParts, false);
                 StopGrasp();
-                _hand.Handler.RemoveGuideObjects();
+                //_hand.Handler.ClearTracker();
                 return true;
             }
             return false;
         }
+        // Reset tracking by controller body part if not in default state.
         internal bool OnTouchpadResetActive(Tracker.Body trackerPart, ChaControl chara)
         {
             // We attempt to reset orientation if part was active.
             var baseName = ConvertTrackerToIK(trackerPart);
-           //VRPlugin.Logger.LogDebug($"ResetActiveBodyPart:{trackerPart}:{chara.name}:{baseName}");
             if (baseName != PartName.Spine)
             {
                 var bodyParts = GetTargetParts(_bodyPartsDic[chara], baseName, _hand.Anchor.position);
@@ -474,13 +422,15 @@ namespace KK_VR.Grasp
                         result = true;
                     }
                 }
-                if (result)
-                   //VRPlugin.Logger.LogDebug($"ResetActiveBodyPart[ReleaseVersion]");
-                _hand.Handler.RemoveGuideObjects();
+                //if (result)
+                //{
+                //    _hand.Handler.ClearTracker();
+                //}
                 return result;
             }
             else
             {
+                // If torso - reset whole chara.
                 return OnTouchpadResetEverything(chara, State.Synced);
             }
         }
@@ -495,7 +445,7 @@ namespace KK_VR.Grasp
                     result = true;
                 }
             }
-            _hand.Handler.RemoveGuideObjects();
+            //_hand.Handler.ClearTracker();
             return result;
         }
         internal bool OnMenuPress()
@@ -512,26 +462,30 @@ namespace KK_VR.Grasp
         }
         internal void OnGripPress(Tracker.Body trackerPart, ChaControl chara)
         {
-            if (!_bodyPartsDic.ContainsKey(chara)) return;
-            var bodyPartList = _bodyPartsDic[chara];
-            var controller = _hand.OnGraspHold();
-            var bodyParts = GetTargetParts(bodyPartList, ConvertTrackerToIK(trackerPart), controller.position);
-           //VRPlugin.Logger.LogDebug($"OnGripPress:{trackerPart} -> {bodyParts[0].name}:totally held - {bodyParts.Count}");
-            UpdateGrasp(bodyParts, chara);
-            UpdateBlackList();
-            foreach (var bodyPart in bodyParts)
+            if (_bodyPartsDic.ContainsKey(chara))
             {
-                GraspBodyPart(bodyPart, controller);
+                var anchor = _hand.Anchor;
+                var bodyParts = GetTargetParts(_bodyPartsDic[chara], ConvertTrackerToIK(trackerPart), anchor.position);
+
+                // Update blackList before actual grasp !!!
+                UpdateGrasp(bodyParts, chara);
+                UpdateBlackList();
+                foreach (var bodyPart in bodyParts)
+                {
+                    GraspBodyPart(bodyPart, anchor);
+                }
+                if (MouthGuide.Instance != null)
+                {
+                    MouthGuide.Instance.PauseInteractions = true;
+                }
+                _hand.OnGraspHold();
             }
-            MouthGuide.Instance.PauseInteractions = true;
         }
         internal void OnGripRelease()
         {
-            //VRPlugin.Logger.LogDebug($"OnGripPress");
             if (_helper.baseHold != null)
             {
                 _helper.StopBaseHold();
-                //SyncRoot(_baseHold.chara);
                 StopGrasp();
             }
             else if (_heldBodyParts.Count > 0)
@@ -540,28 +494,25 @@ namespace KK_VR.Grasp
                 ReleaseBodyParts(_tempHeldBodyParts);
                 StopGrasp();
             }
-            //_hand.Handler.DebugShowActive();
         }
         private bool AttemptToScrollBodyPart(bool increase)
         {
             // Only bodyParts directly from the tracker live at 0 index, i.e. firstly interacted with.
-            var firstBodyPart = _heldBodyParts[0];
-            if (firstBodyPart.name == PartName.HandL || firstBodyPart.name == PartName.HandR)
+            if (_heldBodyParts.Count > 0 && (_heldBodyParts[0].name == PartName.HandL || _heldBodyParts[0].name == PartName.HandR))
             {
-                _helper.ScrollHand(firstBodyPart.name, _heldChara, increase);
+                _helper.ScrollHand(_heldBodyParts[0].name, _heldChara, increase);
+                return true;
             }
             else
             {
                 return false;
             }
-            return true;
         }
 
 
 
         internal bool OnBusyHorizontalScroll(bool increase)
         {
-           //VRPlugin.Logger.LogDebug($"OnHorizontalScroll:Busy:");
             if (_helper.baseHold != null)
             {
                 _helper.baseHold.StartBaseHoldScroll(2, increase);
@@ -574,18 +525,15 @@ namespace KK_VR.Grasp
         }
         internal bool OnFreeHorizontalScroll(Tracker.Body trackerPart, ChaControl chara, bool increase)
         {
-           //VRPlugin.Logger.LogDebug($"OnHorizontalScroll:Free:{trackerPart}");
-            //animHelper.DoAnimChange(chara);
-            //return true;
             if (trackerPart == Tracker.Body.HandL || trackerPart == Tracker.Body.HandR)
             {
                 _helper.ScrollHand((PartName)trackerPart, chara, increase);
+                return true;
             }
             else
             {
                 return false;
             }
-            return true;
         }
         internal void OnScrollRelease()
         {
@@ -609,7 +557,14 @@ namespace KK_VR.Grasp
             {
                 _helper.baseHold.StartBaseHoldScroll(1, increase);
             }
-            else
+            else if (_heldBodyParts.Count > 0)
+            {
+                foreach (var bodyPart in _heldBodyParts)
+                {
+                    bodyPart.visual.SetState(increase);
+                }
+            }
+            else 
             {
                 return false;
             }
@@ -622,92 +577,24 @@ namespace KK_VR.Grasp
                 // Attached bodyParts released one by one if they overstretch (not implemented), or by directly grabbing/resetting one.
                 if (bodyPart.state != State.Default && bodyPart.state != State.Attached)
                 {
-                    bodyPart.state = State.Active;
                     bodyPart.guide.Stay();
-                    //}
-                    //else
-                    //{
-                    //    bodyPart.anchor.parent = bodyPart.beforeIK;
-                    //}
-                    bodyPart.visual.Hide();
-                   //VRPlugin.Logger.LogDebug($"ReleaseBodyPart:{bodyPart.anchor.name} -> {bodyPart.beforeIK.name}");
                 }
-                //if (bodyPart.effector == null)
-                //{
-                //    var head = (BodyPartHead)bodyPart;
-                //    head.anchor.rotation = bodyPart.afterIK.rotation;
-                //    head.anchor.position = bodyPart.afterIK.position;
-                //    //head.headEffector.handsPullBody = ;
-                //}
             }
         }
-        // We don't grab whole chara no more, objAnim is sufficient.
-        private void SyncRoot(ChaControl chara)
-        {
-            // 'bodyPart.afterIK' aka 'bodyPart.effector.target.GetComponent<BaseData>().bone' aka 'cf_j_spine01' ->
-            //     bone with: updateOrient = renderOrient while following anim direction
-            //
-            // 'bodyPart.beforeIK' -> bone with: updateOrient = animOrient != renderOrient
-            //
 
-            var bodyPart = _bodyPartsDic[chara][0];
-            ReleaseAnchors(chara);
-            var targetPos = bodyPart.afterIK.position;
-            var charaToAnim = Quaternion.Inverse(bodyPart.beforeIK.rotation) * chara.transform.rotation;
-            var charaToIK = Quaternion.Inverse(bodyPart.afterIK.rotation) * chara.transform.rotation;
-            //var deltaPos = bodyPart.afterIK.position - bodyPart.beforeIK.position;
-            chara.transform.rotation *= (Quaternion.Inverse(charaToIK) * charaToAnim);
-            //chara.animBody.GetComponent<FullBodyBipedIK>().UpdateSolver();
-            chara.transform.position += targetPos - bodyPart.beforeIK.position;
-            //chara.transform.SetPositionAndRotation(chara.transform.position + (bodyPart.afterIK.position - bodyPart.beforeIK.position),
-            //    chara.transform.rotation * (Quaternion.Inverse(chara2afterIK) * chara2anim));
-            SetAnchors(chara);
-        }
-        private void ReleaseAnchors(ChaControl chara)
-        {
-            foreach (var bodyPart in _bodyPartsDic[chara])
-            {
-                bodyPart.anchor.parent = null;
-            }
-        }
-        private void SetAnchors(ChaControl chara)
-        {
-            foreach (var bodyPart in _bodyPartsDic[chara])
-            {
-                bodyPart.anchor.parent = bodyPart.beforeIK;
-            }
-        }
-        private void ResetBodyParts(IEnumerable<BodyPart> bodyPartList, bool transition)
+        private void ResetBodyParts(IEnumerable<BodyPart> bodyPartList, bool instant)
         {
             foreach (var bodyPart in bodyPartList)
             {
                 if (bodyPart.state != State.Default)
                 {
-                    bodyPart.guide.Sleep(!transition);
+                    bodyPart.guide.Sleep(instant);
                 }
             }
         }
-        //private void ResetBodyPart(BodyPart bodyPart, bool transition)
-        //{
-        //    bodyPart.anchor.SetParent(bodyPart.beforeIK, worldPositionStays: transition);
-        //    //if (bodyPart.state == State.Attached)
-        //    //    bodyPart.guide.Follow();
-        //    if (transition)
-        //    {
-        //        _helper.StartTransition(bodyPart);
-        //    }
-        //    else
-        //    {
-        //        //bodyPart.anchor.localRotation = Quaternion.identity;
-        //        //bodyPart.anchor.localPosition = Vector3.zero;
-        //        if (bodyPart.chain != null) 
-        //            bodyPart.chain.bendConstraint.weight = 1f; 
-        //    }
-        //    bodyPart.guide.Sleep();
-        //}
-        internal static void OnPoseChange()
+        internal static void OnSpotPoseChange()
         {
-            // If we are initiated. Everything attaches to charas, they gone - whole grasp too. First chara has master components.
+            // If we are initiated. Everything attaches to charas, they gone - whole grasp too. First chara has master components. But all charas have extra weight on them.
             if (_helper != null)
             {
                 _helper.OnPoseChange();
@@ -722,55 +609,51 @@ namespace KK_VR.Grasp
             _hand.Handler.ClearTracker();
             _helper.StopBaseHold();
             _blackListDic.Clear();
+
+            ResetBodyParts(_heldBodyParts, instant: true);
             _heldBodyParts.Clear();
+
+            ResetBodyParts(_tempHeldBodyParts, instant: true);
             _tempHeldBodyParts.Clear();
+
+            StopSync(instant: true);
             _syncedBodyParts.Clear();
+
             _heldChara = null;
             _syncedChara = null;
         }
 
         private void SyncBodyPart(BodyPart bodyPart, Transform attachPoint)
         {
-            //if (bodyPart.state == State.Translation)
-            //    _helper.StopTransition(bodyPart);
-
-            //bodyPart.guide.Sleep();
-            //bodyPart.guide.SetBodyPartCollidersToTrigger(true);
-            bodyPart.state = State.Synced;
+            foreach (var collider in bodyPart.colliders)
+            {
+                collider.enabled = false;
+            }
             bodyPart.anchor.SetParent(attachPoint, worldPositionStays: true);
-            if (bodyPart.chain != null)
-                bodyPart.chain.bendConstraint.weight = 0f;
-           //VRPlugin.Logger.LogDebug($"SyncBodyPart:{bodyPart.anchor.name} -> {bodyPart.anchor.parent.name}");
+            if (bodyPart.guide is BodyPartGuide bodyGuide)
+            {
+                bodyGuide.OnSyncStart();
+            }
+            bodyPart.chain.bendConstraint.weight = KoikatuInterpreter.Settings.IKDefaultBendConstraint;
         }
+
         // We attach bodyPart to a static object or to ik driven chara.
         // Later has 4 different states during single frame, so we can't parent but follow manually instead.
         private void AttachBodyPart(BodyPart bodyPart, Transform attachPoint, ChaControl chara)
         {
-            bodyPart.visual.Hide();
             if (bodyPart.chain != null)
             {
                 bodyPart.chain.bendConstraint.weight = KoikatuInterpreter.Settings.IKDefaultBendConstraint;
             }
             bodyPart.state = State.Attached;
-            //if (chara == null)
-            //{
-            //    bodyPart.anchor.parent = attachPoint;
-            //}
-            //else
-            {
-                //bodyPart.anchor.parent = null;
-                bodyPart.guide.Attach(attachPoint);
-                //bodyPart.anchor.parent = bodyPart.guide.transform;
-                //_helper.AddAttach(bodyPart, attachPoint);
-            }
-            _hand.Handler.RemoveGuideObjects();
-           //VRPlugin.Logger.LogDebug($"AttachBodyPart:{bodyPart.anchor.name} -> {attachPoint.name}");
+            bodyPart.guide.Attach(attachPoint);
+            
+            //_hand.Handler.RemoveGuideObjects();
         }
 
         private void GraspBodyPart(BodyPart bodyPart, Transform attachPoint)
         {
             bodyPart.guide.Follow(attachPoint, _hand);
-           //VRPlugin.Logger.LogDebug($"GraspBodyPart:{bodyPart.name} -> {bodyPart.anchor.name} -> {bodyPart.anchor.parent.name}");
         }
         private bool IsLimb(PartName partName) => partName > PartName.ThighR && partName < PartName.UpperBody;
         internal bool OnTouchpadSyncStart(Tracker.Body trackerPart, ChaControl chara)
@@ -778,30 +661,34 @@ namespace KK_VR.Grasp
             var partName = ConvertTrackerToIK(trackerPart);
             if (IsLimb(partName))
             {
-               //VRPlugin.Logger.LogDebug($"OnTouchpadSyncLimb:{trackerPart} -> {partName}");
+                VRPlugin.Logger.LogDebug($"Grasp:OnTouchpadSyncStart:{trackerPart} -> {partName}");
                 var bodyPart = _bodyPartsDic[chara][(int)partName];
-                SyncBodyPart(bodyPart, _hand.GetEmptyAnchor());
+
                 var limbIndex = (int)partName - 5;
-                bodyPart.anchor.transform.localPosition = _limbPosOffsets[limbIndex];
-                bodyPart.anchor.transform.localRotation = _limbRotOffsets[limbIndex];
-                bodyPart.chain.pull = 0f;
-                bodyPart.state = State.Synced;
+                var disposable = new GameObject("disposeOnSyncEnd").transform;
+                disposable.SetParent(_hand.Anchor, worldPositionStays: false);
+                disposable.localPosition = _limbPosOffsets[limbIndex];
+                disposable.localRotation = _limbRotOffsets[limbIndex];
+
+                SyncBodyPart(bodyPart, disposable);
+                //bodyPart.anchor.transform.localPosition = _limbPosOffsets[limbIndex];
+                //bodyPart.anchor.transform.localRotation = _limbRotOffsets[limbIndex];
+                //bodyPart.chain.pull = 0f;
                 UpdateSync(bodyPart, chara);
                 UpdateBlackList();
-                _hand.AddLag(10);
+                _hand.OnLimbSyncStart();
+                _hand.Handler.ClearTracker();
+                //_hand.Handler.ClearBlacks();
                 return true;
             }
             return false;
         }
 
-        internal bool OnTouchpadSyncEnd()
+        internal bool OnTouchpadSyncStop()
         {
             if (_syncedBodyParts.Count != 0)
             {
-                ResetBodyParts(_syncedBodyParts, true);
-                StopSync();
-                _hand.ChangeItem();
-                _hand.RemoveLag();
+                StopSync(instant: false);
                 return true;
             }
             return false;
@@ -814,6 +701,7 @@ namespace KK_VR.Grasp
             SyncBlackList(_syncedBodyParts, _syncedChara);
             SyncBlackList(_heldBodyParts, _heldChara);
             SyncBlackList(_tempHeldBodyParts, _heldChara);
+            _hand.Handler.ClearBlacks();
         }
         private void SyncBlackList(List<BodyPart> bodyPartList, ChaControl chara)
         {
@@ -823,20 +711,19 @@ namespace KK_VR.Grasp
             {
                 _blackListDic.Add(chara, []);
             }
-            var blackList = _blackListDic[chara];
             foreach (var bodyPart in bodyPartList)
             {
                 foreach (var entry in _blackListEntries[(int)bodyPart.name])
                 {
-                    if (!blackList.Contains(entry))
-                        blackList.Add(entry);
+                    if (!_blackListDic[chara].Contains(entry))
+                        _blackListDic[chara].Add(entry);
                 }
             }
 
         }
 
 
-        // Parts that we blacklist and not track (for that chara?). Tracker can flush active blacklisted tracks on demand. 
+        // Parts that we blacklist and don't track (for that chara?). Tracker can flush active blacklisted tracks on demand. 
         private static readonly List<List<Tracker.Body>> _blackListEntries =
         [
             // 0
@@ -859,126 +746,11 @@ namespace KK_VR.Grasp
             // 6
             [Tracker.Body.HandR, Tracker.Body.ForearmR, Tracker.Body.ArmR],
             // 7
-            [Tracker.Body.LegL],
+            [Tracker.Body.LegL, Tracker.Body.FootL],
             // 8
-            [Tracker.Body.LegR],
+            [Tracker.Body.LegR, Tracker.Body.FootR],
             // 9
             [Tracker.Body.None],
         ];
-
-        //internal void SyncMaleHand(int index)
-        //{
-        //    //Restore male shoulder parameters to default as shoulder fixing will be disabled when hands are anchored to the controllers
-        //    //bodyPart.parentJointBone.bone = null;
-        //    //bodyPart.parentJointEffector.positionWeight = 0f;
-        //}
-
-        //private void FigureOut()
-        //{
-        //    //Restore male shoulder parameters to default as shoulder fixing will be disabled when hands are anchored to the controllers
-        //    bodyPart.parentJointBone.bone = null;
-        //    bodyPart.parentJointEffector.positionWeight = 0f;
-
-        //    //The effector mode is for changing the way the limb behaves when not weighed in.
-        //    //Free means the node is completely at the mercy of the solver. 
-        //    //(If you have problems with smoothness, try changing the effector mode of the hands to MaintainAnimatedPosition or MaintainRelativePosition
-
-
-        //    //MaintainRelativePositionWeight maintains the limb's position relative to the chest for the arms and hips for the legs. 
-        //    // So if you pull the character from the left hand, the right arm will rotate along with the chest.
-        //    //Normally you would not want to use this behaviour for the legs.
-        //    ik.solver.leftHandEffector.maintainRelativePositionWeight = 1f;
-
-
-        //    // The body effector is a multi-effector, meaning it also manipulates with other nodes in the solver, namely the left thigh and the right thigh
-        //    // so you could move the body effector around and the thigh bones with it. If we set effectChildNodes to false, the thigh nodes will not be changed by the body effector.
-        //    ik.solver.body.effectChildNodes = false;
-
-
-        //    ik.solver.leftArmMapping.maintainRotationWeight = 1f; // Make the left hand maintain its rotation as animated.
-        //    ik.solver.headMapping.maintainRotationWeight = 1f; // Make the head maintain its rotation as animated.
-
-        //    // Keep the "Reach" values at 0 if you don't need them. By default they are 0.05f to improve accuracy.
-        //    // Keep the Spine Twist Weight at 0 if you don't see the need for it.
-        //    // Also setting the "Spine Stiffness", "Pull Body Vertical" and/or "Pull Body Horizontal" to 0 will slightly help the performance.
-        //    //
-        //    // Component variables:
-        //    // fixTransforms - if true, will fix all the Transforms used by the solver to their initial state in each Update. This prevents potential problems with unanimated bones and animator culling with a small cost of performance
-        //    // weight - the solver weight for smoothly blending out the effect of the IK
-        //    // iterations - the solver iteration count. If 0, full body effect will not be calculated. This allows for very easy optimization of IK on character in the distance.
-
-        //}
-        //internal void DetachMaleHand(int index)
-        //{
-        //    var limbIndex = (int)(index == 0 ? LimbName.MaleLeftHand : LimbName.MaleRightHand);
-        //    var limb = limbs[limbIndex];
-
-        //    limb.Effector.target = limb.OrigTarget;
-        //    limb.Anchor.SetActive(false);
-        //    limb.Chain.bendConstraint.weight = 1f;
-        //    limb.Chain.pull = 1f;
-        //}
-
-        //internal void UpdatePlayerIK()
-        //{
-        //    foreach (var hand in maleHands)
-        //    {
-        //        //To prevent excessive stretching or the hands being at a weird angle with the default IKs (e.g., grabing female body parts),
-        //        //if rotation difference between the IK effector and original animation is beyond threshold, set IK weights to 0. 
-        //        //Set IK weights to 1 if otherwise.
-        //        if (!hand.Active) continue;
-        //        if (Quaternion.Angle(hand.Effector.target.rotation, hand.AnimPos.rotation) > 45f)
-        //        {
-        //            hand.Effector.positionWeight = 0f;
-        //            hand.Effector.rotationWeight = 0f;
-        //        }
-        //        else
-        //        {
-        //            hand.Effector.positionWeight = 1f;
-        //            hand.Effector.rotationWeight = 1f;
-        //        }
-        //    }
-        //}
-        /// <summary>
-        /// Release and attach male limbs based on the distance between the attaching target position and the default animation position
-        /// </summary>
-        //private void MaleIKs()
-        //      {
-        //          bool hideGropeHands = setFlag && hFlag.mode != HFlag.EMode.aibu && GropeHandsDisplay.Value < HideHandMode.AlwaysShow;
-
-        //          //Algorithm for the male hands
-        //          for (int i = (int)LimbName.MaleLeftHand; i <= (int)LimbName.MaleRightHand; i++)
-        //          {
-        //              //Assign bone to male shoulder effectors and fix it in place to prevent hands from pulling the body
-        //              //Does not run if male hands are in sync with controllers to allow further movement of the hands
-        //              if (setFlag)
-        //              {
-        //                  limbs[i].ParentJointBone.bone = limbs[i].ParentJointAnimPos;
-        //                  limbs[i].ParentJointEffector.positionWeight = 1f;
-        //              }
-        //          }
-
-        //          //Algorithm for the male feet
-        //          for (int i = (int)LimbName.MaleLeftFoot; i <= (int)LimbName.MaleRightFoot; i++)
-        //          {
-        //              //Release the male feet from attachment if streched beyond threshold
-        //              if (limbs[i].AnchorObj && !limbs[i].Fixed && (limbs[i].Effector.target.position - limbs[i].AnimPos.position).magnitude > 0.2f)
-        //              {
-        //                  FixLimbToggle(limbs[i]);
-        //              }
-        //              else
-        //              {
-        //                  limbs[i].Effector.positionWeight = 1f;
-        //              }
-        //          }
-
-        //          if (setFlag)
-        //          {
-        //              //Fix male hips to animation position to prevent male genital from drifting due to pulling from limb chains
-        //              male_hips_bd.bone = male_cf_pv_hips;
-        //              maleFBBIK.solver.bodyEffector.positionWeight = 1f;
-        //              maleFBBIK.solver.bodyEffector.rotationWeight = 1f;
-        //          }
-        //      }
     }
 }

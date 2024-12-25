@@ -22,17 +22,19 @@ namespace KK_VR.Handlers
     {
         protected class Translate
         {
-            internal Translate(Transform anchor, Action onFinish)
+            internal Translate(Transform anchor, Action onStep, Action onFinish)
             {
                 _anchor = anchor;
                 _offsetPos = anchor.localPosition;
                 _offsetRot = anchor.localRotation;
+                _onStep = onStep;
                 _onFinish = onFinish;
             }
             private float _lerp;
             private readonly Transform _anchor;
             private readonly Quaternion _offsetRot;
             private readonly Vector3 _offsetPos;
+            private readonly Action _onStep;
             private readonly Action _onFinish;
 
             internal void DoStep()
@@ -41,8 +43,11 @@ namespace KK_VR.Handlers
                 var step = Mathf.SmoothStep(0f, 1f, _lerp);
                 _anchor.localPosition = Vector3.Lerp(_offsetPos, Vector3.zero, step);
                 _anchor.localRotation = Quaternion.Lerp(_offsetRot, Quaternion.identity, step);
-                if (_lerp >= 1f) _onFinish.Invoke();
-                //VRPlugin.Logger.LogDebug($"Translate:{_lerp}:{_anchor.localPosition}:{_anchor.localRotation.eulerAngles}");
+                _onStep?.Invoke();
+                if (_lerp >= 1f)
+                {
+                    _onFinish?.Invoke();
+                }
             }
         }
 
@@ -108,6 +113,7 @@ namespace KK_VR.Handlers
         /// </summary>
         internal void Sleep(bool instant)
         {
+            BodyPart.state = Grasp.GraspController.State.Active;
             _hand = null;
             _follow = false;
             _attach = false;
@@ -120,7 +126,7 @@ namespace KK_VR.Handlers
             else
             {
                 BodyPart.state = Grasp.GraspController.State.Translation;
-                _translate = new(_anchor, Disable);
+                _translate = new(_anchor, null, Disable);
             }
             BodyPart.visual.Hide();
         }
@@ -149,6 +155,8 @@ namespace KK_VR.Handlers
         //        //VRPlugin.Logger.LogDebug($"{_bodyPart.name} set {kv.Key.name}.Trigger = {kv.Key.isTrigger}[{kv.Value}]");
         //    }
         //}
+
+
 
         protected override void OnTriggerEnter(Collider other)
         {

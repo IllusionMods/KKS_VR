@@ -80,6 +80,7 @@ namespace KK_VR.Features
         private bool _sync;
         private float _syncTimestamp;
         private Vector3 _prevFramePos;
+        private bool _forceHideHead;
 
 
         private Vector3 GetEyesPosition() => _targetEyes.TransformPoint(_offsetVecEyes);
@@ -517,7 +518,7 @@ namespace KK_VR.Features
         {
             if (_active && KoikatuInterpreter.Settings.HideHeadInPOV && _target != null)
             {
-                HideHead(_target);
+                HideHeadEx(_target);
                 if (_prevTarget != null)
                 {
                     HideHead(_prevTarget);
@@ -525,6 +526,17 @@ namespace KK_VR.Features
             }
         }
 
+        private void HideHeadEx(ChaControl chara)
+        {
+            if (_forceHideHead)
+            {
+                chara.fileStatus.visibleHeadAlways = false;
+            }
+            else
+            {
+                HideHead(chara);
+            }
+        }
         private void HideHead(ChaControl chara)
         {
             //if (_mode != Mode.Follow || _newAttachPoint)
@@ -575,6 +587,10 @@ namespace KK_VR.Features
         //    // We are ready to sync limb.
         //    return false;
         //}
+        internal void OnLimbSync(bool start)
+        {
+            _forceHideHead = start;
+        }
     }
 }
 

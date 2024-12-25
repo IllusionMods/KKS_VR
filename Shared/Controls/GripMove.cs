@@ -9,6 +9,7 @@ using VRGIN.Helpers;
 using UnityEngine;
 using KK_VR.Handlers;
 using KK_VR.Holders;
+using KK_VR.Interpreters;
 
 namespace KK_VR.Controls
 {
@@ -38,10 +39,10 @@ namespace KK_VR.Controls
         private bool _alterYaw;
         private bool _alterRotation;
 
-
         private Vector3 _prevPos;
         private Quaternion _prevRot;
-
+        private readonly bool _rotInPlace = KoikatuInterpreter.Settings.GripMoveLimitRotation;
+        
         internal GripMove(HandHolder hand, HandHolder otherHand)
         {
             _main = true;
@@ -116,7 +117,19 @@ namespace KK_VR.Controls
                             {
                                 if (_attachPoint == null)
                                 {
-                                    _moveLag.SetPositionAndRotation(deltaRot);
+                                    if (_rotInPlace)
+                                    {
+                                        var head = VR.Camera.SteamCam.head;
+                                        var preRotPos = head.position;
+                                        _moveLag.SetDeltaRotation(deltaRot);
+                                        origin.position += preRotPos - head.position;
+                                    }
+                                    else
+                                    {
+                                        _moveLag.SetDeltaRotation(deltaRot);
+                                        origin.position += (_prevPos - _controller.position);
+                                    }
+                                    //_moveLag.SetPositionAndRotation(deltaRot);
                                 }
                                 else
                                 {
@@ -132,11 +145,15 @@ namespace KK_VR.Controls
                             {
                                 if (_attachPoint == null)
                                 {
-                                    var deltaRotY = Quaternion.Euler(0f, deltaRot.eulerAngles.y, 0f);
-                                    _moveLag.SetPositionAndRotation(
-                                        _controller.transform.position +
-                                        deltaRotY * (origin.position - new Vector3(_controller.position.x, origin.position.y, _controller.position.z)),
-                                        deltaRotY);
+                                    _moveLag.SetDeltaRotation(Quaternion.Euler(0f, deltaRot.eulerAngles.y, 0f));
+                                    origin.position += _prevPos - _controller.position;
+
+                                    //_moveLag.SetPositionAndRotation(
+                                    //    //origin.position +
+                                    //    _controller.transform.position +
+                                    //    deltaRotY * vec,
+                                    //    //deltaRotY * (origin.position - new Vector3(_controller.position.x, origin.position.y, _controller.position.z)),
+                                    //    deltaRotY);
                                 }
                                 else
                                 {
@@ -148,7 +165,6 @@ namespace KK_VR.Controls
                                     _prevAttachVec = newAttachVec;
                                     _prevAttachPos = _attachPoint.position;
                                 }
-
                             }
 
                         }
@@ -193,7 +209,7 @@ namespace KK_VR.Controls
             _moveLag = new GripMoveLag(_controller, avgFrame);
         }
         internal void StopLag()
-        {
+        {   
             _moveLag = null;
             _attachPoint = null;
         }
@@ -202,16 +218,33 @@ namespace KK_VR.Controls
             _alterYaw = press;
             if (press)
             {
-                UpdateAttachVec();
+                UpdateAttachVec(); 
+                if (_moveLag == null && KoikatuInterpreter.Settings.GripMoveStabilize == Settings.KoikatuSettings.GripMoveStabilization.YawAndRotation)
+                {
+                    _moveLag = new GripMoveLag(_controller, KoikatuInterpreter.ScaleWithFps(KoikatuInterpreter.Settings.GripMoveStabilizationAmount));
+                }
             }
         }
 
         internal void OnTouchpad(bool press)
         {
             _alterRotation = press;
-            if (!press)
+            if (press)
+            {
+                if (_moveLag == null
+                    && (KoikatuInterpreter.Settings.GripMoveStabilize == Settings.KoikatuSettings.GripMoveStabilization.YawAndRotation
+                    || KoikatuInterpreter.Settings.GripMoveStabilize == Settings.KoikatuSettings.GripMoveStabilization.OnlyRotation))
+                {
+                    _moveLag = new GripMoveLag(_controller, KoikatuInterpreter.ScaleWithFps(KoikatuInterpreter.Settings.GripMoveStabilizationAmount));
+                }
+            }
+            else
             {
                 UpdateAttachVec();
+                if (_attachPoint == null && _moveLag != null && KoikatuInterpreter.Settings.GripMoveStabilize ==  Settings.KoikatuSettings.GripMoveStabilization.OnlyRotation)
+                {
+                    _moveLag = null;
+                }
             }
         }
         private void UpdateAttachVec()
@@ -220,7 +253,7 @@ namespace KK_VR.Controls
 
             if (_moveLag != null && _attachPoint != null)
             {
-                _prevAttachVec = VR.Camera.Head.TransformPoint(new Vector3(0f, 0.05f, 0f)) - _attachPoint.position;
+                _prevAttachVec = VR.Camera.SteamCam.head.TransformPoint(new Vector3(0f, 0.05f, 0f)) - _attachPoint.position;
             }
         }
     }

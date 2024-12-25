@@ -87,6 +87,7 @@ Available in **H, Talk and Text Scenes** when interacting with a character i.e. 
 * **Trigger** while in *Grasp* to extend the amount of held body parts temporarily. Registers after *LongPress*.
 * **Touchpad** while in *Grasp* to reset currently held body parts to default offsets.
 * **Touchpad** while not in *Grasp* to reset relevant body part to the default offset. Registers after *LongPress*.
+* **Touchpad** while not in *Grasp* but in *Impersonation* to start or stop the synchronization of a relevant limb with the controller. Registers after *LongPress*.
 * **DirectionHorizontal** while in *Grasp* and the main held body part is a hand to scroll through hand animations. Goes full circle then resets to the animation's default.
 * **DirectionHorizontal** while in *Grasp* and holding whole character to change *Yaw* of a character.
 * **DirectionVertical** while in *Grasp* and holding whole character to move said character in direction of the camera.

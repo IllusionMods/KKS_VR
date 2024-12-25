@@ -28,7 +28,7 @@ namespace KK_VR.Grasp
         // Default component. We need it to not upset default code when animator changes state.
         internal readonly BaseData baseData;
         internal State state;
-        internal Dictionary<Collider, bool> colliders = [];
+        internal List<Collider> colliders = [];
         // Component responsible for moving and collider tracking.
         internal readonly PartGuide guide;
         // Primitive to show attachment point.
@@ -72,10 +72,14 @@ namespace KK_VR.Grasp
                         chain.pushParent = 0f;
                     }
                     chain.pushSmoothing = KK.RootMotion.FinalIK.FBIKChain.Smoothing.Cubic;
-                    // To my surprise i couldn't make reach run in game or editor. 
+                    // To my surprise i couldn't make "chain.reach" to run in the game or editor. 
                     // old one has reach working just fine with seemingly the same config.
                     chain.reach = 0f;
+
+                    // Purely aesthetic offset. The gameObject can be moved freely with no repercussions. 
+                    guide.transform.localPosition = new(_name == PartName.HandL ? -0.05f : 0.05f, -0.015f, 0f);
                 }
+
             }
             else
             {

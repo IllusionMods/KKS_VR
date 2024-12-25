@@ -166,19 +166,20 @@ namespace KK_VR.Trackers
             }
             return false;
         }
-        internal void RemoveGuideObjects()
-        {
-            for (var i = 0; i < _trackList.Count; i++)
-            {
-                if (_trackList[i].name.EndsWith("Guide", StringComparison.Ordinal))
-                {
-                    _trackList.RemoveAt(i);
-                    i--;
-                }
+        //internal void RemoveGuideObjects()
+        //{
+        //    // This one is obsolete most likely.
+        //    for (var i = 0; i < _trackList.Count; i++)
+        //    {
+        //        if (_trackList[i].name.EndsWith("Guide", StringComparison.Ordinal))
+        //        {
+        //            _trackList.RemoveAt(i);
+        //            i--;
+        //        }
 
-            }
-            SetState();
-        }
+        //    }
+        //    SetState();
+        //}
         /// <param name="preferredSex">0 - male, 1 - female, -1 ignore</param>
         internal Body GetGraspBodyPart(ChaControl tryToAvoidChara = null, int preferredSex = -1)
         {

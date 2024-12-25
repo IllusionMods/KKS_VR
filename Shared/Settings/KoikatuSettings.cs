@@ -192,7 +192,18 @@ namespace KK_VR.Settings
             }
         }
         private ShadowType _shadowsOptimization;
-        public float TouchReaction {  get; set; }
+        public float TouchReaction { get; set; }
+        public bool ReturnBodyPartAfterSync { get; set; }
+        public GripMoveStabilization GripMoveStabilize { get; set; }
+        public bool GripMoveLimitRotation {  get; set; }
+        public int GripMoveStabilizationAmount { get; set; }
+        public enum GripMoveStabilization
+        {
+            None,
+            YawAndRotation,
+            OnlyRotation,
+        }
+
         public enum HeadEffector
         {
             Disabled,

@@ -5,6 +5,8 @@ using System.Text;
 using static KK_VR.Grasp.GraspController;
 using UnityEngine;
 using KK_VR.Fixes;
+using KK_VR.Settings;
+using KK_VR.Interpreters;
 
 namespace KK_VR.Grasp
 {
@@ -12,6 +14,7 @@ namespace KK_VR.Grasp
     {
         internal readonly GameObject gameObject;
         private readonly Renderer _renderer;
+        private bool _enable = KoikatuInterpreter.Settings.ShowGuideObjects;
         private readonly static List<Color> _colors =
         [
             new(1f, 0f, 0f, 0.2f), // Red
@@ -31,8 +34,16 @@ namespace KK_VR.Grasp
             _renderer = gameObject.GetComponent<Renderer>();
             _renderer.enabled = false;
         }
-        internal void Show() => _renderer.enabled = true;
+        internal void Show() => _renderer.enabled = _enable && true;
         internal void Hide() => _renderer.enabled = false;
+        internal void SetState(bool state)
+        {
+            _enable = state; 
+            if (!state)
+            {
+                Hide();
+            }
+        }
         internal void SetColor(bool active)
         {
             _renderer.material.color = active ? _colors[1] : _colors[3];

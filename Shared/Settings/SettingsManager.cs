@@ -35,7 +35,8 @@ namespace KK_VR.Settings
         public const string SectionH = "3. H Scene";
         public const string SectionPov = "4. Impersonation (PoV)";
         public const string SectionIK = "5. Inverse Kinematics (IK)";
-        public const string SectionPerformance = "6. Performance";
+        public const string SectionGripMove = "6. GripMove";
+        public const string SectionPerformance = "7. Performance";
 
         public static ConfigEntry<bool> EnableBoop { get; private set; }
         /// <summary>
@@ -351,6 +352,36 @@ namespace KK_VR.Settings
                     null,
                     new ConfigurationManagerAttributes { Order = -10 }));
             Tie(shadowType, v => settings.ShadowsOptimization = v);
+
+            var returnSyncBodyPart = config.Bind(SectionIK, "Return after sync", true,
+                new ConfigDescription(
+                    "Return limb to the default state when sync stops.",
+                    null,
+                    new ConfigurationManagerAttributes { Order = -8 }));
+            Tie(returnSyncBodyPart, v => settings.ReturnBodyPartAfterSync = v);
+
+            var stabilizeGripMove = config.Bind(SectionGripMove, "Stabilization", KoikatuSettings.GripMoveStabilization.OnlyRotation,
+                new ConfigDescription(
+                    "",
+                    null,
+                    new ConfigurationManagerAttributes { Order = 10 }));
+            Tie(stabilizeGripMove, v => settings.GripMoveStabilize = v);
+
+            var gripMoveStabilizationAmount = config.Bind(SectionGripMove, "Stabilization amount", 10,
+                new ConfigDescription(
+                    "The bigger the number, the more 'average' rotation is",
+                     new AcceptableValueRange<int>(5, 20),
+                    new ConfigurationManagerAttributes { Order = 9 }));
+            Tie(gripMoveStabilizationAmount, v => settings.GripMoveStabilizationAmount = v);
+
+            var gripMoveLimitRotation = config.Bind(SectionGripMove, "Limit movement", false,
+                new ConfigDescription(
+                    "Disable the position adjustment during rotation.",
+                    null,
+                    new ConfigurationManagerAttributes { Order = 0 }));
+            Tie(gripMoveLimitRotation, v => settings.GripMoveLimitRotation = v);
+
+
 
             //void updateKeySets()
             //{

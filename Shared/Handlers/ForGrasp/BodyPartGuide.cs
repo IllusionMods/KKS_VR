@@ -1,5 +1,6 @@
 ﻿using KK.RootMotion.FinalIK;
 using KK_VR.Fixes;
+using KK_VR.Grasp;
 using KK_VR.Handlers;
 using KK_VR.Holders;
 using KK_VR.IK;
@@ -151,12 +152,25 @@ namespace KK_VR.Handlers
             _attach = true;
             _target = target;
 
+            _bodyPart.visual.Hide();
+
             _translateExOffset = _anchor.position - _bodyPart.afterIK.position;
 
             _offsetRot = Quaternion.Inverse(_target.rotation) * _anchor.rotation;
             _offsetPos = _target.InverseTransformPoint(_anchor.position);
             //transform.parent = _objAnim;
         }
+
+        internal void OnSyncStart()
+        {
+            _bodyPart.state = State.Synced;
+            _translate = new Translate(_anchor, () => _effector.maintainRelativePositionWeight -= Time.deltaTime, () => _translate = null);
+        }
+
+        //private void SyncFinish()
+        //{
+        //    ;
+        //}
 
         private void Update()
         {
@@ -199,7 +213,6 @@ namespace KK_VR.Handlers
                     _translate.DoStep();
                 }
             }
-
         }
         private void LateUpdate()
         {
@@ -228,6 +241,7 @@ namespace KK_VR.Handlers
         //        }
         //    }
         //}
+
     }
 }
 

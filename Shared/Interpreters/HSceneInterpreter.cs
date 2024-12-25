@@ -133,13 +133,13 @@ namespace KK_VR.Interpreters
 
             var charas = new List<ChaControl>() { male };
             charas.AddRange(lstFemale);
+            var distinctCharas = charas.Distinct();
+            VRBoop.RefreshDynamicBones(distinctCharas);
 
-            VRBoop.RefreshDynamicBones(charas);
-
-            SceneExtras.EnableDynamicBones(charas);
-            SceneExtras.AddTalkColliders(charas);
-            SceneExtras.AddHColliders(charas);
-            GraspController.Init(charas);
+            SceneExtras.EnableDynamicBones(distinctCharas);
+            SceneExtras.AddTalkColliders(distinctCharas);
+            SceneExtras.AddHColliders(distinctCharas);
+            GraspController.Init(distinctCharas);
 
             var mouthGuide = new GameObject("MouthGuide") { layer = 10 }.transform;
             mouthGuide.SetParent(VR.Camera.transform, false);
@@ -154,7 +154,7 @@ namespace KK_VR.Interpreters
 //#if KKS
 //            MeshCollider.AddRascal(lstFemale[0]);
 //#endif
-            HitReactionInitialize(charas);
+            HitReactionInitialize(distinctCharas);
             LocationPicker.AddComponents();
             // If disabled, camera won't know where to move.
 #if KK
@@ -723,7 +723,7 @@ namespace KK_VR.Interpreters
                     {
                         if (handler.IsBusy)
                         {
-                           //VRPlugin.Logger.LogDebug($"PickButtonAction:Touchpad:Busy");
+                            VRPlugin.Logger.LogDebug($"PickButtonAction:Touchpad:Busy");
                             //if (!_pov.TryDisable(handler.GetPartName(), handler.GetChara))
                             //{
                             handler.UpdateTracker(tryToAvoid: PoV.Active ? PoV.Target : null);
@@ -738,12 +738,10 @@ namespace KK_VR.Interpreters
                                 var chara = handler.GetChara;
                                 //if (!_pov.HandleDirect(chara))
                                 //{
-                                    if (PoV.Active && PoV.Target == chara)
-                                    {
-                                        grasp.OnTouchpadSyncStart(handler.GetTrackPartName(), handler.GetChara);
-
-                                        //handler.FlushBlack();
-                                    }
+                                if (PoV.Active && PoV.Target == chara && grasp.OnTouchpadSyncStart(handler.GetTrackPartName(), chara))
+                                {
+                                    _pov.OnLimbSync(start: true);
+                                }
                                 //}
                             }
                             //}
@@ -751,10 +749,14 @@ namespace KK_VR.Interpreters
                         }
                         else
                         {
-                           //VRPlugin.Logger.LogDebug($"PickButtonAction:Touchpad:Sleep");
-                            if (!HandHolder.GetHand(wait.index).Grasp.OnTouchpadSyncEnd())
+                            VRPlugin.Logger.LogDebug($"PickButtonAction:Touchpad:Free");
+                            if (HandHolder.GetHand(wait.index).Grasp.OnTouchpadSyncStop())
                             {
-                               //VRPlugin.Logger.LogDebug($"PoV:Handle:Enable:");
+                                //VRPlugin.Logger.LogDebug($"PoV:Handle:Enable:");
+                                _pov.OnLimbSync(start: false);
+                            }
+                            else
+                            {
                                 _pov.TryEnable();
                             }
                         }
@@ -1198,15 +1200,20 @@ namespace KK_VR.Interpreters
                 _ => anim.mode,
             };
             adjustDirLight = true;
-            GraspController.OnPoseChange();
+            GraspController.OnSpotPoseChange();
             MouthGuide.OnPoseChange(anim.mode);
-            SceneExtras.EnableDynamicBones(male);
+            if (male != null)
+            {
+                // KK has it by default? KKS definitely disables them for male.
+                SceneExtras.EnableDynamicBones(male);
+            }
         }
-        internal void OnSpotChangePost()
+        internal static void OnSpotChange()
         {
             adjustDirLight = true;
             //_pov.OnSpotChange();
             //GraspHelper.Instance.OnSpotChangePost();
+            GraspController.OnSpotPoseChange();
 
         }
         private void Insert(bool noVoice, bool anal)

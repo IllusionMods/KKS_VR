@@ -75,7 +75,6 @@ namespace KK_VR.Grasp
         internal void End()
         {
             _end = true;
-            
         }
         internal void Update()
         {

@@ -113,8 +113,8 @@ namespace KK_VR.Camera
         [HarmonyPatch(typeof(HSceneProc), nameof(HSceneProc.ChangeAnimator))]
         public static void PostChangeAnimator(HSceneProc.AnimationListInfo _nextAinmInfo, bool _isForceCameraReset, HSceneProc __instance, List<ChaControl> ___lstFemale)
         {
-            UpdateVRCamera(__instance, ___lstFemale);
             HSceneInterpreter.OnPoseChange(_nextAinmInfo);
+            UpdateVRCamera(__instance, ___lstFemale);
 #if KKS
             Fixes.ObiCtrlFix.SetFluidsState(false);
 #endif
@@ -124,8 +124,7 @@ namespace KK_VR.Camera
         [HarmonyPatch(typeof(HSceneProc), nameof(HSceneProc.ChangeCategory))]
         public static void PostChangeCategory(HSceneProc __instance, List<ChaControl> ___lstFemale)//, float __state)
         {
-            if (KoikatuInterpreter.SceneInterpreter is HSceneInterpreter hScene)
-                hScene.OnSpotChangePost();
+            HSceneInterpreter.OnSpotChange();
             UpdateVRCamera(__instance, ___lstFemale);
 
 #if KKS
