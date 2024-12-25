@@ -110,15 +110,19 @@ namespace KK_VR.Grasp
             _bodyPartsDic.Clear();
             foreach (var inst in _instances)
             {
-                inst._blackListDic.Clear();
+                inst.HardReset();
             }
             if (_helper == null)
             {
                 _helper = charas.First().gameObject.AddComponent<GraspHelper>();
                 _helper.Init(charas, _bodyPartsDic);
+                VRPlugin.Logger.LogWarning($"Grasp:Init");
+            }
+            else
+            {
+                VRPlugin.Logger.LogError($"Grasp:Init - wrong state, Grasp already exists");
             }
         }
-
         private void UpdateGrasp(BodyPart bodyPart, ChaControl chara)
         {
             _heldChara = chara;
@@ -535,6 +539,7 @@ namespace KK_VR.Grasp
                 return false;
             }
         }
+
         internal void OnScrollRelease()
         {
             if (_helper.baseHold != null)
@@ -546,6 +551,7 @@ namespace KK_VR.Grasp
                 _helper.StopScroll();
             }
         }
+
         internal bool OnVerticalScroll(bool increase)
         {
             //if (_heldChara != null)
@@ -570,6 +576,7 @@ namespace KK_VR.Grasp
             }
             return true;
         }
+
         private void ReleaseBodyParts(IEnumerable<BodyPart> bodyPartsList)
         {
             foreach (var bodyPart in bodyPartsList)
@@ -600,11 +607,11 @@ namespace KK_VR.Grasp
                 _helper.OnPoseChange();
                 foreach (var inst in _instances)
                 {
-                    inst.Reset();
+                    inst.SoftReset();
                 }
             }
         }
-        private void Reset()
+        private void SoftReset()
         {
             _hand.Handler.ClearTracker();
             _helper.StopBaseHold();
@@ -619,6 +626,16 @@ namespace KK_VR.Grasp
             StopSync(instant: true);
             _syncedBodyParts.Clear();
 
+            _heldChara = null;
+            _syncedChara = null;
+        }
+
+        private void HardReset()
+        {
+            _blackListDic.Clear();
+            _heldBodyParts.Clear();
+            _tempHeldBodyParts.Clear();
+            _syncedBodyParts.Clear();
             _heldChara = null;
             _syncedChara = null;
         }

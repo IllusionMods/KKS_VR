@@ -381,7 +381,19 @@ namespace KK_VR.Settings
                     new ConfigurationManagerAttributes { Order = 0 }));
             Tie(gripMoveLimitRotation, v => settings.GripMoveLimitRotation = v);
 
+            var shortPress = config.Bind(SectionGeneral, "Short press", 0.35f,
+                new ConfigDescription(
+                    "",
+                     new AcceptableValueRange<float>(0.1f, 0.5f),
+                    new ConfigurationManagerAttributes { Order = -19 }));
+            Tie(shortPress, v => settings.ShortPress = v);
 
+            var longPress = config.Bind(SectionGeneral, "Long press", 0.7f,
+                new ConfigDescription(
+                    "",
+                     new AcceptableValueRange<float>(0.5f, 1f),
+                    new ConfigurationManagerAttributes { Order = -20 }));
+            Tie(longPress, v => settings.LongPress = v);
 
             //void updateKeySets()
             //{

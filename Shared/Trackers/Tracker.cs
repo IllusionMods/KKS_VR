@@ -181,10 +181,10 @@ namespace KK_VR.Trackers
 
         internal void DebugShowActive()
         {
-           //VRPlugin.Logger.LogDebug($"ActiveTracks.");
+           VRPlugin.Logger.LogDebug($"Tracker:ActiveTracks");
             foreach (var track in _trackList)
             {
-               //VRPlugin.Logger.LogDebug($"* {track.name}");
+               VRPlugin.Logger.LogDebug($"* {track.name}");
             }
         }
 

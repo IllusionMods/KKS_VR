@@ -78,6 +78,27 @@ namespace KK_VR.Interpreters
                 // Init too early will throw a wrench into VRGIN's init.
                 CreateHands();
             }
+#if KK
+            // KK in roaming mode has absurd colliders on main layers everywhere.
+            // Pretty sure those serve no purpose (sky collider with 10 000? size)
+            // RigidBodies of hand models can't function at all under those conditions,
+            // as the colliders also translate to Talk/H scenes.
+            var map = GameObject.Find("Map");
+            if (map != null)
+            {
+                foreach (Transform child in map.transform)
+                {
+                    if (child.name.StartsWith("mo_koi_sky_", System.StringComparison.OrdinalIgnoreCase))
+                    {
+                        var collider = child.GetComponent<Collider>();
+                        if (collider != null)
+                        {
+                            Component.Destroy(collider);
+                        }
+                    }
+                }
+            }
+#endif
             if (_settings.FixMirrors)
             {
                 foreach (var reflection in GameObject.FindObjectsOfType<MirrorReflection>())

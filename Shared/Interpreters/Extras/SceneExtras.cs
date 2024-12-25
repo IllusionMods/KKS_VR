@@ -60,11 +60,11 @@ namespace KK_VR.Interpreters
         }
         internal static void AddTalkColliders(IEnumerable<ChaControl> charas)
         {
-            AddColliders(charas.Distinct(), _talkColliders);
+            AddColliders(charas, _talkColliders);
         }
         internal static void AddHColliders(IEnumerable<ChaControl> charas)
         {
-            AddColliders(charas.Distinct(), _hColliders);
+            AddColliders(charas, _hColliders);
         }
 
         private static void AddColliders(IEnumerable<ChaControl> charas, string[,] colliders)

@@ -59,7 +59,9 @@ namespace KK_VR.Interpreters
         internal virtual void OnDirectionUp(int index, Controller.TrackpadDirection direction)
         {
             if (IsWait)
+            {
                 PickAction(index, direction);
+            }
         }
         protected virtual bool OnTrigger(int index, bool press)
         {
@@ -78,6 +80,9 @@ namespace KK_VR.Interpreters
             }
             return false;
         }
+        /// <summary>
+        /// Return false to start GripMove.
+        /// </summary>
         protected virtual bool OnGrip(int index, bool press)
         {
             if (press)
@@ -90,16 +95,20 @@ namespace KK_VR.Interpreters
                 _grip = Grip.None;
                 _pressedButtons[index, 1] = false;
             }
-            // Return false for GripMove.
             return false;
         }
         protected virtual bool OnTouchpad(int index, bool press)
         {
             if (press)
             {
+                _pressedButtons[index, 2] = true;
+
                 if (_grip == Grip.Move)
                 {
-                    AddWait(index, EVRButtonId.k_EButton_SteamVR_Touchpad, 0.6f);
+                    if (!IsTriggerPress(index))
+                    {
+                        AddWait(index, EVRButtonId.k_EButton_SteamVR_Touchpad, _settings.LongPress - 0.1f);
+                    }
                 }
                 else
                 {
@@ -108,12 +117,12 @@ namespace KK_VR.Interpreters
                         HandHolder.GetHand(index).ChangeItem();
                     }
                 }
-                _pressedButtons[index, 2] = true;
             }
             else
             {
-                PickAction(index, EVRButtonId.k_EButton_SteamVR_Touchpad);
                 _pressedButtons[index, 2] = false;
+
+                PickAction(index, EVRButtonId.k_EButton_SteamVR_Touchpad);
             }
             return false;
         }

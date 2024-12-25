@@ -39,7 +39,11 @@ namespace KK_VR.Grasp
         internal void SetState(bool state)
         {
             _enable = state; 
-            if (!state)
+            if (state)
+            {
+                Show();
+            }
+            else
             {
                 Hide();
             }

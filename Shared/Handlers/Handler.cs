@@ -54,6 +54,9 @@ namespace KK_VR.Handlers
         {
             Tracker.RemoveBlacks();
         }
+        /// <summary>
+        /// Null-ghost panacea. No clue what they are.
+        /// </summary>
         internal void ClearTracker()
         {
             Tracker.ClearTracker();
@@ -62,6 +65,9 @@ namespace KK_VR.Handlers
         {
             Tracker.SetSuggestedInfoNoBlacks();
         }
+        /// <summary>
+        /// Pick the most interesting bodyPart from the current tracking.
+        /// </summary>
         internal void UpdateTracker(ChaControl tryToAvoid = null)
         {
             Tracker.SetSuggestedInfo(tryToAvoid);

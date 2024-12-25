@@ -156,8 +156,8 @@ namespace KK_VR.Interpreters
 //#endif
             HitReactionInitialize(distinctCharas);
             LocationPicker.AddComponents();
-            // If disabled, camera won't know where to move.
 #if KK
+            // If disabled, camera won't know where to move.
             Manager.Config.EtcData.HInitCamera = true;
 #else
             Manager.Config.HData.HInitCamera = true;
@@ -178,7 +178,7 @@ namespace KK_VR.Interpreters
 #endif
             if (GraspHelper.Instance != null)
             {
-                GraspHelper.Instance.DestroyComponents();
+                Component.Destroy(GraspHelper.Instance);
             }
         }
         internal override void OnUpdate()
@@ -380,7 +380,7 @@ namespace KK_VR.Interpreters
                         {
                             _mouth.OnTriggerPress();
                         }
-                        else if (!IsTouchpadPress(index) && IsWait)
+                        else if (IsWait && !IsTouchpadPress(index))
                         {
                             PickAction();
                         }
@@ -389,7 +389,7 @@ namespace KK_VR.Interpreters
                             //Merge this with usual PickAction.
                             if (IsTouchpadPress(index) && grasp.OnTouchpadResetEverything(handler.GetChara))
                             {
-                                // Touchpad pressed + trigger = total reset of tracked character.
+                                // Touchpad pressed + trigger = premature total reset of tracked character.
                                 RemoveWait(index, EVRButtonId.k_EButton_SteamVR_Touchpad);
                             }
                             else
@@ -411,9 +411,7 @@ namespace KK_VR.Interpreters
                         }
                         break;
                     case Grip.Grasp:
-                        AddWait(index, EVRButtonId.k_EButton_SteamVR_Trigger, 0.35f);
-                        break;
-                    case Grip.Move:
+                        AddWait(index, EVRButtonId.k_EButton_SteamVR_Trigger, _settings.ShortPress);
                         break;
                 }
             }
@@ -499,6 +497,7 @@ namespace KK_VR.Interpreters
                     }
                     else
                     {
+                        // Shouldn't appear anymore, blacks are cleared properly.
                         if (!handler.InBlack)
                         {
                             // We grasped something, don't start GripMove.
@@ -513,6 +512,7 @@ namespace KK_VR.Interpreters
             {
                 _grip = Grip.None;
                 _pressedButtons[index, 1] = false;
+
                 handler.StopMovingAibuItem();
                 HandHolder.GetHand(index).Grasp.OnGripRelease();
             }
@@ -523,6 +523,7 @@ namespace KK_VR.Interpreters
             if (press)
             {
                 _pressedButtons[index, 2] = true;
+
                 if (_grip == Grip.Move)
                 {
                     if (!_pov.OnTouchpad(true))
@@ -551,23 +552,10 @@ namespace KK_VR.Interpreters
             else
             {
                 _pressedButtons[index, 2] = false;
+
                 PickAction(index, EVRButtonId.k_EButton_SteamVR_Touchpad);
             }
             return false;
-        }
-        internal override void OnDirectionUp(int index, TrackpadDirection direction)
-        {
-            if (IsWait)
-                PickAction(index, direction);
-            else if (_manipulateSpeed)
-            {
-                _manipulateSpeed = false;
-                if (IntegrationSensibleH.active)
-                {
-                    IntegrationSensibleH.OnUserInput();
-                }
-            }
-            HandHolder.GetHand(index).Grasp.OnScrollRelease();
         }
         private TrackpadDirection SwapSides(TrackpadDirection direction)
         {
@@ -630,7 +618,7 @@ namespace KK_VR.Interpreters
                                 else
                                 {
                                     // Reaction/Lean to kiss.
-                                    wait = 1f;
+                                    wait = _settings.LongPress;
                                 }
                             }
                             else
@@ -680,7 +668,7 @@ namespace KK_VR.Interpreters
                         else if (IsHPointMove)
                         {
                             if (direction == TrackpadDirection.Right)
-                                wait = 1f;
+                                wait = _settings.LongPress;
                             else
                                 GetHPointMove.Return();
                         }
@@ -696,7 +684,7 @@ namespace KK_VR.Interpreters
                             }
                         }
                         else
-                            wait = 1f;
+                            wait = _settings.LongPress;
                     }
                     break;
             }
@@ -711,9 +699,25 @@ namespace KK_VR.Interpreters
                 return false;
         }
 
+        internal override void OnDirectionUp(int index, TrackpadDirection direction)
+        {
+            if (IsWait)
+            {
+                PickAction(index, direction);
+            }
+            else if (_manipulateSpeed)
+            {
+                _manipulateSpeed = false;
+                if (IntegrationSensibleH.active)
+                {
+                    IntegrationSensibleH.OnUserInput();
+                }
+            }
+            HandHolder.GetHand(index).Grasp.OnScrollRelease();
+        }
+
         protected override void PickButtonAction(InputWait wait, Timing timing)
         {
-           //VRPlugin.Logger.LogDebug($"PickButtonAction:{wait.button}");
             var handler = GetHandler(wait.index);
             var grasp = HandHolder.GetHand(wait.index).Grasp;
             switch (wait.button)
@@ -723,9 +727,6 @@ namespace KK_VR.Interpreters
                     {
                         if (handler.IsBusy)
                         {
-                            VRPlugin.Logger.LogDebug($"PickButtonAction:Touchpad:Busy");
-                            //if (!_pov.TryDisable(handler.GetPartName(), handler.GetChara))
-                            //{
                             handler.UpdateTracker(tryToAvoid: PoV.Active ? PoV.Target : null);
 
                             // We attempt to reset active body part (held parts reset on press);
@@ -736,23 +737,17 @@ namespace KK_VR.Interpreters
 
                                 // We attempt to impersonate, false if already impersonating/or setting.
                                 var chara = handler.GetChara;
-                                //if (!_pov.HandleDirect(chara))
-                                //{
                                 if (PoV.Active && PoV.Target == chara && grasp.OnTouchpadSyncStart(handler.GetTrackPartName(), chara))
                                 {
                                     _pov.OnLimbSync(start: true);
                                 }
-                                //}
                             }
-                            //}
 
                         }
                         else
                         {
-                            VRPlugin.Logger.LogDebug($"PickButtonAction:Touchpad:Free");
                             if (HandHolder.GetHand(wait.index).Grasp.OnTouchpadSyncStop())
                             {
-                                //VRPlugin.Logger.LogDebug($"PoV:Handle:Enable:");
                                 _pov.OnLimbSync(start: false);
                             }
                             else

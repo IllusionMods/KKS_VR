@@ -18,6 +18,8 @@ using KK_VR.Features;
 using KK_VR.Camera;
 using KK_VR.Trackers;
 using KK_VR.Holders;
+using KK_VR.Grasp;
+using static KK_VR.Grasp.GraspController;
 
 namespace KK_VR.Interpreters
 {
@@ -35,6 +37,10 @@ namespace KK_VR.Interpreters
         private Button _lastSelectedCategory;
         private Button _lastSelectedButton;
         private bool _talkSceneStart;
+
+        /// <summary>
+        /// Init phase, waiting to setup everything.
+        /// </summary>
         private bool _start;
         private bool? _sittingPose;
 
@@ -122,8 +128,10 @@ namespace KK_VR.Interpreters
 #if KK
             SceneExtras.ReturnDirLight();
 #endif
-            //TalkSceneExtras.ReturnDirLight();
-            //HideMaleHead.ForceShowHead = false;
+            if (GraspHelper.Instance != null)
+            {
+                Component.Destroy(GraspHelper.Instance);
+            }
         }
         internal override void OnUpdate()
         {
@@ -209,7 +217,7 @@ namespace KK_VR.Interpreters
                 var chara = advScene.Scenario.currentChara.chaCtrl;
                 {
                     PlacePlayer(chara.transform.position, chara.transform.rotation);
-                    var charas = advScene.scenario.characters.GetComponentsInChildren<ChaControl>();
+                    var charas = advScene.scenario.characters.GetComponentsInChildren<ChaControl>().Distinct();
                     AddTalkColliders(charas);
                     AddHColliders(charas);
                     HitReactionInitialize(charas);
@@ -284,33 +292,137 @@ namespace KK_VR.Interpreters
 
         protected override bool OnTrigger(int index, bool press)
         {
+            if (_start) return false;
             var handler = GetHandler(index);
+            var grasp = HandHolder.GetHand(index).Grasp;
             if (press)
             {
                 _pressedButtons[index, 0] = true;
-                if (handler.IsBusy)
+
+                switch (_grip)
                 {
-                    GetHandler(index).TriggerPress();
+                    case Grip.None:
+                        if (IsWait && !IsTouchpadPress(index))
+                        {
+                            PickAction();
+                        }
+                        else if (handler.IsBusy)
+                        {
+                            if (IsTouchpadPress(index) && grasp.OnTouchpadResetEverything(handler.GetChara))
+                            {
+                                // Touchpad pressed + trigger = premature total reset of tracked character.
+                                RemoveWait(index, EVRButtonId.k_EButton_SteamVR_Touchpad);
+                            }
+                            else
+                            {
+                                // Send synthetic click.
+                                handler.UpdateTracker();
+                                handler.TriggerPress();
+                            }
+                        }
+                        break;
+                    case Grip.Grasp:
+                        AddWait(index, EVRButtonId.k_EButton_SteamVR_Trigger, _settings.ShortPress);
+                        break;
                 }
             }
             else
             {
-                _pressedButtons[index, 0] = false;
+                _pressedButtons[index, 0] = false; 
+                if (_grip != Grip.Move)
+                {
+                    HandHolder.GetHand(index).Grasp.OnTriggerRelease();
+                }
+                handler.TriggerRelease();
                 PickAction(index, EVRButtonId.k_EButton_SteamVR_Trigger);
+            }
+            return false;
+        }
+        protected override bool OnGrip(int index, bool press)
+        {
+            if (_start) return false;
+            var handler = GetHandler(index);
+            if (press)
+            {
+                _pressedButtons[index, 1] = true;
+
+                if (HandHolder.GetHand(index).IsParent)
+                {
+                    HandHolder.GetHand(index).Grasp.OnGripRelease();
+                }
+                else if (handler.IsBusy) // if (!handler.InBlack)
+                {
+                    _grip = Grip.Grasp;
+                    HandHolder.GetHand(index).Grasp.OnGripPress(handler.GetTrackPartName(), handler.GetChara);
+                }
+                else
+                {
+                    return false;
+                }
+                return true;
+
+            }
+            else
+            {
+                 _grip = Grip.None;
+                _pressedButtons[index, 1] = false;
+
+                HandHolder.GetHand(index).Grasp.OnGripRelease();
+                return false;
+            }
+        }
+
+        protected override bool OnTouchpad(int index, bool press)
+        {
+            if (_start) return false;
+            if (press)
+            {
+                _pressedButtons[index, 2] = true;
+
+                if (_grip == Grip.Move)
+                {
+                    if (!IsTriggerPress(index))
+                    {
+                        AddWait(index, EVRButtonId.k_EButton_SteamVR_Touchpad, _settings.LongPress - 0.1f);
+                    }
+                }
+                else
+                {
+                    if (IsTriggerPress(index))
+                    {
+                        HandHolder.GetHand(index).ChangeItem();
+                    }
+                    else if (!HandHolder.GetHand(index).Grasp.OnTouchpadResetHeld())
+                    {
+                        AddWait(index, EVRButtonId.k_EButton_SteamVR_Touchpad, _settings.ShortPress);
+                    }
+                }
+            }
+            else
+            {
+                _pressedButtons[index, 2] = false;
+
+                PickAction(index, EVRButtonId.k_EButton_SteamVR_Touchpad);
             }
             return false;
         }
         internal override bool OnDirectionDown(int index, TrackpadDirection direction)
         {
-           VRPlugin.Logger.LogDebug($"TalkScene:OnDirectionDown[{direction}]");
+            if (_start) return false;
             var adv = IsADV;
             var handler = GetHandler(index);
+            var grasp = HandHolder.GetHand(index).Grasp;
             switch (direction)
             {
                 case TrackpadDirection.Up:
                 case TrackpadDirection.Down:
-                    if (handler.IsBusy)
+                    if (grasp.IsBusy)
                     {
+                        grasp.OnVerticalScroll(direction == TrackpadDirection.Up);
+                    }
+                    else if (handler.IsBusy)
+                    {
+                        handler.UpdateTracker();
                         if (handler.DoUndress(direction == TrackpadDirection.Down, out var chara))
                         {
                             SynchronizeClothes(chara);
@@ -334,17 +446,36 @@ namespace KK_VR.Interpreters
                     break;
                 case TrackpadDirection.Left:
                 case TrackpadDirection.Right:
-                    if (IsTriggerPress(index))
+                    if (grasp.IsBusy)
                     {
-                        HandHolder.GetHand(index).ChangeLayer(direction == TrackpadDirection.Right);
+                        grasp.OnBusyHorizontalScroll(direction == TrackpadDirection.Right);
+                    }
+                    else if (handler.IsBusy)
+                    {
+                        handler.UpdateTracker();
+                        grasp.OnFreeHorizontalScroll(handler.GetTrackPartName(), handler.GetChara, direction == TrackpadDirection.Right);
+                        
                     }
                     else
                     {
-                        AddWait(index, direction, 1f);
+                        if (IsTriggerPress(index))
+                        {
+                            HandHolder.GetHand(index).ChangeLayer(direction == TrackpadDirection.Right);
+                        }
+                        else
+                        {
+                            AddWait(index, direction, _settings.LongPress);
+                        }
                     }
                     break;
             }
             return false;
+        }
+        internal override void OnDirectionUp(int index, TrackpadDirection direction)
+        {
+            if (_start) return;
+            base.OnDirectionUp(index, direction);
+            HandHolder.GetHand(index).Grasp.OnScrollRelease();
         }
         protected override void PickDirectionAction(InputWait wait, Timing timing)
         {
@@ -392,6 +523,40 @@ namespace KK_VR.Interpreters
                     }
                     break;
             }
+        }
+        protected override void PickButtonAction(InputWait wait, Timing timing)
+        {
+            var handler = GetHandler(wait.index);
+            var grasp = HandHolder.GetHand(wait.index).Grasp;
+            switch (wait.button)
+            {
+                case EVRButtonId.k_EButton_SteamVR_Touchpad:
+                    if (timing == Timing.Full)
+                    {
+                        if (handler.IsBusy)
+                        {
+                            handler.UpdateTracker();
+                            var chara = handler.GetChara;
+                            var partName = handler.GetTrackPartName();
+                            if (!grasp.OnTouchpadResetActive(partName, chara))
+                            {
+                                grasp.OnTouchpadSyncStart(partName, chara);
+                            }
+                        }
+                        else
+                        {
+                            HandHolder.GetHand(wait.index).Grasp.OnTouchpadSyncStop();
+                        }
+                    }
+                    break;
+                case EVRButtonId.k_EButton_SteamVR_Trigger:
+                    if (grasp.IsBusy)
+                    {
+                        grasp.OnTriggerPress(temporarily: timing == Timing.Full);
+                    }
+                    break;
+            }
+
         }
         private void SetAutoADV()
         {
@@ -448,7 +613,7 @@ namespace KK_VR.Interpreters
             {
                 chara,
                 actionScene.Player.chaCtrl
-            };
+            }.Distinct();
 
             foreach (var npc in actionScene.npcList)
             {
@@ -457,7 +622,9 @@ namespace KK_VR.Interpreters
                     if (npc.mapNo == actionScene.Map.no)
                     {
                         npc.SetActive(true);
-                        charas.Add(chara);
+
+                        // Adding reactions/manipulations to everyone present is near pointless and VERY expensive (FBBIK).
+                        //charas.Add(chara);
                     }
                     npc.Pause(false);
                     npc.charaData.SetRoot(npc.gameObject);
@@ -472,6 +639,8 @@ namespace KK_VR.Interpreters
             PlacePlayer(headPos, heroine.transform.rotation);
             AddHColliders(charas);
             HitReactionInitialize(charas);
+            GraspController.Init(charas);
+            
 #if KK
             // KKS has fixed dir light during Talk/ADV by default.
             RepositionDirLight(chara);

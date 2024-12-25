@@ -86,16 +86,6 @@ namespace KK_VR.Grasp
                 //}
             }
         }
-        internal void DestroyComponents()
-        {
-            foreach (var list in _bodyPartsDic.Values)
-            {
-                foreach (var bodyPart in list)
-                {
-                    bodyPart.Destroy();
-                }
-            }
-        }
         private void AddChara(ChaControl chara)
         {
             _auxDic.Add(chara, new IKStuff
@@ -223,12 +213,53 @@ namespace KK_VR.Grasp
             }
         }
 
-        internal IKCaress StartRoughCaress(HandCtrl.AibuColliderKind colliderKind, ChaControl chara, HandHolder hand)
+        internal IKCaress StartIKCaress(HandCtrl.AibuColliderKind colliderKind, ChaControl chara, HandHolder hand)
         {
             var rough = hand.Anchor.gameObject.AddComponent<IKCaress>();
             rough.Init(_auxDic[chara].newFbik, colliderKind, _bodyPartsDic[chara], chara, hand.Anchor);
             return rough;
         }
+
+        private void OnDestroy()
+        {
+            VRPlugin.Logger.LogWarning($"GraspHelper:OnDestroy");
+            if (_bodyPartsDic != null && _bodyPartsDic.Count > 0)
+            {
+                foreach (var bodyPartList in _bodyPartsDic.Values)
+                {
+                    foreach (var bodyPart in bodyPartList)
+                    {
+                        if (bodyPart.anchor.parent != null && bodyPart.anchor.parent.name.StartsWith("ik_b4", StringComparison.OrdinalIgnoreCase))
+                        {
+                            GameObject.Destroy(bodyPart.anchor.parent.gameObject);
+                        }
+                        else
+                        {
+                            GameObject.Destroy(bodyPart.anchor.gameObject);
+                        }
+                        GameObject.Destroy(bodyPart.guide.gameObject);
+                    }
+                }
+                foreach (var ik in _auxDic.Values)
+                {
+                    if (ik.newFbik != null)
+                    {
+                        Component.Destroy(ik.newFbik);
+                    }
+                    if (ik.lookAt != null)
+                    {
+                        Component.Destroy(ik.lookAt);
+                    }
+                    if (ik.reaction != null)
+                    {
+                        Component.Destroy(ik.reaction);
+                    }
+                }
+                _bodyPartsDic.Clear();
+            }
+        }
+
+
         //internal void OnSpotChangePre()
         //{
         //    //foreach (var orient in _origOrientList)
@@ -245,24 +276,24 @@ namespace KK_VR.Grasp
         //    //    _origOrientList.Add(new(kv.Key));
         //    //}
         //}
-        private void SetRelativePosition()
-        {
+        //private void SetRelativePosition()
+        //{
 
-        }
-        private readonly Dictionary<string, float[]> _poseRelPos = new Dictionary<string, float[]>
-        {
-            { "kha_f_00", [ 1f, 0f ] },
-            { "kha_f_01", [ 0f, 0f ] },
-            { "kha_f_02", [ 0f, 0f ] },
-            { "kha_f_03", [ 1f, 1f ] },
-            { "kha_f_04", [ 0f, 0f ] },
-            { "kha_f_05", [ 0f, 0f ] },
-            { "kha_f_06", [ 0f, 0f ] },
-            { "kha_f_07", [ 0f, 1f ] },
+        //}
+        //private readonly Dictionary<string, float[]> _poseRelPos = new Dictionary<string, float[]>
+        //{
+        //    { "kha_f_00", [ 1f, 0f ] },
+        //    { "kha_f_01", [ 0f, 0f ] },
+        //    { "kha_f_02", [ 0f, 0f ] },
+        //    { "kha_f_03", [ 1f, 1f ] },
+        //    { "kha_f_04", [ 0f, 0f ] },
+        //    { "kha_f_05", [ 0f, 0f ] },
+        //    { "kha_f_06", [ 0f, 0f ] },
+        //    { "kha_f_07", [ 0f, 1f ] },
 
 
-            { "khs_f_00", [ 1f, 1f ] },
-        };
+        //    { "khs_f_00", [ 1f, 1f ] },
+        //};
 
         private readonly List<string> _extraColliders =
         [
@@ -272,11 +303,16 @@ namespace KK_VR.Grasp
 
         private void AddFeetCollider(Transform bone)
         {
-            var collider = bone.gameObject.AddComponent<CapsuleCollider>();
-            collider.radius = 0.1f;
-            collider.height = 0.5f;
-            collider.direction = 2;
-            bone.localPosition = new Vector3(bone.localPosition.x, 0f, 0.06f);
+            // StopGap measure until mesh collider.
+            var collider = bone.gameObject.GetComponent<CapsuleCollider>();
+            if (collider == null)
+            {
+                collider = bone.gameObject.AddComponent<CapsuleCollider>();
+                collider.radius = 0.1f;
+                collider.height = 0.5f;
+                collider.direction = 2;
+                bone.localPosition = new Vector3(bone.localPosition.x, 0f, 0.06f);
+            }
         }
         private void AddExtraColliders(ChaControl chara)
         {
@@ -528,7 +564,14 @@ namespace KK_VR.Grasp
                 && _auxDic.ContainsKey(chara) 
                 && !_auxDic[chara].reaction.IsBusy)
             {
-                Features.LoadVoice.PlayVoice(Features.LoadVoice.VoiceType.Short, chara);
+                foreach (var bodyPart in _bodyPartsDic[chara])
+                {
+                    if (bodyPart.state != State.Default)
+                    {
+                        // Don't invoke reaction if any of the bodyParts is manipulated. Most likely not desirable.
+                        return;
+                    }
+                }
                 foreach (var bodyPart in _bodyPartsDic[chara])
                 {
                     if (bodyPart.IsLimb())
@@ -540,6 +583,7 @@ namespace KK_VR.Grasp
                 var vec = (GetClosestBone(chara, index).position - handPosition);
                 vec.y = 0f;
                 _auxDic[chara].reaction.React(index, vec.normalized);
+                Features.LoadVoice.PlayVoice(Features.LoadVoice.VoiceType.Short, chara);
             }
         }
         private int ConvertToTouch(Tracker.Body part)

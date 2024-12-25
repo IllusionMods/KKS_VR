@@ -39,7 +39,7 @@ namespace KK_VR.Handlers
         internal void StartMovingAibuItem(AibuColliderKind touch)
         {
             _hand.Shackle(touch == AibuColliderKind.kokan || touch == AibuColliderKind.anal ? 6 : 10);
-            _ikCaress = GraspHelper.Instance.StartRoughCaress(touch, HSceneInterpreter.lstFemale[0], _hand);
+            _ikCaress = GraspHelper.Instance.StartIKCaress(touch, HSceneInterpreter.lstFemale[0], _hand);
         }
         internal void StopMovingAibuItem()
         {

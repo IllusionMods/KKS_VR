@@ -35,7 +35,7 @@ The game (not the studio) also can be launched without any added arguments if St
 There are two controllers for each hand with identical functional without any tools or modes.  
 There is no input customization or helping texts. Designed to be able to do any action with a single hand.  
 The only means of movement are native in-game functions and *GripMove*, no *Warp*.  
-No double clicks, only *Short* or *LongPress* for buttons and *DirectionalInput* for *Touchpad*. The sole function of *Menu* button is to toggle a floating menu's visibility.
+No double clicks, only *Short* or *LongPress* for buttons and *DirectionalInput* for *Touchpad*. The sole function of *Menu* button is to toggle the floating menu's visibility.
 
 The plugin assumes that VR controller has:
 * **Grip** used as a **Grab** button. Grabs things to move them around.  
@@ -52,10 +52,10 @@ Available in **Any Scene** as the last priority action i.e. when no better actio
 * **Touchpad** while in *GripMove* with pressed *Trigger* to manipulate **Rotation** of the camera.  
 * **Touchpad** while in *GripMove* without pressed *Trigger* to become **Upright**. Registers after *LongPress*.
 
-Depending on the context may behave differently.  
+Has settings for stabilization. Depending on the context may behave differently.  
 
 ### Impersonation aka PoV
-Assume orientation of a character's head and follow it loosely.  
+Assume orientation of a character head and follow it loosely.  
 Available in **H Scene** outside of character interactions.  
 * **Touchpad** to start, stop, change or reset *Impersonation*. Registers after *LongPress*.  
 * **Touchpad** while in *Impersonation* and in *GripMove* with pressed *Trigger* to set custom offset.  
@@ -64,49 +64,50 @@ Has settings for gender preferences and automatization.
 
 ### Assisted kiss/lick
 Attach the camera to a partner's PoI to follow it.  
-Available in **H Scene** when the camera is in direct proximity to the said PoI. Outside of caress positions requires *GripMove*.  
-* **Grip** while *Assisted* to start altered version of *GripMove* to acquire precise offsets on the fly. The long gap between camera and PoI will cause disengagement.
-* **Trigger** while *Assisted* and not in *GripMove* to stop action and disengage.
+Available in **H Scene** when the camera is in direct proximity to the said PoI. Outside of the caress positions requires *GripMove*.  
+* **Grip** while *Assisted* to start altered version of *GripMove* to acquire precise offsets on the fly. The long gap between the camera and the PoI will cause disengagement.
+* **Trigger** while *Assisted* and not in *GripMove* to stop the action and disengage.
 
 Has plenty of settings for customization. 
 
 ### Controller representation
-Native in-game items serving as a controller's representation.  
+Native in-game items serving as the controller representation.  
 Available in **Any Scene** as the last priority action i.e. when no better actions are available.  
 They won't go inside of things easily, preferring instead to stick to the surface.
 * **Touchpad** with pressed *Trigger* to cycle available items.
-* **DirectionHorizontal** with pressed *Trigger* to cycle through item's animations.
+* **DirectionHorizontal** with pressed *Trigger* to cycle through item animations.
 
 ### IK Manipulator aka Grasp
 Alter currently playing animation on the fly.  
 Available in **H, Talk and Text Scenes** when interacting with a character i.e. controller is in close proximity to it.  
-* **Grip** to start *Grasp* i.e. hold relevant body parts and reposition them with the controller movements.
-* **Trigger** while in *Grasp* and visual cue of held body part is green to attach body part.  
+* **Grip** to start *Grasp* i.e. hold relevant bodyParts and reposition them with the controller movements.
+* **Trigger** while in *Grasp* and the visual cue of the held bodyPart is green to attach it.  
   Currently only to self/different character or controller. ~~Hand holding.~~
-* **Trigger** while in *Grasp* to extend the amount of held body parts, up to the whole character. Registers after *ShortPress*.
-* **Trigger** while in *Grasp* to extend the amount of held body parts temporarily. Registers after *LongPress*.
-* **Touchpad** while in *Grasp* to reset currently held body parts to default offsets.
-* **Touchpad** while not in *Grasp* to reset relevant body part to the default offset. Registers after *LongPress*.
-* **Touchpad** while not in *Grasp* but in *Impersonation* to start or stop the synchronization of a relevant limb with the controller. Registers after *LongPress*.
-* **DirectionHorizontal** while in *Grasp* and the main held body part is a hand to scroll through hand animations. Goes full circle then resets to the animation's default.
-* **DirectionHorizontal** while in *Grasp* and holding whole character to change *Yaw* of a character.
-* **DirectionVertical** while in *Grasp* and holding whole character to move said character in direction of the camera.
+* **Trigger** while in *Grasp* to extend the amount of held bodyParts, up to the whole character. Registers after *ShortPress*.
+* **Trigger** while in *Grasp* to extend the amount of held bodyParts temporarily. Registers after *LongPress*.
+* **Touchpad** while in *Grasp* to reset currently held bodyParts to default offsets.
+* **Touchpad** while not in *Grasp* to reset relevant bodyPart to the default offset. Registers after *LongPress*.
+* **Touchpad** while not in *Grasp* but in *Impersonation* to start or stop the synchronization of a relevant bodyPart with the controller. Registers after *LongPress*.
+* **DirectionHorizontal** while in *Grasp* and the main held bodyPart is the hand to scroll through it's animations. Goes full circle then resets to the animation's default.
+* **DirectionHorizontal** while in *Grasp* and holding the whole character to change *Yaw*.
+* **DirectionVertical** while in *Grasp* and holding the whole character to move in direction of the camera.
+* **DirectionVertical** while in *Grasp* to Show/Hide guide objects of held bodyParts. Temporarily overrides setting.
 
 ### Menu interaction
 Available in **Any Scene** when aiming controller at the floating in-game *Menu*.
 * **Grip** to grab *Menu*.
-* **Touchpad** while holding *Menu* with pressed *Trigger* to abandon it the world.
+* **Touchpad** while holding *Menu* with pressed *Trigger* to abandon it in the world.
 * **DirectionHorizontal** while holding *Menu* to change it's size.
-* **DirectionVertical** while holding *Menu* to move it in controller's direction.
+* **DirectionVertical** while holding *Menu* to move it in controller direction.
 
 ### H Interpreter
 Available in **H Scene**, relies heavily on [SensibleH](https://github.com/lotsofbears/KK_SensibleH), without it many functions will be unavailable.  
 Described horizonal directions assume the right controller, for the left controller the directions will be mirrored.
 
 #### Generic
-* **DirectionLeft** to choose random position of current category. Registers after *LongPress*. 
+* **DirectionLeft** to choose random position from the current category. Registers after *LongPress*. 
 * **DirectionRight** to enter *PointMove*. Registers after *LongPress*.
-* **DirectionVertical** on partner's body part to (un)dress it.
+* **DirectionVertical** on partner's bodyPart to (un)dress it.
 
 #### PointMove
 * **DirectionLeft** to exit *PointMove*.
@@ -115,37 +116,37 @@ Described horizonal directions assume the right controller, for the left control
 
 #### Caress
 *AutoCaress* can be overtaken in any way by *Assisted kiss/lick*.  
-* **Grip** on attached caress item while in *AutoCaress* to take manual control.
+* **Grip** on attached caress item while in *AutoCaress* to take the manual control.
 * **Trigger** on attached caress item to start *AutoCaress*. Registers after *LongPress*.
 * **Trigger** on attached caress item while in *AutoCaress* to stop it.
 * **Trigger** while in manual control of a caress item to squeeze. Might not always work if *AutoCaress* still runs some other item.
 * **DirectionDown** on attached caress item while not in *AutoCaress* to detach it.
-* **DirectionDown** while not in *AutoCaress* to prompt a partner to initiate a kiss. Limited to caress positions. Registers after *LongPress*.
+* **DirectionDown** while not in *AutoCaress* to prompt the partner to initiate the kiss. Limited to the caress positions. Registers after *LongPress*.
 * **DirectionHorizontal** on attached caress item to toggle it's visibility.
 * **DirectionHorizontal** while an attached caress item is present to scroll through animations. Limited to caress positions.
 
 #### Service, Intercourse
 * **DirectionUp** to insert, start, finish, change speed. Registers after *LongPress*.
-* **DirectionUp** with pressed *Trigger* to opt for a no voice options. Registers after *LongPress*.
+* **DirectionUp** with pressed *Trigger* to opt for an options without voice . Registers after *LongPress*.
 * **DirectionUp** with pressed *Touchpad* to opt for anal if applicable. Can be used with pressed *Trigger*. Registers after *LongPress*.
 * **DirectionDown** to set condom, pullout, stop, change to outside during climax, change speed. Registers after *LongPress*.
 * **DirectionHorizontal** to scroll through animations.
 
 ### Talk/Text Interpreter
 Available in **Talk and Text Scenes**. 
-* **Trigger** on partner's body part to provoke a reaction.
-* **DirectionVertical** on partner's body part to (un)dress it.
+* **Trigger** on partner's bodyPart to provoke a reaction.
+* **DirectionVertical** on partner's bodyPart to (un)dress it.
 * **DirectionVertical** to scroll buttons on the left side of the screen or choices from the text scenario.
 * **DirectionHorizontal** to select/deselect current button/category.
 * **DirectionHorizontal** to click on previous action. Registers after *LongPress*.
-* **DirectionHorizontal** while text is visible to advance text scenario.
+* **DirectionHorizontal** while text is visible to advance the text scenario.
 * **DirectionHorizontal** while text is visible to toggle *Auto*. Registers after *LongPress*.
 
 ### Roaming Interpreter
 Available in **Roaming Scene**.
 * **Trigger** to start locomotion.
 * **DirectionUp** to interact.
-* **Horizontal direction** to change *Yaw* relative to the ground using the camera as an axis.
+* **Horizontal direction** to change *Yaw*.
 
 ## Controls Studio
 **Warning: This section was written for [KK_MainGameVR](https://github.com/mosirnik/KK_MainGameVR) and serves as a loose, vague reference for an actual functional.**
