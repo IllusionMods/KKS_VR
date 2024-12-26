@@ -14,10 +14,12 @@ using VRGIN.Controls;
 using KK_VR.Settings;
 using KK_VR.Holders;
 using System;
+using UnityEngine.EventSystems;
+using KK_VR.Controls;
 
 namespace KK_VR.Interpreters
 {
-    class KoikatuInterpreter : GameInterpreter
+    internal class KoikatuInterpreter : GameInterpreter
     {
         public enum SceneType
         {
@@ -29,12 +31,15 @@ namespace KK_VR.Interpreters
             //NightMenuScene,
             //CustomScene
         }
-        public static SceneType CurrentScene => _currentScene;
-        public static SceneInterpreter SceneInterpreter => _sceneInterpreter;
-        public static KoikatuSettings Settings => _settings;
+        internal static SceneType CurrentScene => _currentScene;
+        internal static SceneInterpreter SceneInterpreter => _sceneInterpreter;
+
+        internal static SceneInput SceneInput => _sceneInput;
+        internal static KoikatuSettings Settings => _settings;
 
         private static SceneType _currentScene;
         private static SceneInterpreter _sceneInterpreter;
+        private static SceneInput _sceneInput;
         private static KoikatuSettings _settings;
         private static KoikatuInterpreter _instance;
 
@@ -45,22 +50,21 @@ namespace KK_VR.Interpreters
         protected override void OnAwake()
         {
             _instance = this;
-            _currentScene = SceneType.OtherScene;
-            _sceneInterpreter = new OtherSceneInterpreter();
-            SceneManager.sceneLoaded += OnSceneLoaded;
+            StartScene(SceneType.OtherScene, null);
             _mirrorManager = new KK_VR.Fixes.Mirror.Manager();
             VR.Camera.gameObject.AddComponent<VREffector>();
             VR.Camera.gameObject.AddComponent<SmoothMover>();
-            //VR.Manager.ModeInitialized += AddModels;
             _settings = VR.Context.Settings as KoikatuSettings;
-            Features.LoadVoice.Init();
-            IntegrationSensibleH.Init();
             TweakShadowSettings(_settings.ShadowsOptimization);
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
+        
         protected override void OnUpdate()
         {
             UpdateScene();
             _sceneInterpreter.OnUpdate();
+            _sceneInput.HandleInput();
+            
         }
         protected override void OnLateUpdate()
         {
@@ -73,9 +77,10 @@ namespace KK_VR.Interpreters
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             //VRLog.Info($"OnSceneLoaded {scene.name}");
+            SceneInterpreter.OnSceneLoaded(scene, mode);
             if (!_hands && scene.name.Equals("Title"))
             {
-                // Init too early will throw a wrench into VRGIN's init.
+                // Late init to work around VRGIN init bugs.
                 CreateHands();
             }
 #if KK
@@ -106,6 +111,8 @@ namespace KK_VR.Interpreters
                     _mirrorManager.Fix(reflection);
                 }
             }
+            KoikatuMenuTool.TakeGui();
+
         }
 
         private void CreateHands()
@@ -122,6 +129,7 @@ namespace KK_VR.Interpreters
                 layer = 10
             };
             right.AddComponent<HandHolder>().Init(1);
+            Features.LoadVoice.Init();
         }
 
         // PR was merged long time ago in KK_Subtitles.
@@ -196,9 +204,11 @@ namespace KK_VR.Interpreters
             {
                //VRPlugin.Logger.LogDebug($"Interpreter:Start:{type}");
                 _currentScene = type;
-                _sceneInterpreter.OnDisable();
+                _sceneInterpreter?.OnDisable();
                 _sceneInterpreter = CreateSceneInterpreter(type, behaviour);
                 _sceneInterpreter.OnStart();
+                _sceneInput?.OnDisable();
+                _sceneInput = GetSceneInput(type);
                 return true;
             }
             else
@@ -207,6 +217,18 @@ namespace KK_VR.Interpreters
                 return false;
             }
         }
+
+        private static SceneInput GetSceneInput(SceneType sceneType)
+        {
+            return sceneType switch
+            {
+                SceneType.ActionScene => new ActionSceneInput((ActionSceneInterpreter)SceneInterpreter),
+                SceneType.HScene => new HSceneInput((HSceneInterpreter)SceneInterpreter),
+                SceneType.TalkScene => new TalkSceneInput((TalkSceneInterpreter)SceneInterpreter),
+                _ => new SceneInput(),
+            };
+        }
+
         public static void EndScene(SceneType type)
         {
             if (_currentScene == type)

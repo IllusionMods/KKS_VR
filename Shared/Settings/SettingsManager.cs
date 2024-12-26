@@ -128,26 +128,28 @@ namespace KK_VR.Settings
                     new ConfigurationManagerAttributes { Order = -2 }));
             Tie(crouchingCameraPos, v => settings.CrouchingCameraPos = v);
 
-            var crouchByHMDPos = config.Bind(SectionRoaming, "Crouch by HMD position", true,
+            var crouchByHMDPos = config.Bind(SectionRoaming, "Crouch by camera position", true,
                 new ConfigDescription(
-                    "Crouch when the HMD position is below some threshold.",
+                    "Crouch when the camera position is below threshold.",
                     null,
                     new ConfigurationManagerAttributes { Order = -3 }));
-            Tie(crouchByHMDPos, v => settings.CrouchByHMDPos = v);
+            Tie(crouchByHMDPos, v => settings.CrouchByCameraPos = v);
 
-            var crouchThreshold = config.Bind(SectionRoaming, "Crouch height", 0.9f,
-                new ConfigDescription(
-                    "Trigger crouching when the camera is below this height",
-                    new AcceptableValueRange<float>(0.05f, 3f),
-                    new ConfigurationManagerAttributes { Order = -4 }));
-            Tie(crouchThreshold, v => settings.CrouchThreshold = v);
 
-            var standUpThreshold = config.Bind(SectionRoaming, "Stand up height", 1f,
-                new ConfigDescription(
-                    "End crouching when the camera is above this height",
-                    new AcceptableValueRange<float>(0.05f, 3f),
-                    new ConfigurationManagerAttributes { Order = -4 }));
-            Tie(standUpThreshold, v => settings.StandUpThreshold = v);
+            // Too many settings + near worthless customization.
+            //var crouchThreshold = config.Bind(SectionRoaming, "Crouch height", 0.9f,
+            //    new ConfigDescription(
+            //        "Trigger crouching when the camera is below this height",
+            //        new AcceptableValueRange<float>(0.05f, 3f),
+            //        new ConfigurationManagerAttributes { Order = -4 }));
+            //Tie(crouchThreshold, v => settings.CrouchThreshold = v);
+
+            //var standUpThreshold = config.Bind(SectionRoaming, "Stand up height", 1f,
+            //    new ConfigDescription(
+            //        "End crouching when the camera is above this height",
+            //        new AcceptableValueRange<float>(0.05f, 3f),
+            //        new ConfigurationManagerAttributes { Order = -4 }));
+            //Tie(standUpThreshold, v => settings.StandUpThreshold = v);
 
             // With removed warp tool has no use.
             //var teleportWithProtagonist = config.Bind(SectionRoaming, "Teleport with protagonist", true,
@@ -192,11 +194,11 @@ namespace KK_VR.Settings
                     new ConfigurationManagerAttributes { Order = 7 }));
             Tie(proximityKiss, v => settings.ProximityDuringKiss = v);
 
-            var imperfectRot = config.Bind(SectionH, "Imperfect rotation", true,
+            var imperfectRot = config.Bind(SectionH, "Imperfect rotation", false,
                 new ConfigDescription(
                     "Allow poorly stabilized rotation after assisted kiss/lick. Purely for aesthetic reasons.",
                     null,
-                    new ConfigurationManagerAttributes { Order = 6 }));
+                    new ConfigurationManagerAttributes { Order = 6, IsAdvanced = true }));
             Tie(imperfectRot, v => settings.ImperfectRotation = v);
 
             // Disabled for now, as the tongue isn't implemented yet, and a stop gap measure seems half assed.

@@ -45,6 +45,10 @@ namespace KK_VR
         // Hook to start AutoMode.
         internal static Action OnUserInput;
 
+        // Custom top of the excitement gauge to trigger orgasm, set by SensibleH dynamically.
+        internal static Func<float> GetFemaleCeiling;
+        internal static Func<float> GetMaleCeiling;
+
         internal static void Init()
         {
             var type = AccessTools.TypeByName("KK_SensibleH.AutoMode.LoopController");

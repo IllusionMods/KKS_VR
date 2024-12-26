@@ -72,7 +72,7 @@ namespace KK_VR.Features
         private int _rotDeviationHalf;
         private Vector3 _offsetVecEyes;
         private readonly MouthGuide _mouth = MouthGuide.Instance;
-        private bool _gripMove;
+        //private bool _gripMove;
         private OneWayTrip _trip;
         private MoveToPoi _moveTo;
         private SmoothDamp _smoothDamp;
@@ -304,6 +304,13 @@ namespace KK_VR.Features
             }
         }
 
+        internal void OnGraspEnd()
+        {
+            if (_active &&  !_newAttachPoint)
+            {
+                CameraIsFar(0.25f);
+            }
+        }
 
         //public void OnSpotChange()
         //{
@@ -392,7 +399,7 @@ namespace KK_VR.Features
         }
         internal void OnGripMove(bool press)
         {
-            _gripMove = press;
+            //_gripMove = press;
             if (_active)
             {
                 if (press)
@@ -485,7 +492,7 @@ namespace KK_VR.Features
         {
             if (_active)
             {
-                if (_gripMove || _mouth.IsActive
+                if (KoikatuInterpreter.SceneInput.IsBusy// || _mouth.IsActive
 #if KK
                     || !Scene.Instance.AddSceneName.Equals("HProc"))
 #else

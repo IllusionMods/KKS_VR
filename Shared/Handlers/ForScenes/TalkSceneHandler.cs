@@ -17,6 +17,7 @@ using KK_VR.Caress;
 using KK_VR.Interactors;
 using KK_VR.Trackers;
 using static KKAPI.MainGame.TalkSceneUtils;
+using KK_VR.Grasp;
 
 namespace KK_VR.Handlers
 {
@@ -45,15 +46,21 @@ namespace KK_VR.Handlers
                     && chara == TalkSceneInterpreter.talkScene.targetHeroine.chaCtrl
                     && !CrossFader.AdvHooks.Reaction
                     // Add familiarity here too ? prob
-                    && (velocity > 1f || UnityEngine.Random.value < 0.3f))
+                    && (velocity > 1f || UnityEngine.Random.value < 0.3f)
+                    && (GraspHelper.Instance == null || !GraspHelper.Instance.IsGraspActive(chara)))
                 {
-                    // TODO Null ref in adv. Mimic TouchFunc() in adv?
-                    // Seems quite easy, we just need to grab corresponding assets.
                     TalkSceneInterpreter.talkScene.TouchFunc(TouchReaction(touch), Vector3.zero);
                 }
                 else if (velocity > 1f || _tracker.reactionType == Tracker.ReactionType.HitReaction)
                 {
-                    TalkSceneInterpreter.HitReactionPlay(_tracker.colliderInfo.behavior.react, chara);
+                    if (GraspHelper.Instance != null && !GraspHelper.Instance.IsGraspActive(chara) && UnityEngine.Random.value < _settings.TouchReaction)
+                    {
+                        GraspHelper.Instance.TouchReaction(chara, _hand.Anchor.position, _tracker.colliderInfo.behavior.part);
+                    }
+                    else
+                    {
+                        TalkSceneInterpreter.HitReactionPlay(_tracker.colliderInfo.behavior.react, chara);
+                    }
                 }
                 else if (_tracker.reactionType == Tracker.ReactionType.Short)
                 {

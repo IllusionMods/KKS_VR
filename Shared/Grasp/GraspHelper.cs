@@ -557,6 +557,19 @@ namespace KK_VR.Grasp
         //    }
 
         //}
+
+        internal bool IsGraspActive(ChaControl chara)
+        {
+            foreach (var bodyPart in _bodyPartsDic[chara])
+            {
+                if (bodyPart.state != State.Default)
+                {
+                    // Don't invoke reaction if any of the bodyParts is manipulated. Looks ugly/disruptive.
+                    return true;
+                }
+            }
+            return false;
+        }
         internal void TouchReaction(ChaControl chara, Vector3 handPosition, Tracker.Body body)
         {
             if (((KoikatuInterpreter.CurrentScene == KoikatuInterpreter.SceneType.HScene && HSceneInterpreter.mode == HFlag.EMode.aibu)
@@ -564,14 +577,6 @@ namespace KK_VR.Grasp
                 && _auxDic.ContainsKey(chara) 
                 && !_auxDic[chara].reaction.IsBusy)
             {
-                foreach (var bodyPart in _bodyPartsDic[chara])
-                {
-                    if (bodyPart.state != State.Default)
-                    {
-                        // Don't invoke reaction if any of the bodyParts is manipulated. Most likely not desirable.
-                        return;
-                    }
-                }
                 foreach (var bodyPart in _bodyPartsDic[chara])
                 {
                     if (bodyPart.IsLimb())

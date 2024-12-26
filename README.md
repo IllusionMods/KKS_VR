@@ -93,6 +93,8 @@ Available in **H, Talk and Text Scenes** when interacting with a character i.e. 
 * **DirectionVertical** while in *Grasp* and holding the whole character to move in direction of the camera.
 * **DirectionVertical** while in *Grasp* to Show/Hide guide objects of held bodyParts. Temporarily overrides setting.
 
+Setting *Maintain limb orientation* changes drastically behavior of arms.
+
 ### Menu interaction
 Available in **Any Scene** when aiming controller at the floating in-game *Menu*.
 * **Grip** to grab *Menu*.
@@ -145,7 +147,8 @@ Available in **Talk and Text Scenes**.
 ### Roaming Interpreter
 Available in **Roaming Scene**.
 * **Trigger** to start locomotion.
-* **DirectionUp** to interact.
+* **DirectionUp** to interact or speed up.
+* **DirectionDown** to crouch or stand up.
 * **Horizontal direction** to change *Yaw*.
 
 ## Controls Studio

@@ -23,12 +23,21 @@ namespace KK_VR.Handlers
         private static MouthGuide _instance;
         internal bool PauseInteractions
         {
-            get => _pauseInteractions || _activeCo;
+            get => _pauseInteractions || ActiveCo;
             set => _pauseInteractions = value;
         }
         internal Transform LookAt => _lookAt;
         private static bool _pauseInteractions;
-        internal bool IsActive => _activeCo;
+        internal bool IsActive => ActiveCo;
+        private bool ActiveCo
+        {
+            get => _activeCo;
+            set
+            {
+                _activeCo = value;
+                KoikatuInterpreter.SceneInput.SetBusy(value);
+            }
+        }
         private bool _activeCo;
         private bool _disengage;
         private ChaControl _lastChara;
@@ -115,7 +124,7 @@ namespace KK_VR.Handlers
             if (Tracker.AddCollider(other))
             {
                 var touch = Tracker.colliderInfo.behavior.touch;
-                if (touch != AibuColliderKind.none && !PauseInteractions && (_aibu || KoikatuInterpreter.SceneInterpreter.IsGripMove()))
+                if (touch != AibuColliderKind.none && !PauseInteractions && (_aibu || KoikatuInterpreter.SceneInput.IsGripMove()))
                 {
                     if (touch == AibuColliderKind.mouth && KoikatuInterpreter.Settings.AssistedKissing)
                     {
@@ -264,7 +273,7 @@ namespace KK_VR.Handlers
         {
             Halt(disengage: false);
             _lastChara = HSceneInterpreter.lstFemale[0];
-            _activeCo = true;
+            ActiveCo = true;
             StartCoroutine(KissCo());
         }
         private void StartLick(AibuColliderKind colliderKind)
@@ -274,7 +283,7 @@ namespace KK_VR.Handlers
                 Halt(disengage: false);
                 DestroyGripMove();
                 _lastChara = HSceneInterpreter.lstFemale[0];
-                _activeCo = true;
+                ActiveCo = true;
                 if (IntegrationSensibleH.active)
                 {
                     IntegrationSensibleH.OnLickStart(AibuColliderKind.none);
@@ -403,7 +412,7 @@ namespace KK_VR.Handlers
 
         private IEnumerator AttachCo(AibuColliderKind colliderKind)
         {
-            _activeCo = true;
+            ActiveCo = true;
            //VRPlugin.Logger.LogDebug($"MouthGuide:AttachCo:Start");
             yield return CoroutineUtils.WaitForEndOfFrame;
             var origin = VR.Camera.Origin;
@@ -485,7 +494,7 @@ namespace KK_VR.Handlers
         {
             //VRPlugin.Logger.LogDebug($"Mouth:Disengage:Start");
 
-            _activeCo = true;
+            ActiveCo = true;
             _disengage = true;
             yield return new WaitUntil(() => !_gripMove);
             yield return CoroutineUtils.WaitForEndOfFrame;
@@ -553,7 +562,7 @@ namespace KK_VR.Handlers
             }
 
             //VRPlugin.Logger.LogDebug($"MouthGuide:Disengage:End");
-            _activeCo = false;
+            ActiveCo = false;
             _disengage = false;
         }
         private void DoReaction()
@@ -564,14 +573,14 @@ namespace KK_VR.Handlers
         {
             //VRPlugin.Logger.LogDebug($"MouthGuide:Halt:Disengage = {disengage}");//\n{new StackTrace(0)}");
 
-            if (_activeCo)
+            if (ActiveCo)
             {
                 StopAllCoroutines();
                 if (IntegrationSensibleH.active)
                 {
                     IntegrationSensibleH.OnKissEnd();
                 }
-                _activeCo = false;
+                ActiveCo = false;
                 _disengage = false;
                 _followRotation = false;
                 HSceneInterpreter.handCtrl.DetachItemByUseItem(2);
@@ -593,7 +602,7 @@ namespace KK_VR.Handlers
         {
             foreach (var hand in HandHolder.GetHands)
             {
-                hand.Tool.DestroyGrab();
+                hand.Tool.DestroyGripMove();
             }
             _gripMove = false;
         }

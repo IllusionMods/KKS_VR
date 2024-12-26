@@ -85,12 +85,6 @@
     <Compile Include="VRPlugin.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\VRGIN\VRGIN.csproj">
-      <Project>{b793b76a-353f-491e-afd9-610b1e472dd5}</Project>
-      <Name>VRGIN</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\LICENSE">
       <Link>LICENSE</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -166,6 +160,12 @@
       <Link>Images\icon_warp.png</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\VRGIN\VRGIN\VRGIN.csproj">
+      <Project>{22788a2c-7695-4a6a-a9f0-115ab9a05fd4}</Project>
+      <Name>VRGIN</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -35,7 +35,6 @@ namespace KK_VR.Interpreters
     {
         
         private readonly PoV _pov;
-        private TrackpadDirection _lastDirection;
         private HPointMove _hPointMove;
 
         private readonly static List<int> _lstIKEffectLateUpdate = [];
@@ -55,12 +54,10 @@ namespace KK_VR.Interpreters
         private static bool adjustDirLight;
         private readonly MouthGuide _mouth;
         private static HitReaction _hitReaction;
-        private bool _manipulateSpeed;
 
         // For the manual manipulation of an aibu item, so we don't lose it.
 
 
-        private readonly AibuColliderKind[] _lastAibuKind = new AibuColliderKind[2];
 
         internal static bool IsInsertIdle(string nowAnim) => nowAnim.EndsWith("InsertIdle", StringComparison.Ordinal);
         internal static bool IsIdleOutside(string nowAnim) => nowAnim.Equals("Idle");
@@ -96,6 +93,7 @@ namespace KK_VR.Interpreters
                 };
             }
         }
+
         private static readonly List<string> _aibuAnims =
         [
             "Idle",     // 0
@@ -114,7 +112,6 @@ namespace KK_VR.Interpreters
                 return list;
             }
         }
-
 
         public HSceneInterpreter(MonoBehaviour proc)
         {
@@ -146,6 +143,7 @@ namespace KK_VR.Interpreters
             mouthGuide.localScale = new Vector3(0.1f, 0.1f, 0.1f);
             mouthGuide.localPosition = new Vector3(0, -0.07f, 0.03f);
             mouthGuide.gameObject.layer = 10;
+
             _mouth = mouthGuide.gameObject.AddComponent<MouthGuide>();
             _pov = VR.Camera.gameObject.AddComponent<PoV>();
             _pov.Initialize();
@@ -162,7 +160,13 @@ namespace KK_VR.Interpreters
 #else
             Manager.Config.HData.HInitCamera = true;
 #endif
+            if (!IntegrationSensibleH.active)
+            {
+                IntegrationSensibleH.Init();
+            }
         }
+
+
         internal override void OnDisable()
         {
             SmoothMover.Instance.MakeUpright();
@@ -181,29 +185,13 @@ namespace KK_VR.Interpreters
                 Component.Destroy(GraspHelper.Instance);
             }
         }
+
         internal override void OnUpdate()
         {
             // Exit through the title button in config doesn't trigger hook.
             if (hFlag == null) KoikatuInterpreter.EndScene(KoikatuInterpreter.SceneType.HScene);
             base.OnUpdate();
-            if (_manipulateSpeed) HandleSpeed();
         }
-        private void HandleSpeed()
-        {
-            if (IntegrationSensibleH.active)
-            {
-                IntegrationSensibleH.StopAuto();
-            }
-            if (_lastDirection == TrackpadDirection.Up)
-            {
-                SpeedUp();
-            }
-            else
-            {
-                SlowDown();
-            }
-        }
-
 
         internal override void OnLateUpdate()
         {
@@ -220,214 +208,7 @@ namespace KK_VR.Interpreters
                 adjustDirLight = false;
             }
         }
-        private void SpeedUp()
-        {
-            if (mode == EMode.aibu)
-            {
-                hFlag.SpeedUpClickAibu(Time.deltaTime, hFlag.speedMaxAibuBody, true);
-            }
-            else
-            {
-                if (hFlag.speedCalc < 1f)
-                {
-                    hFlag.SpeedUpClick(Time.deltaTime * 0.2f, 1f);
-                    //hFlag.speedCalc += Time.deltaTime * 0.2f;
-                    if (hFlag.speedCalc > 1f)
-                    {
-                        hFlag.speedCalc = 1f;
-                    }
-                }
-                else
-                {
-                    AttemptFinish();
-                }
-            }
-        }
-        private void SlowDown()
-        {
-            if (mode == EMode.aibu)
-            {
-                hFlag.SpeedUpClickAibu(-Time.deltaTime, hFlag.speedMaxAibuBody, true);
-            }
-            else
-            {
-                if (hFlag.speedCalc > 0f)
-                {
-                    hFlag.SpeedUpClick(Time.deltaTime * -0.2f, 1f);
-
-                    //hFlag.speedCalc -= Time.deltaTime * 0.2f;
-                    if (hFlag.speedCalc < 0f)
-                    {
-                        hFlag.speedCalc = 0f;
-                    }
-                }
-                else
-                {
-                    AttemptStop();
-                }
-            }
-        }
-        private void AttemptFinish()
-        {
-            // Grab SensH ceiling.
-            if (hFlag.gaugeMale == 100f)
-            {
-                // There will be only one finish appropriate for the current mode/setting.
-                RandomButton();
-                _manipulateSpeed = false;
-            }
-        }
-        private void AttemptStop()
-        {
-            // Happens only when we recently pressed the button.
-            _manipulateSpeed = false;
-            Pull();
-            if (IntegrationSensibleH.active)
-            {
-                IntegrationSensibleH.StopAuto();
-            }
-        }
-
-        //private bool SetHand()
-        //{
-        //   //VRPlugin.Logger.LogDebug($"Interpreter:HScene:SetHand");
-        //    if (handCtrl.useItems[0] == null || handCtrl.useItems[1] == null)
-        //    {
-        //        var list = new List<int>();
-        //        for (int i = 0; i < 6; i++)
-        //        {
-        //            if (handCtrl.useAreaItems[i] == null)
-        //            {
-        //                list.Add(i);
-        //            }
-        //        }
-        //        list = list.OrderBy(a => Random.Range(0, 100)).ToList();
-        //        var index = 0;
-        //        foreach (var item in list)
-        //        {
-        //           //VRPlugin.Logger.LogDebug($"Interpreter:HScene:SetHand:Loop:{item}");
-        //            var clothState = handCtrl.GetClothState((AibuColliderKind)(item + 2));
-        //            //var layerInfo = handCtrl.dicAreaLayerInfos[item][handCtrl.areaItem[item]];
-        //            var layerInfo = handCtrl.dicAreaLayerInfos[item][0];
-        //            if (layerInfo.plays[clothState] == -1)
-        //            {
-        //                continue;
-        //            }
-        //            index = item;
-        //            break;
-
-        //        }
-        //       //VRPlugin.Logger.LogDebug($"Interpreter:HScene:SetHand:Required:Choice - {index}");
-
-        //        handCtrl.selectKindTouch = (AibuColliderKind)(index + 2);
-        //        _pov.StartCoroutine(CaressUtil.ClickCo(() => handCtrl.selectKindTouch = AibuColliderKind.none));
-        //        return false;
-        //    }
-        //    else
-        //    {
-        //       //VRPlugin.Logger.LogDebug($"Interpreter:HScene:SetHand:NotRequired");
-        //        PlayReaction();
-        //        return true;
-        //    }
-        //}
-
-        internal override void OnGripMove(int index, bool press)
-        {
-            if (press)
-            {
-                _pressedButtons[index, 1] = true;
-                _pov.OnGripMove(press);
-                _mouth.OnGripMove(press);
-               // _hands[index].Grasp.OnGripRelease();
-                _grip = Grip.Move;
-                if (_mouth.IsActive)
-                {
-                    var hand = HandHolder.GetHand(index);
-                    hand.Tool.LazyGripMove(KoikatuInterpreter.ScaleWithFps(15));
-                    hand.Tool.AttachGripMove(_mouth.LookAt);
-                }
-            }
-            else
-            {
-                _pressedButtons[index, 1] = false;
-                // Check if another controller still gripMoves.
-                if (!IsGripMove())
-                {
-                    _pov.OnGripMove(press);
-                    _mouth.OnGripMove(press);
-                    _grip = Grip.None;
-                    if (_mouth.IsActive)
-                    {
-                        _mouth.UpdateOrientationOffsets();
-                    }
-                }
-            }
-        }
-        private HSceneHandler GetHandler(int index) => (HSceneHandler)HandHolder.GetHand(index).Handler;
-        protected override bool OnTrigger(int index, bool press)
-        {
-            // With present 'Wait' for 'Direction' (no buttons pressed) trigger simply finishes 'Wait' and prompts the action,
-            // but if button is present, it in addition also offers alternative mode. Currently TouchpadPress only.
-            var handler = GetHandler(index);
-            var grasp = HandHolder.GetHand(index).Grasp;
-            if (press)
-            {
-                _pressedButtons[index, 0] = true;
-                switch (_grip)
-                {
-                    case Grip.None:
-                        if (_mouth.IsActive)
-                        {
-                            _mouth.OnTriggerPress();
-                        }
-                        else if (IsWait && !IsTouchpadPress(index))
-                        {
-                            PickAction();
-                        }
-                        else if (handler.IsBusy)
-                        {
-                            //Merge this with usual PickAction.
-                            if (IsTouchpadPress(index) && grasp.OnTouchpadResetEverything(handler.GetChara))
-                            {
-                                // Touchpad pressed + trigger = premature total reset of tracked character.
-                                RemoveWait(index, EVRButtonId.k_EButton_SteamVR_Touchpad);
-                            }
-                            else
-                            {
-                                // Send synthetic click.
-                                handler.UpdateTracker();
-                                handler.TriggerPress();
-                            }
-                        }
-                        break;
-                    case Grip.Caress:
-                        if (IntegrationSensibleH.active)
-                        {
-                            IntegrationSensibleH.JudgeProc(_lastAibuKind[index]);
-                        }
-                        else
-                        {
-                            handCtrl.JudgeProc();
-                        }
-                        break;
-                    case Grip.Grasp:
-                        AddWait(index, EVRButtonId.k_EButton_SteamVR_Trigger, _settings.ShortPress);
-                        break;
-                }
-            }
-            else
-            {
-                _pressedButtons[index, 0] = false;
-                if (_grip != Grip.Move)
-                {
-                    HandHolder.GetHand(index).Grasp.OnTriggerRelease();
-                }
-                handler.TriggerRelease();
-                PickAction(index, EVRButtonId.k_EButton_SteamVR_Trigger);
-            }
-
-            return false;
-        }
+               
         internal static void EnableNip(AibuColliderKind colliderKind)
         {
             if (colliderKind == AibuColliderKind.muneL || colliderKind == AibuColliderKind.muneR)
@@ -441,478 +222,20 @@ namespace KK_VR.Interpreters
                 //}
             }
         }
+
         internal static void ShowAibuHand(AibuColliderKind colliderKind, bool show)
         {
             handCtrl.useAreaItems[(int)colliderKind - 2].objBody.GetComponent<Renderer>().enabled = show;
         }
+
         internal void ToggleAibuHandVisibility(AibuColliderKind colliderKind)
         {
             var renderer = handCtrl.useAreaItems[(int)colliderKind - 2].objBody.GetComponent<Renderer>();
             renderer.enabled = !renderer.enabled;
             EnableNip(colliderKind);
         }
-        protected override bool OnMenu(int index, bool press)
-        {
-            if (press)
-            {
-                return HandHolder.GetHand(index).Grasp.OnMenuPress();
-            }
-            return false;
-        }
-        protected override bool OnGrip(int index, bool press)
-        {
-            var handler = GetHandler(index);
-            //VRPlugin.Logger.LogDebug($"OnGrip:{handler.IsBusy}");
-            if (press)
-            {
-                _pressedButtons[index, 1] = true;
-                if (HandHolder.GetHand(index).IsParent)
-                {
-                    HandHolder.GetHand(index).Grasp.OnGripRelease();
-                }
-                else if (handler.IsBusy)
-                {
-                    handler.UpdateTracker();
-                    if (handler.IsAibuItemPresent(out var touch))
-                    {
-                        _grip = Grip.Caress;
-                        handler.StartMovingAibuItem(touch);
-                        _lastAibuKind[index] = touch;
-                        if (IntegrationSensibleH.active && handCtrl.GetUseAreaItemActive() != -1)
-                        {
-                            IntegrationSensibleH.ReleaseItem(touch);
-                        }
-                        EnableNip(touch);
-                        if (_settings.HideHandOnUserInput != Settings.KoikatuSettings.HandType.None)
-                        {
-                            if (_settings.HideHandOnUserInput > Settings.KoikatuSettings.HandType.ControllerItem)
-                            {
-                                ShowAibuHand(touch, false);
-                            }
-                            if (_settings.HideHandOnUserInput != Settings.KoikatuSettings.HandType.CaressItem)
-                            {
-                                HandHolder.GetHand(index).SetItemRenderer(false);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // Shouldn't appear anymore, blacks are cleared properly.
-                        if (!handler.InBlack)
-                        {
-                            // We grasped something, don't start GripMove.
-                            _grip = Grip.Grasp;
-                            HandHolder.GetHand(index).Grasp.OnGripPress(handler.GetTrackPartName(), handler.GetChara);
-                        }
-                    }
-                    return true;
-                }
-            }
-            else
-            {
-                _grip = Grip.None;
-                _pressedButtons[index, 1] = false;
 
-                handler.StopMovingAibuItem();
-                HandHolder.GetHand(index).Grasp.OnGripRelease();
-            }
-            return false;
-        }
-        protected override bool OnTouchpad(int index, bool press)
-        {
-            if (press)
-            {
-                _pressedButtons[index, 2] = true;
-
-                if (_grip == Grip.Move)
-                {
-                    if (!_pov.OnTouchpad(true))
-                    {
-                        if (!IsTriggerPress(index))
-                        {
-                            // Reset to upright. 
-                            AddWait(index, EVRButtonId.k_EButton_SteamVR_Touchpad, 0.6f); // 0.7f
-                        }
-                    }
-
-                }
-                else
-                {
-                    if (IsTriggerPress(index))
-                    {
-                        HandHolder.GetHand(index).ChangeItem();
-                    }
-                    else if (!HandHolder.GetHand(index).Grasp.OnTouchpadResetHeld())
-                    {
-                        AddWait(index, EVRButtonId.k_EButton_SteamVR_Touchpad, 0.35f);
-                    }
-                }
-
-            }
-            else
-            {
-                _pressedButtons[index, 2] = false;
-
-                PickAction(index, EVRButtonId.k_EButton_SteamVR_Touchpad);
-            }
-            return false;
-        }
-        private TrackpadDirection SwapSides(TrackpadDirection direction)
-        {
-            return direction switch
-            {
-                TrackpadDirection.Left => TrackpadDirection.Right,
-                TrackpadDirection.Right => TrackpadDirection.Left,
-                _ => direction
-            };
-
-        }
-        internal override bool OnDirectionDown(int index, TrackpadDirection direction)
-        {
-            var wait = 0f;
-            var speed = false;
-            var handler = GetHandler(index);
-            var grasp = HandHolder.GetHand(index).Grasp;
-
-            if (index == 0)
-            {
-                // We respect lefties now.
-                direction = SwapSides(direction);
-            }
-            switch (direction)
-            {
-                case TrackpadDirection.Up:
-                case TrackpadDirection.Down:
-                    if (grasp.IsBusy)
-                    {
-                        grasp.OnVerticalScroll(direction == TrackpadDirection.Up);
-                    }
-                    else if (handler.IsBusy)
-                    {
-                        handler.UpdateTracker();
-                        if (handler.DoUndress(direction == TrackpadDirection.Down))
-                        {
-
-                        }
-                        else
-                        {
-
-                        }
-                    }
-                    else
-                    {
-                        if (IsHPointMove)
-                        {
-                            MoveCategory(direction == TrackpadDirection.Down);
-                        }
-                        else if (IsActionLoop)
-                        {
-                            if (mode == EMode.aibu)
-                            {
-                                if (IsHandActive)
-                                {
-                                    // Reaction if too long, speed meanwhile.
-                                    wait = 3f;
-                                    speed = true;
-                                }
-                                else
-                                {
-                                    // Reaction/Lean to kiss.
-                                    wait = _settings.LongPress;
-                                }
-                            }
-                            else
-                            {
-                                speed = true;
-                            }
-                        }
-                        else
-                        {
-                            // ?? is this.
-                            wait = 0.5f;
-                        }
-                    }
-                    break;
-                case TrackpadDirection.Left:
-                case TrackpadDirection.Right:
-                    if (grasp.IsBusy)
-                    {
-                        grasp.OnBusyHorizontalScroll(direction == TrackpadDirection.Right);
-                    }
-                    else if (handler.IsBusy)
-                    {
-                        handler.UpdateTracker();
-                        if (grasp.OnFreeHorizontalScroll(handler.GetTrackPartName(), handler.GetChara, direction == TrackpadDirection.Right))
-                        {
-
-                        }
-                        else if (handler.IsAibuItemPresent(out var touch))
-                        {
-                            if (IsHandActive)
-                            {
-                                ToggleAibuHandVisibility(touch);
-                            }
-                            else
-                            {
-                                SetSelectKindTouch(touch);
-                                VR.Input.Mouse.VerticalScroll(direction == TrackpadDirection.Right ? -1 : 1);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (IsTriggerPress(index))
-                        {
-                            HandHolder.GetHand(index).ChangeLayer(direction == TrackpadDirection.Right);
-                        }
-                        else if (IsHPointMove)
-                        {
-                            if (direction == TrackpadDirection.Right)
-                                wait = _settings.LongPress;
-                            else
-                                GetHPointMove.Return();
-                        }
-                        else if (IsActionLoop)
-                        {
-                            if (mode == EMode.aibu)
-                            {
-                                ScrollAibuAnim(direction == TrackpadDirection.Right);
-                            }
-                            else if (IntegrationSensibleH.active)
-                            {
-                                IntegrationSensibleH.ChangeLoop(GetCurrentLoop(direction == TrackpadDirection.Right));
-                            }
-                        }
-                        else
-                            wait = _settings.LongPress;
-                    }
-                    break;
-            }
-            _manipulateSpeed = speed;
-            _lastDirection = direction;
-            if (wait != 0f)
-            {
-                AddWait(index, direction, speed, wait);
-                return true;
-            }
-            else
-                return false;
-        }
-
-        internal override void OnDirectionUp(int index, TrackpadDirection direction)
-        {
-            if (IsWait)
-            {
-                PickAction(index, direction);
-            }
-            else if (_manipulateSpeed)
-            {
-                _manipulateSpeed = false;
-                if (IntegrationSensibleH.active)
-                {
-                    IntegrationSensibleH.OnUserInput();
-                }
-            }
-            HandHolder.GetHand(index).Grasp.OnScrollRelease();
-        }
-
-        protected override void PickButtonAction(InputWait wait, Timing timing)
-        {
-            var handler = GetHandler(wait.index);
-            var grasp = HandHolder.GetHand(wait.index).Grasp;
-            switch (wait.button)
-            {
-                case EVRButtonId.k_EButton_SteamVR_Touchpad:
-                    if (timing == Timing.Full)
-                    {
-                        if (handler.IsBusy)
-                        {
-                            handler.UpdateTracker(tryToAvoid: PoV.Active ? PoV.Target : null);
-
-                            // We attempt to reset active body part (held parts reset on press);
-                            if (!grasp.OnTouchpadResetActive(handler.GetTrackPartName(), handler.GetChara))
-                            {
-                                // We update tracker to remove bias from PoV target we set beforehand.
-                                handler.UpdateTracker();
-
-                                // We attempt to impersonate, false if already impersonating/or setting.
-                                var chara = handler.GetChara;
-                                if (PoV.Active && PoV.Target == chara && grasp.OnTouchpadSyncStart(handler.GetTrackPartName(), chara))
-                                {
-                                    _pov.OnLimbSync(start: true);
-                                }
-                            }
-
-                        }
-                        else
-                        {
-                            if (HandHolder.GetHand(wait.index).Grasp.OnTouchpadSyncStop())
-                            {
-                                _pov.OnLimbSync(start: false);
-                            }
-                            else
-                            {
-                                _pov.TryEnable();
-                            }
-                        }
-                    }
-                    break;
-                case EVRButtonId.k_EButton_SteamVR_Trigger:
-                    if (grasp.IsBusy)
-                    {
-                        grasp.OnTriggerPress(temporarily: timing == Timing.Full);
-                    }
-                    break;
-            }
-        }
-        protected override void PickDirectionAction(InputWait wait, Timing timing)
-        {
-            _manipulateSpeed = false;
-            switch (wait.direction)
-            {
-                case TrackpadDirection.Up:
-                    if (mode == EMode.aibu)
-                    {
-                        if (IsActionLoop)
-                        {
-                            switch (timing)
-                            {
-                                case Timing.Fraction:
-                                    if (!IsHandActive && IsHandAttached)
-                                    {
-                                        PlayReaction();
-                                    }
-                                    break;
-                                case Timing.Half:
-                                    break;
-                                case Timing.Full:
-                                    break;
-                            }
-                        }
-                        else // Non-action Aibu mode.
-                        {
-                            switch (timing)
-                            {
-                                case Timing.Fraction:
-                                    if (Random.value < 0.5f)
-                                    {
-                                        PlayShort(lstFemale[0]);
-                                    }
-                                    break;
-                                case Timing.Half:
-                                    // Put in denial + voice.
-                                    break;
-                                case Timing.Full:
-                                    //SetHand();
-                                    break;
-                            }
-                        }
-                    }
-                    else // Non-Aibu mode.
-                    {
-                        switch (timing)
-                        {
-                            case Timing.Fraction:
-                            case Timing.Half:
-                                PlayReaction();
-                                break;
-                            case Timing.Full:
-                                Insert(noVoice: IsTriggerPress(wait.index), anal: IsTouchpadPress(wait.index));
-                                break;
-                        }
-                    }
-                    break;
-                case TrackpadDirection.Down:
-                    if (mode == EMode.aibu)
-                    {
-                        if (IsActionLoop)
-                        {
-                            switch (timing)
-                            {
-                                case Timing.Fraction:
-                                case Timing.Half:
-                                    break;
-                                case Timing.Full:
-
-                                    LeanToKiss();
-
-                                    break;
-                            }
-                        }
-                        else // Non-action Aibu mode.
-                        {
-                            switch (timing)
-                            {
-                                case Timing.Fraction:
-                                case Timing.Half:
-                                    break;
-                                case Timing.Full:
-                                    LeanToKiss();
-                                    break;
-                            }
-                        }
-                    }
-                    else // Non-Aibu mode.
-                    {
-                        switch (timing)
-                        {
-                            case Timing.Fraction:
-                            case Timing.Half:
-                                PlayReaction();
-                                break;
-                            case Timing.Full:
-                                Pull();
-                                break;
-                        }
-                    }
-                    break;
-                case TrackpadDirection.Right:
-                    switch (timing)
-                    {
-                        case Timing.Fraction:
-                        case Timing.Half:
-                            PlayShort(lstFemale[0]);
-                            break;
-                        case Timing.Full:
-                            if (!IsHPointMove)
-                            {
-                                hFlag.click = ClickKind.pointmove;
-                            }
-                            else
-                            {
-                                _pov.StartCoroutine(RandomHPointMove(startScene: false));
-                            }
-                            break;
-                    }
-                    break;
-                case TrackpadDirection.Left:
-                    switch (timing)
-                    {
-                        case Timing.Fraction:
-                        case Timing.Half:
-                            PlayShort(lstFemale[0]);
-                            break;
-                        case Timing.Full:
-                            if (IntegrationSensibleH.active)
-                            {
-                                if (IsTouchpadPress(wait.index))
-                                {
-                                    // Any animation goes.
-                                    IntegrationSensibleH.ChangeAnimation(-1);
-                                }
-                                else
-                                {
-                                    // SameMode.
-                                    IntegrationSensibleH.ChangeAnimation(3);
-                                }
-                            }
-                            break;
-                    }
-                    break;
-            }
-        }
-
-        public static bool PlayShort(ChaControl chara, bool voiceWait = true)
+        internal static bool PlayShort(ChaControl chara, bool voiceWait = true)
         {
             if (lstFemale.Contains(chara))
             {
@@ -928,7 +251,8 @@ namespace KK_VR.Interpreters
             }
             return false;
         }
-        private IEnumerator RandomHPointMove(bool startScene)
+
+        internal IEnumerator RandomHPointMove(bool startScene)
         {
             if (startScene)
             {
@@ -947,22 +271,25 @@ namespace KK_VR.Interpreters
 #else
             Scene.Unload();
 #endif
-
         }
+
         internal static void SetSelectKindTouch(AibuColliderKind colliderKind)
         {
             if (handCtrl != null) handCtrl.selectKindTouch = colliderKind;
         }
+
         private int GetCurrentBackIdleIndex()
         {
             var twoLetters = hFlag.nowAnimStateName.Remove(2);
-            var anim = _aibuAnims.Where(anim => anim.StartsWith(twoLetters, StringComparison.Ordinal)).FirstOrDefault();
+            var anim = _aibuAnims
+                .Where(anim => anim.StartsWith(twoLetters, StringComparison.Ordinal))
+                .FirstOrDefault();
             var index = _aibuAnims.IndexOf(anim);
             _backIdle = index == 4 ? 0 : index;
-           //VRPlugin.Logger.LogDebug($"GetCurrentBackIdleIndex:{anim}:{_backIdle}");
             return index;
         }
-        public static void LeanToKiss()
+
+        internal static void LeanToKiss()
         {
             HScenePatches.HoldKissLoop();
             if (IntegrationSensibleH.active)
@@ -971,7 +298,8 @@ namespace KK_VR.Interpreters
             }
             SetPlay(_aibuAnims[4]);
         }
-        private void ScrollAibuAnim(bool increase)
+
+        internal void ScrollAibuAnim(bool increase)
         {
             var index = GetCurrentBackIdleIndex() + (increase ? 1 : -1);
             if (index > 3)
@@ -983,10 +311,9 @@ namespace KK_VR.Interpreters
                 index = 3;
             }
             _pov.StartCoroutine(PlayAnimOverTime(index));
-
-            //VRPlugin.Logger.LogDebug($"PlayAibuAnim:{_aibuAnims[index]}:{index}");
         }
-        private void PlayReaction()
+
+        internal static void PlayReaction()
         {
             var nowAnim = hFlag.nowAnimStateName;
             switch (mode)
@@ -1033,6 +360,7 @@ namespace KK_VR.Interpreters
                     break;
             }
         }
+
         private IEnumerator PlayAnimOverTime(int index)
         {
             PlayReaction();
@@ -1041,11 +369,13 @@ namespace KK_VR.Interpreters
             HScenePatches.suppressSetIdle = true;
             SetPlay(_aibuAnims[index]);
         }
-        public static void SetPlay(string animation)
+
+        internal static void SetPlay(string animation)
         {
             lstProc[(int)hFlag.mode].SetPlay(animation, true);
         }
-        private void MoveCategory(bool increase)
+
+        internal void MoveCategory(bool increase)
         {
             var list = GetHPointCategoryList;
             var index = list.IndexOf(GetHPointMove.nowCategory);
@@ -1073,13 +403,15 @@ namespace KK_VR.Interpreters
             }
             ChangeCategory(index);
         }
+
         private void ChangeCategory(int index)
         {
             var list = GetHPointCategoryList;
             GetHPointMove.SelectPointVisible(list[index], true);
             GetHPointMove.nowCategory = list[index];
         }
-        private int GetCurrentLoop(bool increase)
+
+        internal int GetCurrentLoop(bool increase)
         {
             if (IsWeakLoop)
             {
@@ -1092,100 +424,7 @@ namespace KK_VR.Interpreters
             // OLoop
             return increase ? 2 : 1;
         }
-        private bool InsertHelper()
-        {
-            var nowAnim = hFlag.nowAnimStateName;
-            if (mode == EMode.sonyu)
-            {
-                if (IsInsertIdle(nowAnim) || IsAfterClimaxInside(nowAnim))
-                {
-                    // Sonyu start auto.
-                    hFlag.click = ClickKind.modeChange;
-                    if (IntegrationSensibleH.active)
-                    {
-                        IntegrationSensibleH.OnUserInput();
-                    }
-                }
-                else// if (!hFlag.voiceWait)
-                {
-                    return true;
-                }
-            }
-            else if (mode == EMode.houshi)
-            {
-                if (IsClimaxHoushiInside(nowAnim))
-                {
-                    hFlag.click = ClickKind.drink;
-                }
-                else if (IsIdleOutside(nowAnim))
-                {
-                    // Start houshi after pose change/long pause after finish.
-                    hFlag.click = ClickKind.speedup;
-                    if (IntegrationSensibleH.active)
-                    {
-                        IntegrationSensibleH.OnUserInput();
-                    }
-                }
-                else if (IsAfterClimaxHoushiInside(nowAnim) || IsAfterClimaxOutside(nowAnim))
-                {
-                    // Restart houshi.
-                    RandomButton();
-                }
-                else
-                {
-                    return true;
-                }
-            }
-            else
-            {
-                return true;
-            }
-            return false;
-        }
-        private int _frameWait;
-        private bool PullHelper()
-        {
-            var nowAnim = hFlag.nowAnimStateName;
-
-            if (mode == EMode.sonyu)
-            {
-                if (IsIdleOutside(nowAnim) || IsAfterClimaxOutside(nowAnim))
-                {
-                    // When outside pull back to get condom on. Extra plugin disables auto condom on denial.
-                    sprite.CondomClick();
-                }
-                else if (IsFinishLoop)
-                {
-                    hFlag.finish = FinishKind.outside;
-                }
-                else if (IsActionLoop)
-                {
-                    hFlag.click = ClickKind.modeChange;
-                    WaitFrame(3);
-                }
-                else
-                {
-                    return true;
-                }
-            }
-            else if (mode == EMode.houshi)
-            {
-                if (IsClimaxHoushiInside(nowAnim))
-                {
-                    hFlag.click = ClickKind.vomit;
-                }
-                else if (IsActionLoop)
-                {
-                    lstProc[(int)hFlag.mode].MotionChange(0);
-                }
-                else
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
+        
         internal static void OnPoseChange(HSceneProc.AnimationListInfo anim)
         {
             mode = anim.mode switch
@@ -1199,100 +438,17 @@ namespace KK_VR.Interpreters
             MouthGuide.OnPoseChange(anim.mode);
             if (male != null)
             {
-                // KK has it by default? KKS definitely disables them for male.
+                // KK has it by default? KKS definitely disables them for the male.
                 SceneExtras.EnableDynamicBones(male);
             }
         }
+
         internal static void OnSpotChange()
         {
             adjustDirLight = true;
-            //_pov.OnSpotChange();
-            //GraspHelper.Instance.OnSpotChangePost();
             GraspController.OnSpotPoseChange();
-
-        }
-        private void Insert(bool noVoice, bool anal)
-        {
-            if (InsertHelper())
-            {
-                if (IntegrationSensibleH.active)
-                {
-                    IntegrationSensibleH.ClickButton(GetButtonName(anal, hFlag.isDenialvoiceWait || noVoice));
-                }
-                else if (mode == EMode.sonyu)
-                {
-                    // Houshi is done mostly by helper.
-                    hFlag.click = anal ? noVoice ? ClickKind.insert_anal : ClickKind.insert_anal_voice : noVoice ? ClickKind.insert : ClickKind.insert_voice;
-                }
-            }
         }
 
-        private string GetButtonName(bool anal, bool noVoice)
-        {
-            string name;
-            switch (mode)
-            {
-                case EMode.sonyu:
-                    name = "Insert";
-                    if (anal)
-                    {
-                        name += "Anal";
-                    }
-                    if (noVoice)
-                    {
-                        name += "_novoice";
-                    }
-                    break;
-                default:
-                    name = "";
-                    break;
-            }
-            return name;
-        }
-        private void Pull()
-        {
-            if (!IsFrameWait() && PullHelper())
-            {
-                if (IntegrationSensibleH.active)
-                {
-                    IntegrationSensibleH.ClickButton("Pull");
-                }
-                else
-                {
-                    hFlag.click = ClickKind.pull;
-                }
-            }
-        }
-        private bool IsFrameWait()
-        {
-            // Clutch to skip frames while changeing speed.
-            if (_frameWait != 0)
-            {
-               //VRPlugin.Logger.LogDebug($"FrameWait");
-                if (!CrossFader.InTransition)
-                {
-                    _frameWait--;
-                }
-                _manipulateSpeed = true;
-                return true;
-            }
-            return false;
-        }
-        private void WaitFrame(int count)
-        {
-            _frameWait = count;
-            _manipulateSpeed = true;
-        }
-        /// <summary>
-        /// Empty string to click whatever is there(except houshi slow/fast), otherwise checks start of the string and clicks corresponding button.
-        /// </summary>
-        private void RandomButton()
-        {
-            if (IntegrationSensibleH.active)
-            {
-                IntegrationSensibleH.ClickButton("");
-            }
-        }
         public void HitReactionInitialize(IEnumerable<ChaControl> charas)
         {
             if (_hitReaction == null)
@@ -1302,6 +458,7 @@ namespace KK_VR.Interpreters
             ControllerTracker.Initialize(charas);
             HandHolder.UpdateHandlers<HSceneHandler>();
         }
+
         public static void HitReactionPlay(AibuColliderKind aibuKind, ChaControl chara, bool voiceWait)
         {
             // This roundabout way is to allow player to touch anybody present, including himself, janitor,
@@ -1335,5 +492,48 @@ namespace KK_VR.Interpreters
 
             PlayShort(chara, voiceWait);
         }
+
+        //private bool SetHand()
+        //{
+        //   //VRPlugin.Logger.LogDebug($"Interpreter:HScene:SetHand");
+        //    if (handCtrl.useItems[0] == null || handCtrl.useItems[1] == null)
+        //    {
+        //        var list = new List<int>();
+        //        for (int i = 0; i < 6; i++)
+        //        {
+        //            if (handCtrl.useAreaItems[i] == null)
+        //            {
+        //                list.Add(i);
+        //            }
+        //        }
+        //        list = list.OrderBy(a => Random.Range(0, 100)).ToList();
+        //        var index = 0;
+        //        foreach (var item in list)
+        //        {
+        //           //VRPlugin.Logger.LogDebug($"Interpreter:HScene:SetHand:Loop:{item}");
+        //            var clothState = handCtrl.GetClothState((AibuColliderKind)(item + 2));
+        //            //var layerInfo = handCtrl.dicAreaLayerInfos[item][handCtrl.areaItem[item]];
+        //            var layerInfo = handCtrl.dicAreaLayerInfos[item][0];
+        //            if (layerInfo.plays[clothState] == -1)
+        //            {
+        //                continue;
+        //            }
+        //            index = item;
+        //            break;
+
+        //        }
+        //       //VRPlugin.Logger.LogDebug($"Interpreter:HScene:SetHand:Required:Choice - {index}");
+
+        //        handCtrl.selectKindTouch = (AibuColliderKind)(index + 2);
+        //        _pov.StartCoroutine(CaressUtil.ClickCo(() => handCtrl.selectKindTouch = AibuColliderKind.none));
+        //        return false;
+        //    }
+        //    else
+        //    {
+        //       //VRPlugin.Logger.LogDebug($"Interpreter:HScene:SetHand:NotRequired");
+        //        PlayReaction();
+        //        return true;
+        //    }
+        //}
     }
 }

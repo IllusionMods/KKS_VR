@@ -108,6 +108,7 @@ namespace KK_VR.Handlers
             _attach = false;
             //SetBodyPartCollidersToTrigger(false);
             _bodyPart.visual.Hide();
+            _bodyPart.state = State.Active;
         }
 
         internal void StartRelativeRotation()
@@ -151,8 +152,8 @@ namespace KK_VR.Handlers
             _translateEx = true;
             _attach = true;
             _target = target;
-
             _bodyPart.visual.Hide();
+            _bodyPart.state = State.Attached;
 
             _translateExOffset = _anchor.position - _bodyPart.afterIK.position;
 

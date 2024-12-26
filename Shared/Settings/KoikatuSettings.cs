@@ -67,17 +67,11 @@ namespace KK_VR.Settings
         }
         private float _CrouchingCameraPos = 0.7f;
 
-        public bool CrouchByHMDPos
-        {
-            get => _CrouchByHMDPos;
-            set => _CrouchByHMDPos = value;
-        }
+        public bool CrouchByCameraPos;
 
-        private bool _CrouchByHMDPos = true;
+        //public float CrouchThreshold { get; set; }
 
-        public float CrouchThreshold { get; set; }
-
-        public float StandUpThreshold { get; set; }
+        //public float StandUpThreshold { get; set; }
 
         public float RotationAngle { get; set; }
 

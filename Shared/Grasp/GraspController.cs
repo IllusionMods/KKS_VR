@@ -155,7 +155,6 @@ namespace KK_VR.Grasp
                 UpdateBlackList();
             }
             _hand.OnGraspRelease();
-            MouthGuide.Instance.PauseInteractions = false;
         }
         private void StopTempGrasp()
         {
@@ -662,7 +661,6 @@ namespace KK_VR.Grasp
             {
                 bodyPart.chain.bendConstraint.weight = KoikatuInterpreter.Settings.IKDefaultBendConstraint;
             }
-            bodyPart.state = State.Attached;
             bodyPart.guide.Attach(attachPoint);
             
             //_hand.Handler.RemoveGuideObjects();

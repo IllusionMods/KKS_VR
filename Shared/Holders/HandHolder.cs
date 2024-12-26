@@ -46,6 +46,10 @@ namespace KK_VR.Holders
         internal ItemHandler Handler => _handler;
         internal GraspController Grasp { get; private set; }
         internal GameplayTool Tool { get; private set; }
+
+        /// <summary>
+        /// Clutch for unruly colliders in roaming.
+        /// </summary>
         internal static void SetKinematic(bool state)
         {
             foreach (var inst in _instances)
@@ -61,8 +65,8 @@ namespace KK_VR.Holders
             _instances.Add(this);
             Index = index;
             Controller = index == 0 ? VR.Mode.Left : VR.Mode.Right;
-            Tool = Controller.GetComponent<GameplayTool>();
             _controller = Controller.transform;
+            Tool = Controller.GetComponent<GameplayTool>();
             if (_loadedAssetsList.Count == 0)
             {
                 LoadAssets();
@@ -71,6 +75,14 @@ namespace KK_VR.Holders
             SetItems(index);
             Grasp = new GraspController(this);
             _handNoise = new HandNoise(gameObject.AddComponent<AudioSource>());
+        }
+
+        internal static void OnBecomingBusy()
+        {
+            foreach (var inst in _instances)
+            {
+                inst.Tool.HideLaser();
+            }
         }
 
         internal static void UpdateHandlers<T>()
