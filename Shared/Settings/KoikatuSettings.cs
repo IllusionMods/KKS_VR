@@ -218,7 +218,8 @@ namespace KK_VR.Settings
         {
             Disabled,
             Close,
-            Average
+            Average,
+            Auto
         }
 
         public enum MovementTypeH

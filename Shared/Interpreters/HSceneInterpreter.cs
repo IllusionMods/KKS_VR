@@ -28,6 +28,7 @@ using KK_VR.Patches;
 using KK_VR.Grasp;
 using KK_VR.Holders;
 using System.Diagnostics;
+using KK_VR.Settings;
 
 namespace KK_VR.Interpreters
 {
@@ -163,6 +164,10 @@ namespace KK_VR.Interpreters
             if (!IntegrationSensibleH.active)
             {
                 IntegrationSensibleH.Init();
+            }
+            if (_settings.ShadowsOptimization == KoikatuSettings.ShadowType.Auto)
+            {
+                KoikatuInterpreter.TweakShadowSettings(KoikatuSettings.ShadowType.Close);
             }
         }
 

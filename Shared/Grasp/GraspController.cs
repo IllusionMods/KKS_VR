@@ -116,7 +116,9 @@ namespace KK_VR.Grasp
             {
                 _helper = charas.First().gameObject.AddComponent<GraspHelper>();
                 _helper.Init(charas, _bodyPartsDic);
-                VRPlugin.Logger.LogWarning($"Grasp:Init");
+#if DEBUG
+                VRPlugin.Logger.LogInfo($"Grasp:Init");
+#endif
             }
             else
             {
@@ -304,7 +306,7 @@ namespace KK_VR.Grasp
         }
         internal bool OnTriggerPress(bool temporarily)
         {
-           //VRPlugin.Logger.LogDebug($"OnTriggerPress");
+            //VRPlugin.Logger.LogDebug($"OnTriggerPress");
 
             // We look for a BodyPart from which grasp has started (0 index in _heldBodyParts),
             // and attach it to the collider's gameObjects.

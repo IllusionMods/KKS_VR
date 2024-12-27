@@ -47,6 +47,10 @@ namespace KK_VR.Interpreters
             //ResetCamera();
             //ResetState();
             DisableCameraSystem();
+            if (_settings.ShadowsOptimization == KoikatuSettings.ShadowType.Auto)
+            {
+                KoikatuInterpreter.TweakShadowSettings(KoikatuSettings.ShadowType.Average);
+            }
         }
 
         internal override void OnDisable()
@@ -109,7 +113,9 @@ namespace KK_VR.Interpreters
         private void ResetCamera()
         {
 
-            if (actionScene.Player.chaCtrl.objTop.activeSelf)
+            if (actionScene.Player.chaCtrl != null 
+                && actionScene.Player.chaCtrl.objTop != null 
+                && actionScene.Player.chaCtrl.objTop.activeSelf)
             {
                 _cameraSystem = MonoBehaviourSingleton<CameraSystem>.Instance.gameObject;
 

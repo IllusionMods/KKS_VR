@@ -109,6 +109,7 @@ namespace KK_VR.Handlers
             //SetBodyPartCollidersToTrigger(false);
             _bodyPart.visual.Hide();
             _bodyPart.state = State.Active;
+            ClearTracker();
         }
 
         internal void StartRelativeRotation()
@@ -148,6 +149,10 @@ namespace KK_VR.Handlers
         }
         internal override void Attach(Transform target)
         {
+            if (target.name.StartsWith("hand", StringComparison.Ordinal))
+            {
+                _hand.OnBecomingParent();
+            }
             _hand = null;
             _translateEx = true;
             _attach = true;
@@ -159,7 +164,6 @@ namespace KK_VR.Handlers
 
             _offsetRot = Quaternion.Inverse(_target.rotation) * _anchor.rotation;
             _offsetPos = _target.InverseTransformPoint(_anchor.position);
-            //transform.parent = _objAnim;
         }
 
         internal void OnSyncStart()
@@ -167,11 +171,6 @@ namespace KK_VR.Handlers
             _bodyPart.state = State.Synced;
             _translate = new Translate(_anchor, () => _effector.maintainRelativePositionWeight -= Time.deltaTime, () => _translate = null);
         }
-
-        //private void SyncFinish()
-        //{
-        //    ;
-        //}
 
         private void Update()
         {

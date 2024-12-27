@@ -129,6 +129,7 @@ namespace KK_VR.Handlers
                 _translate = new(_anchor, null, Disable);
             }
             BodyPart.visual.Hide();
+            ClearTracker();
         }
         protected virtual void Disable()
         {

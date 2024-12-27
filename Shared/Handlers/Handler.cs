@@ -71,7 +71,9 @@ namespace KK_VR.Handlers
         internal void UpdateTracker(ChaControl tryToAvoid = null)
         {
             Tracker.SetSuggestedInfo(tryToAvoid);
+#if DEBUG
             Tracker.DebugShowActive();
+#endif
         }
 
     }

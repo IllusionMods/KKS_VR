@@ -494,15 +494,15 @@ namespace KK_VR.Holders
         }
         internal void OnGraspRelease()
         {
-            foreach (var inst in _instances)
+            if (!_parent)
             {
-                if (inst.FindChild())
-                {
-                    inst.OnBecomingParent();
-                    if (inst == this) return;
-                }
+                Unshackle();
             }
-            Unshackle();
+            else
+            {
+                // Next GraspRelease will unparent limb from controller.
+                _parent = false;
+            }
         }
         internal void Unshackle()
         {
@@ -518,20 +518,11 @@ namespace KK_VR.Holders
         {
             _itemLag = null;
         }
-        private void OnBecomingParent()
+        internal void OnBecomingParent()
         {
             _parent = true;
             AddLag(10);
             _rigidBody.isKinematic = true;
-        }
-        private bool FindChild()
-        {
-            foreach (Transform child in _anchor.transform)
-            {
-                if (child.name.StartsWith("ik_", StringComparison.Ordinal))
-                    return true;
-            }
-            return false;
         }
 
         //private readonly List<string> _colliderParentListStartsWith =

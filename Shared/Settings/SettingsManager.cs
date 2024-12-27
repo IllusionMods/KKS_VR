@@ -348,7 +348,7 @@ namespace KK_VR.Settings
                     new ConfigurationManagerAttributes { Order = -10, ShowRangeAsPercent = false }));
             Tie(touchReaction, v => settings.TouchReaction = v);
 
-            var shadowType = config.Bind(SectionGeneral, "Shadows", KoikatuSettings.ShadowType.Average,
+            var shadowType = config.Bind(SectionGeneral, "Shadows", KoikatuSettings.ShadowType.Auto,
                 new ConfigDescription(
                     "Optimize shadows for preferred distance.",
                     null,

@@ -20,6 +20,7 @@ using KK_VR.Trackers;
 using KK_VR.Holders;
 using KK_VR.Grasp;
 using static KK_VR.Grasp.GraspController;
+using KK_VR.Settings;
 
 namespace KK_VR.Interpreters
 {
@@ -82,6 +83,11 @@ namespace KK_VR.Interpreters
             _start = true;
             SetHeight();
             HandHolder.UpdateHandlers<TalkSceneHandler>();
+
+            if (_settings.ShadowsOptimization == KoikatuSettings.ShadowType.Auto)
+            {
+                KoikatuInterpreter.TweakShadowSettings(KoikatuSettings.ShadowType.Close);
+            }
         }
         private void SetHeight()
         {

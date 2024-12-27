@@ -38,6 +38,7 @@ namespace KK_VR
             //var vrDeactivated = Environment.CommandLine.Contains("--novr");
 
             var enabled = Environment.CommandLine.Contains("--vr") || SteamVRDetector.IsRunning;
+            // The presence of settings even outside of vr mode for comfy editing.
             var settings = SettingsManager.Create(Config);
             if (enabled)
             {

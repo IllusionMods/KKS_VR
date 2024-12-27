@@ -81,7 +81,11 @@ namespace KK_VR.Controls
             }
             else
             {
+#if KK
                 Laser.transform.localRotation *= Quaternion.Euler(-10f, 0, 0);
+#else
+                Laser.transform.localRotation *= Quaternion.Euler(25f, 0, 0);
+#endif
             }
             Laser.SetVertexCount(2);
             Laser.useWorldSpace = true;

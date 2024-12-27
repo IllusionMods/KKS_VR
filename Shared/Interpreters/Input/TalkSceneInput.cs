@@ -62,9 +62,12 @@ namespace KK_VR.Interpreters
             if (press)
             {
                 _pressedButtons[index, 0] = true;
-                if (!IsBusy)
+                if (IsStateGrasp)
                 {
-
+                    AddWait(index, EVRButtonId.k_EButton_SteamVR_Trigger, _settings.ShortPress);
+                }
+                else
+                {
                     if (IsWait && !IsTouchpadPress(index))
                     {
                         PickAction();
@@ -84,18 +87,12 @@ namespace KK_VR.Interpreters
                         }
                     }
                 }
-                else if (IsStateGrasp)
-                {
-                    AddWait(index, EVRButtonId.k_EButton_SteamVR_Trigger, _settings.ShortPress);
-                }
             }
             else
             {
                 _pressedButtons[index, 0] = false;
-                if (_inputState != InputState.Move)
-                {
-                    HandHolder.GetHand(index).Grasp.OnTriggerRelease();
-                }
+
+                grasp.OnTriggerRelease();
                 handler.TriggerRelease();
                 PickAction(index, EVRButtonId.k_EButton_SteamVR_Trigger);
             }

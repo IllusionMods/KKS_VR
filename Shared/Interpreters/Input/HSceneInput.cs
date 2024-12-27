@@ -210,16 +210,8 @@ namespace KK_VR.Interpreters
             if (press)
             {
                 _pressedButtons[index, 0] = true;
-                if (IsBusy)
+                if (IsStateCaress)
                 {
-                    if (_mouth.IsActive)
-                    {
-                        _mouth.OnTriggerPress();
-                    }
-                }
-                else if (IsStateCaress)
-                {
-
                     if (IntegrationSensibleH.active)
                     {
                         IntegrationSensibleH.JudgeProc(_lastAibuKind[index]);
@@ -231,13 +223,15 @@ namespace KK_VR.Interpreters
                 }
                 else if (IsStateGrasp)
                 {
-
                     AddWait(index, EVRButtonId.k_EButton_SteamVR_Trigger, _settings.ShortPress);
-
                 }
                 else
                 {
-                    if (IsWait && !IsTouchpadPress(index))
+                    if (_mouth.IsActive)
+                    {
+                        _mouth.OnTriggerPress();
+                    }
+                    else if (IsWait && !IsTouchpadPress(index))
                     {
                         PickAction();
                     }
@@ -261,10 +255,8 @@ namespace KK_VR.Interpreters
             else
             {
                 _pressedButtons[index, 0] = false;
-                if (_inputState != InputState.Move)
-                {
-                    HandHolder.GetHand(index).Grasp.OnTriggerRelease();
-                }
+
+                grasp.OnTriggerRelease();
                 handler.TriggerRelease();
                 PickAction(index, EVRButtonId.k_EButton_SteamVR_Trigger);
             }
