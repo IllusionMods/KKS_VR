@@ -98,7 +98,8 @@ namespace KK_VR.Controls
             if (menuInteractable && !_menuHandler.LaserVisible)
             {
                 // Don't show laser if something of interest is going on.
-                if (KoikatuInterpreter.SceneInput.IsBusy || (HandHolder.GetHand(_index).Handler != null && HandHolder.GetHand(_index).Handler.IsBusy))
+                var handler = HandHolder.GetHand(_index).Handler;
+                if (KoikatuInterpreter.SceneInput.IsBusy || (handler != null && handler.IsBusy))
                 {
                     menuInteractable = false;
                 }

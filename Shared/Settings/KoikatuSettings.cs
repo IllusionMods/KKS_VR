@@ -191,6 +191,7 @@ namespace KK_VR.Settings
         public GripMoveStabilization GripMoveStabilize { get; set; }
         public bool GripMoveLimitRotation {  get; set; }
         public int GripMoveStabilizationAmount { get; set; }
+        public bool GripMoveEnableRotation { get; set; }
 
         public float ShortPress {  get; set; }
         public float LongPress { get; set; }

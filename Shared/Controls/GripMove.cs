@@ -228,24 +228,28 @@ namespace KK_VR.Controls
 
         internal void OnTouchpad(bool press)
         {
-            _alterRotation = press;
-            if (press)
+            if (KoikatuInterpreter.Settings.GripMoveEnableRotation)
             {
-                if (_moveLag == null
-                    && (KoikatuInterpreter.Settings.GripMoveStabilize == Settings.KoikatuSettings.GripMoveStabilization.YawAndRotation
-                    || KoikatuInterpreter.Settings.GripMoveStabilize == Settings.KoikatuSettings.GripMoveStabilization.OnlyRotation))
+                _alterRotation = press;
+                if (press)
                 {
-                    _moveLag = new GripMoveLag(_controller, KoikatuInterpreter.ScaleWithFps(KoikatuInterpreter.Settings.GripMoveStabilizationAmount));
+                    if (_moveLag == null
+                        && (KoikatuInterpreter.Settings.GripMoveStabilize == Settings.KoikatuSettings.GripMoveStabilization.YawAndRotation
+                        || KoikatuInterpreter.Settings.GripMoveStabilize == Settings.KoikatuSettings.GripMoveStabilization.OnlyRotation))
+                    {
+                        _moveLag = new GripMoveLag(_controller, KoikatuInterpreter.ScaleWithFps(KoikatuInterpreter.Settings.GripMoveStabilizationAmount));
+                    }
+                }
+                else
+                {
+                    UpdateAttachVec();
+                    if (_attachPoint == null && _moveLag != null && KoikatuInterpreter.Settings.GripMoveStabilize == Settings.KoikatuSettings.GripMoveStabilization.OnlyRotation)
+                    {
+                        _moveLag = null;
+                    }
                 }
             }
-            else
-            {
-                UpdateAttachVec();
-                if (_attachPoint == null && _moveLag != null && KoikatuInterpreter.Settings.GripMoveStabilize ==  Settings.KoikatuSettings.GripMoveStabilization.OnlyRotation)
-                {
-                    _moveLag = null;
-                }
-            }
+            
         }
         private void UpdateAttachVec()
         {
