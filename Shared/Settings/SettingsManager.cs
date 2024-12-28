@@ -289,12 +289,13 @@ namespace KK_VR.Settings
             Tie(proximityKiss, v => settings.ProximityDuringKiss = v);
 
 
-            var imperfectRot = config.Bind(SectionH, "Imperfect rotation", false,
-                new ConfigDescription(
-                    "Allow poorly stabilized rotation after assisted kiss/lick. Purely for aesthetic reasons.",
-                    null,
-                    new ConfigurationManagerAttributes { Order = 6, IsAdvanced = true }));
-            Tie(imperfectRot, v => settings.ImperfectRotation = v);
+            // Got tired of it after a while.
+            //var imperfectRot = config.Bind(SectionH, "Imperfect rotation", false,
+            //    new ConfigDescription(
+            //        "Allow poorly stabilized rotation after assisted kiss/lick. Purely for aesthetic reasons.",
+            //        null,
+            //        new ConfigurationManagerAttributes { Order = 6, IsAdvanced = true }));
+            //Tie(imperfectRot, v => settings.ImperfectRotation = v);
 
 
             // Disabled for now, as the tongue isn't implemented yet, and a stop gap measure seems half assed.

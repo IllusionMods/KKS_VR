@@ -9,6 +9,7 @@ using UnityEngine;
 using Valve.VR;
 using VRGIN.Controls;
 using VRGIN.Core;
+using static VRGIN.Controls.Controller;
 
 namespace KK_VR.Interpreters
 {
@@ -115,6 +116,14 @@ namespace KK_VR.Interpreters
                 .First());
         }
 
+        protected void PickAction(Timing timing)
+        {
+            PickAction(
+                _waitList
+                .OrderByDescending(w => w.button)
+                .First(), timing);
+        }
+
         protected void PickAction(int index, EVRButtonId button)
         {
             if (_waitList.Count == 0) return;
@@ -160,26 +169,30 @@ namespace KK_VR.Interpreters
             }
         }
 
-        private void PickAction(InputWait wait)
+        private void PickAction(InputWait wait, Timing timing)
         {
             // Main entry.
             if (wait.button == EVRButtonId.k_EButton_System)
-                PickDirectionAction(wait, GetTiming(wait.timestamp, wait.duration));
+                PickDirectionAction(wait, timing);
             else
             {
                 if (IsStateMove)
                 {
-                    PickButtonActionGripMove(wait, GetTiming(wait.timestamp, wait.duration));
+                    PickButtonActionGripMove(wait, timing);
                 }
                 else
                 {
-                    PickButtonAction(wait, GetTiming(wait.timestamp, wait.duration));
+                    PickButtonAction(wait, timing);
                 }
             }
             RemoveWait(wait);
         }
+        private void PickAction(InputWait wait)
+        {
+            PickAction(wait, GetTiming(wait.timestamp, wait.duration));
+        }
 
-        internal bool OnButtonDown(int index, EVRButtonId buttonId, Controller.TrackpadDirection direction)
+        internal bool OnButtonDown(int index, EVRButtonId buttonId, TrackpadDirection direction)
         {
             return buttonId switch
             {
@@ -191,7 +204,7 @@ namespace KK_VR.Interpreters
             };
         }
 
-        internal void OnButtonUp(int index, EVRButtonId buttonId, Controller.TrackpadDirection direction)
+        internal void OnButtonUp(int index, EVRButtonId buttonId, TrackpadDirection direction)
         {
             switch (buttonId)
             {
@@ -207,12 +220,23 @@ namespace KK_VR.Interpreters
             }
         }
 
-        internal virtual bool OnDirectionDown(int index, Controller.TrackpadDirection direction)
+        internal virtual bool OnDirectionDown(int index, TrackpadDirection direction)
         {
+            switch (direction)
+            {
+                case TrackpadDirection.Left:
+                case TrackpadDirection.Right:
+                    if (IsTriggerPress(index))
+                    {
+                        HandHolder.GetHand(index).ChangeLayer(direction == TrackpadDirection.Right);
+                    }
+                    break;
+            }
+
             return false;
         }
 
-        internal virtual void OnDirectionUp(int index, Controller.TrackpadDirection direction)
+        internal virtual void OnDirectionUp(int index, TrackpadDirection direction)
         {
             if (IsWait)
             {
@@ -225,9 +249,9 @@ namespace KK_VR.Interpreters
             if (press)
             {
                 _pressedButtons[index, 0] = true;
-                if (!IsTouchpadPress(index) && IsWait)
+                if (IsWait)
                 {
-                    PickAction();
+                    PickAction(Timing.Full);
                 }
             }
             else

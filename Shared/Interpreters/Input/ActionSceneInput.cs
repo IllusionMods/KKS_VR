@@ -121,7 +121,7 @@ namespace KK_VR.Interpreters
                     }
                     else if (_walking)
                     {
-                        StartWalking(dash: true);
+                        ToggleDash();
                     }
                     break;
                 case TrackpadDirection.Down:
@@ -168,7 +168,7 @@ namespace KK_VR.Interpreters
         {
             if (_settings.ContinuousRotation)
             {
-                _continuousRotation = degrees * (Mathf.Min(Time.deltaTime, 0.04f) * 2f);
+                _continuousRotation = degrees;
             }
             else
             {
@@ -198,9 +198,8 @@ namespace KK_VR.Interpreters
         {
             var origin = VR.Camera.Origin;
             var head = VR.Camera.Head;
-            var newRotation = Quaternion.Euler(0f, degrees, 0f) * origin.rotation;
             var oldPos = head.position;
-            origin.rotation = newRotation;
+            origin.rotation = Quaternion.Euler(0f, degrees * (Time.deltaTime * 2f), 0f) * origin.rotation;
             origin.position += oldPos - head.position;
 
             if (!_walking)
@@ -266,21 +265,28 @@ namespace KK_VR.Interpreters
                 }
             }
         }
-        internal void StartWalking(bool dash = false)
+
+        internal void StartWalking()
         {
             PlayerToCamera();
-            if (!dash)
-            {
-                PressButton(Pressed.Shift);
-            }
-            else
-            {
-                ReleaseButton(Pressed.Shift);
-            }
+            PressButton(Pressed.Shift);
             PressButton(Pressed.LeftMouse);
             _walking = true;
             HideMaleHead.ForceHideHead = true;
         }
+
+        private void ToggleDash()
+        {
+            if (IsButtonPressed(Pressed.Shift))
+            {
+                ReleaseButton(Pressed.Shift);
+            }
+            else
+            {
+                PressButton(Pressed.Shift);
+            }
+        }
+
         internal void ResetState()
         {
             foreach (Pressed button in Enum.GetValues(typeof(Pressed)))
@@ -292,6 +298,7 @@ namespace KK_VR.Interpreters
             _crouching = false;
             HideMaleHead.ForceHideHead = false;
         }
+
         internal void Crouch(bool buttonPrompt)
         {
             if (_standing)
@@ -314,6 +321,11 @@ namespace KK_VR.Interpreters
             {
                 _standing = true;
                 _crouching = false;
+                if (_walking)
+                {
+                    // Don't run after standing up.
+                    PressButton(Pressed.Shift);
+                }
                 if (!Manager.Config.ActData.CrouchCtrlKey)
                 {
                     ReleaseButton(Pressed.Z);

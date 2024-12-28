@@ -524,22 +524,22 @@ namespace KK_VR.Handlers
                     {
                         if (lerp == 0f)
                         {
-                            if (KoikatuInterpreter.Settings.ImperfectRotation)
-                            {
-                                uprightRot = Quaternion.Euler(
-                                    headPitch ? head.eulerAngles.x : 0f,
-                                    origin.eulerAngles.y,
-                                    headPitch ? head.eulerAngles.z : 0f);
+                            //if (KoikatuInterpreter.Settings.ImperfectRotation)
+                            //{
+                            //    uprightRot = Quaternion.Euler(
+                            //        headPitch ? head.eulerAngles.x : 0f,
+                            //        origin.eulerAngles.y,
+                            //        headPitch ? head.eulerAngles.z : 0f);
 
-                                uprightRot *= Quaternion.Inverse(origin.rotation) * head.rotation;
-                            }
-                            else
-                            {
+                            //    uprightRot *= Quaternion.Inverse(origin.rotation) * head.rotation;
+                            //}
+                            //else
+                            //{
                                 uprightRot = Quaternion.Euler(
                                     headPitch ? origin.eulerAngles.x : 0f,
                                     origin.eulerAngles.y,
                                     headPitch ? origin.eulerAngles.z : 0f);
-                            }
+                           // }
                             lerpMultiplier = KoikatuInterpreter.Settings.FlightSpeed * 30f / Quaternion.Angle(origin.rotation, uprightRot);
                         }
                         var sStep = Mathf.SmoothStep(0f, 1f, lerp += Time.deltaTime * lerpMultiplier);

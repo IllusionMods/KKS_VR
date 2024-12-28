@@ -66,7 +66,7 @@ namespace KK_VR.Handlers
             Tracker.SetSuggestedInfoNoBlacks();
         }
         /// <summary>
-        /// Pick the most interesting bodyPart from the current tracking.
+        /// Pick the most interesting bodyPart from the current track.
         /// </summary>
         internal void UpdateTracker(ChaControl tryToAvoid = null)
         {

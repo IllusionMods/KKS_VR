@@ -235,8 +235,12 @@ namespace KK_VR.Camera
 
         public void Impersonate(ChaControl chara)
         {
-            if (chara != null)
+            if (chara != null && chara.objTop.activeSelf)
             {
+                // Some inconsistent interference happens.
+                chara.visibleAll = true;
+                chara.fileStatus.visibleBodyAlways = true;
+
                 var eyes = chara.objHeadBone.transform
                     .Find("cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/cf_J_FaceUp_tz/cf_J_Eye_tz");
                 var position = eyes.TransformPoint(0f, KoikatuInterpreter.Settings.PositionOffsetY, KoikatuInterpreter.Settings.PositionOffsetZ);

@@ -127,6 +127,9 @@ namespace KK_VR.Interpreters
                 ((ActionSceneInput)KoikatuInterpreter.SceneInput).ResetState();
                 ((ActionSceneInput)KoikatuInterpreter.SceneInput).CameraToPlayer();
 
+                // Something interferes rarely.
+                actionScene.Player.chaCtrl.visibleAll = true;
+
                 _resetCamera = false;
                 VRLog.Info("ResetCamera succeeded");
             }

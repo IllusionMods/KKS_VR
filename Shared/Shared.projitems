@@ -40,7 +40,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Fixes\Mirror\Manager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Fixes\Mirror\VRReflection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Fixes\ObiControlFix.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Fixes\ReduceAssetUnloads.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Obsolete\Fixes\ReduceAssetUnloads.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Fixes\UnityPatches.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Fixes\Util.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GameStandingMode.cs" />

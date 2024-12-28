@@ -169,6 +169,10 @@ namespace KK_VR.Interpreters
             {
                 KoikatuInterpreter.TweakShadowSettings(KoikatuSettings.ShadowType.Close);
             }
+            if ((mode == EMode.houshi || mode == EMode.sonyu) && KoikatuInterpreter.Settings.AutoEnterPov)
+            {
+                _pov.TryEnable();
+            }
         }
 
 

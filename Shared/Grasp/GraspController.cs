@@ -70,7 +70,7 @@ namespace KK_VR.Grasp
         ];
 
         // Add held items too once implemented. All bodyParts have black list entries, dic is sufficient.
-        internal bool IsBusy => _blackListDic.Count != 0 || _helper.baseHold != null;
+        internal bool IsBusy => _blackListDic.Count != 0 || (_helper != null && _helper.baseHold != null);
         internal Dictionary<ChaControl, List<Tracker.Body>> GetBlacklistDic => _blackListDic;
         internal List<BodyPart> GetFullBodyPartList(ChaControl chara) => _bodyPartsDic[chara];
         internal enum State
@@ -122,7 +122,7 @@ namespace KK_VR.Grasp
             }
             else
             {
-                VRPlugin.Logger.LogError($"Grasp:Init - wrong state, Grasp already exists");
+                VRPlugin.Logger.LogWarning($"Grasp:Init - wrong state, Grasp already exists");
             }
         }
         private void UpdateGrasp(BodyPart bodyPart, ChaControl chara)
@@ -400,7 +400,7 @@ namespace KK_VR.Grasp
         // Reset currently held body parts.
         internal bool OnTouchpadResetHeld()
         {
-            if (_heldBodyParts.Count > 0)
+            if (_helper != null && _heldBodyParts.Count > 0)
             {
                 ResetBodyParts(_heldBodyParts, false);
                 ResetBodyParts(_tempHeldBodyParts, false);
@@ -414,60 +414,68 @@ namespace KK_VR.Grasp
         internal bool OnTouchpadResetActive(Tracker.Body trackerPart, ChaControl chara)
         {
             // We attempt to reset orientation if part was active.
-            var baseName = ConvertTrackerToIK(trackerPart);
-            if (baseName != PartName.Spine)
+            if (_helper != null && _bodyPartsDic.ContainsKey(chara))
             {
-                var bodyParts = GetTargetParts(_bodyPartsDic[chara], baseName, _hand.Anchor.position);
-                var result = false;
-                foreach (var bodyPart in bodyParts)
+                var baseName = ConvertTrackerToIK(trackerPart);
+                if (baseName != PartName.Spine)
                 {
-                    if (bodyPart.state > State.Translation)
+                    var bodyParts = GetTargetParts(_bodyPartsDic[chara], baseName, _hand.Anchor.position);
+                    var result = false;
+                    foreach (var bodyPart in bodyParts)
+                    {
+                        if (bodyPart.state > State.Translation)
+                        {
+                            bodyPart.guide.Sleep(false);
+                            result = true;
+                        }
+                    }
+                    //if (result)
+                    //{
+                    //    _hand.Handler.ClearTracker();
+                    //}
+                    return result;
+                }
+                else
+                {
+                    // If torso - reset whole chara.
+                    return OnTouchpadResetEverything(chara, State.Synced);
+                }
+            }
+            return false;            
+        }
+        internal bool OnTouchpadResetEverything(ChaControl chara, State upToState = State.Synced)
+        {
+            if (_helper != null && _bodyPartsDic.ContainsKey(chara))
+            {
+                var result = false;
+                foreach (var bodyPart in _bodyPartsDic[chara])
+                {
+                    if (bodyPart.state > State.Translation && bodyPart.state <= upToState)
                     {
                         bodyPart.guide.Sleep(false);
                         result = true;
                     }
                 }
-                //if (result)
-                //{
-                //    _hand.Handler.ClearTracker();
-                //}
+                //_hand.Handler.ClearTracker();
                 return result;
             }
-            else
-            {
-                // If torso - reset whole chara.
-                return OnTouchpadResetEverything(chara, State.Synced);
-            }
+            return false;
         }
-        internal bool OnTouchpadResetEverything(ChaControl chara, State upToState = State.Synced)
-        {
-            var result = false;
-            foreach (var bodyPart in _bodyPartsDic[chara])
-            {
-                if (bodyPart.state > State.Translation && bodyPart.state <= upToState)
-                {
-                    bodyPart.guide.Sleep(false);
-                    result = true;
-                }
-            }
-            //_hand.Handler.ClearTracker();
-            return result;
-        }
-        internal bool OnMenuPress()
-        {
-            if (_heldBodyParts.Count != 0)
-            {
+        //internal bool OnMenuPress()
+        //{
+        //    if (_heldBodyParts.Count != 0)
+        //    {
 
-            }
-            else
-            {
-                return false;
-            }
-            return true;
-        }
+        //    }
+        //    else
+        //    {
+        //        return false;
+        //    }
+        //    return true;
+        //}
         internal void OnGripPress(Tracker.Body trackerPart, ChaControl chara)
         {
-            if (_bodyPartsDic.ContainsKey(chara))
+            if (_helper != null && _bodyPartsDic.ContainsKey(chara))
             {
                 var anchor = _hand.Anchor;
                 var bodyParts = GetTargetParts(_bodyPartsDic[chara], ConvertTrackerToIK(trackerPart), anchor.position);
@@ -488,30 +496,31 @@ namespace KK_VR.Grasp
         }
         internal void OnGripRelease()
         {
-            if (_helper.baseHold != null)
+            if (_helper != null)
             {
-                _helper.StopBaseHold();
-                StopGrasp();
-            }
-            else if (_heldBodyParts.Count > 0)
-            {
-                ReleaseBodyParts(_heldBodyParts);
-                ReleaseBodyParts(_tempHeldBodyParts);
-                StopGrasp();
+                if (_helper.baseHold != null)
+                {
+                    _helper.StopBaseHold();
+                    StopGrasp();
+                }
+                else if (_heldBodyParts.Count > 0)
+                {
+                    ReleaseBodyParts(_heldBodyParts);
+                    ReleaseBodyParts(_tempHeldBodyParts);
+                    StopGrasp();
+                }
             }
         }
         private bool AttemptToScrollBodyPart(bool increase)
         {
             // Only bodyParts directly from the tracker live at 0 index, i.e. firstly interacted with.
-            if (_heldBodyParts.Count > 0 && (_heldBodyParts[0].name == PartName.HandL || _heldBodyParts[0].name == PartName.HandR))
+            if (_helper != null && _heldBodyParts.Count > 0 && (_heldBodyParts[0].name == PartName.HandL || _heldBodyParts[0].name == PartName.HandR))
             {
                 _helper.ScrollHand(_heldBodyParts[0].name, _heldChara, increase);
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
+            
         }
 
 
@@ -530,52 +539,51 @@ namespace KK_VR.Grasp
         }
         internal bool OnFreeHorizontalScroll(Tracker.Body trackerPart, ChaControl chara, bool increase)
         {
-            if (trackerPart == Tracker.Body.HandL || trackerPart == Tracker.Body.HandR)
+            if (_helper != null && trackerPart == Tracker.Body.HandL || trackerPart == Tracker.Body.HandR)
             {
                 _helper.ScrollHand((PartName)trackerPart, chara, increase);
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         internal void OnScrollRelease()
         {
-            if (_helper.baseHold != null)
+            if (_helper != null)
             {
-                _helper.baseHold.StopBaseHoldScroll();
-            }
-            else
-            {
-                _helper.StopScroll();
+                if (_helper.baseHold != null)
+                {
+                    _helper.baseHold.StopBaseHoldScroll();
+                }
+                else
+                {
+                    _helper.StopScroll();
+                }
             }
         }
 
         internal bool OnVerticalScroll(bool increase)
         {
-            //if (_heldChara != null)
-            //{
-            //    _animHelper.DoAnimChange(_heldChara);
-            //}
-            //else 
-            if (_helper.baseHold != null)
+            if (_helper != null)
             {
-                _helper.baseHold.StartBaseHoldScroll(1, increase);
-            }
-            else if (_heldBodyParts.Count > 0)
-            {
-                foreach (var bodyPart in _heldBodyParts)
+                if (_helper.baseHold != null)
                 {
-                    bodyPart.visual.SetState(increase);
+                    _helper.baseHold.StartBaseHoldScroll(1, increase);
                 }
+                else if (_heldBodyParts.Count > 0)
+                {
+                    foreach (var bodyPart in _heldBodyParts)
+                    {
+                        bodyPart.visual.SetState(increase);
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+                return true;
             }
-            else 
-            {
-                return false;
-            }
-            return true;
+            return false;
         }
 
         private void ReleaseBodyParts(IEnumerable<BodyPart> bodyPartsList)
@@ -675,35 +683,38 @@ namespace KK_VR.Grasp
         private bool IsLimb(PartName partName) => partName > PartName.ThighR && partName < PartName.UpperBody;
         internal bool OnTouchpadSyncStart(Tracker.Body trackerPart, ChaControl chara)
         {
-            var partName = ConvertTrackerToIK(trackerPart);
-            if (IsLimb(partName))
+            if (_helper != null)
             {
-                VRPlugin.Logger.LogDebug($"Grasp:OnTouchpadSyncStart:{trackerPart} -> {partName}");
-                var bodyPart = _bodyPartsDic[chara][(int)partName];
+                var partName = ConvertTrackerToIK(trackerPart);
+                if (IsLimb(partName))
+                {
+                    VRPlugin.Logger.LogDebug($"Grasp:OnTouchpadSyncStart:{trackerPart} -> {partName}");
+                    var bodyPart = _bodyPartsDic[chara][(int)partName];
 
-                var limbIndex = (int)partName - 5;
-                var disposable = new GameObject("disposeOnSyncEnd").transform;
-                disposable.SetParent(_hand.Anchor, worldPositionStays: false);
-                disposable.localPosition = _limbPosOffsets[limbIndex];
-                disposable.localRotation = _limbRotOffsets[limbIndex];
+                    var limbIndex = (int)partName - 5;
+                    var disposable = new GameObject("disposeOnSyncEnd").transform;
+                    disposable.SetParent(_hand.Anchor, worldPositionStays: false);
+                    disposable.localPosition = _limbPosOffsets[limbIndex];
+                    disposable.localRotation = _limbRotOffsets[limbIndex];
 
-                SyncBodyPart(bodyPart, disposable);
-                //bodyPart.anchor.transform.localPosition = _limbPosOffsets[limbIndex];
-                //bodyPart.anchor.transform.localRotation = _limbRotOffsets[limbIndex];
-                //bodyPart.chain.pull = 0f;
-                UpdateSync(bodyPart, chara);
-                UpdateBlackList();
-                _hand.OnLimbSyncStart();
-                _hand.Handler.ClearTracker();
-                //_hand.Handler.ClearBlacks();
-                return true;
+                    SyncBodyPart(bodyPart, disposable);
+                    //bodyPart.anchor.transform.localPosition = _limbPosOffsets[limbIndex];
+                    //bodyPart.anchor.transform.localRotation = _limbRotOffsets[limbIndex];
+                    //bodyPart.chain.pull = 0f;
+                    UpdateSync(bodyPart, chara);
+                    UpdateBlackList();
+                    _hand.OnLimbSyncStart();
+                    _hand.Handler.ClearTracker();
+                    //_hand.Handler.ClearBlacks();
+                    return true;
+                }
             }
             return false;
         }
 
         internal bool OnTouchpadSyncStop()
         {
-            if (_syncedBodyParts.Count != 0)
+            if (_helper != null && _syncedBodyParts.Count != 0)
             {
                 StopSync(instant: false);
                 return true;

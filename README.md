@@ -27,7 +27,7 @@ The studio part is a fork of the [KKS_CharaStudioVR](https://vr-erogamer.com/arc
 The game (not the studio) also can be launched without any added arguments if SteamVR is running.
 
 ## Tip
- * Be advised to set InterPupillary Distance (IPD) in the settings to change the scale of the world according to a personal preference and used hardware.
+ * Be advised to set InterPupillary Distance (IPD) in the settings to change the scale of the world according to own taste and used hardware.
 
 ## Controls Game
 ### Overview
@@ -107,7 +107,7 @@ Available in **H Scene**, relies heavily on [SensibleH](https://github.com/lotso
 Described horizonal directions assume the right controller, for the left controller the directions will be mirrored.
 
 #### Generic
-* **DirectionLeft** to choose random position from the current category. Registers after *LongPress*. 
+* **DirectionLeft** to choose random position from the current category. Registers after *LongPress*. Add *Trigger* for any available position.
 * **DirectionRight** to enter *PointMove*. Registers after *LongPress*.
 * **DirectionVertical** on partner's bodyPart to (un)dress it.
 
@@ -149,7 +149,7 @@ Available in **Roaming Scene**.
 * **Trigger** to start locomotion.
 * **DirectionUp** to interact or speed up.
 * **DirectionDown** to crouch or stand up.
-* **Horizontal direction** to change *Yaw*.
+* **Horizontal direction** to turn.
 
 ## Controls Studio
 **Warning: This section was written for [KK_MainGameVR](https://github.com/mosirnik/KK_MainGameVR) and serves as a loose, vague reference for an actual functional.**

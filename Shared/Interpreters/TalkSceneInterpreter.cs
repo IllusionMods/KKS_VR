@@ -122,9 +122,9 @@ namespace KK_VR.Interpreters
         internal override void OnUpdate()
         {
 #if KK
-            if (talkScene == null && !advScene.isActiveAndEnabled)
+            if (talkScene == null && (advScene == null || !advScene.isActiveAndEnabled))
 #else
-            if (!talkScene._isPaly && !advScene.isActiveAndEnabled)
+            if ((talkScene == null || !talkScene._isPaly) && (advScene == null || !advScene.isActiveAndEnabled))
 #endif
             {
                 KoikatuInterpreter.EndScene(KoikatuInterpreter.SceneType.TalkScene);
@@ -365,18 +365,26 @@ namespace KK_VR.Interpreters
         {
 
             var player = GetPlayer();
-            if (player.chaCtrl == null)
+            if (player.chaCtrl == null || player.chaCtrl.objTop == null)
             {
-                VRPlugin.Logger.LogDebug($"PlacePlayer:No chara to place");
+                VRPlugin.Logger.LogDebug($"Talk/Adv:PlacePlayer:No male chara to place");
                 return;
             }
-
-            if (player.chaCtrl.objTop.activeSelf)
+            foreach (Transform child in advScene.Scenario.Characters)
             {
-                VRCameraMover.Instance.Impersonate(player.chaCtrl);
-                VRPlugin.Logger.LogDebug($"PlacePlayer:Already present, impersonating");
-                return;
+                if (child.name.StartsWith("chaM_", StringComparison.Ordinal))
+                {
+                    VRPlugin.Logger.LogDebug($"Talk/Adv:PlacePlayer:Scene has extra male chara, impersonating");
+                    VRCameraMover.Instance.Impersonate(child.GetComponent<ChaControl>());
+                    return;
+                }
             }
+            //if (advScene.Scenario.characters.player.chaCtrl.objTop.activeSelf)
+            //{
+            //    VRCameraMover.Instance.Impersonate(player.chaCtrl);
+            //    VRPlugin.Logger.LogDebug($"PlacePlayer:Already present, impersonating");
+            //    return;
+            //}
             var head = VR.Camera.Head;
             var eyePos = GetEyesPosition();
             var headPos = head.position;

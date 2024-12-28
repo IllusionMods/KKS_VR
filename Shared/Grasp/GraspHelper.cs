@@ -490,14 +490,16 @@ namespace KK_VR.Grasp
             StopAnimChange();
             foreach (var kv in _bodyPartsDic)
             {
-                // Disable IK if animation is sloppy.
-                if (_animationsNoIK.Contains(kv.Key.animBody.runtimeAnimatorController.name))
+                // Disable IK if animation is sloppy.                
+                if (kv.Key.animBody.runtimeAnimatorController == null 
+                    || _animationsNoIK.Contains(kv.Key.animBody.runtimeAnimatorController.name))
                 {
                     _auxDic[kv.Key].newFbik.enabled = false;
                     continue;
                 }
                 var baseDataEmpty = false;
-                for (var i = 0; i < 10; i++)
+                var count = kv.Value.Count;
+                for (var i = 0; i < count; i++)
                 {
                     var bodyPart = kv.Value[i];
                     bodyPart.guide.Sleep(instant: true);
@@ -510,7 +512,7 @@ namespace KK_VR.Grasp
                         var component = bodyPart.beforeIK.GetComponent<NoPosBeforeIK>();
                         if (_auxDic[kv.Key].oldFbik.solver.effectors[i].rotationWeight == 0f)
                         {
-                            VRPlugin.Logger.LogWarning($"RetargetEffectors:[{i}]");
+                            VRPlugin.Logger.LogWarning($"GraspHelper:RetargetEffectors:[{i}]");
                             //bodyPart.baseData.pos = kv.Key.objBodyBone.transform.InverseTransformDirection(bodyPart.baseData.transform.position - bodyPart.effector.bone.position);
                             //bodyPart.baseData.bone = bodyPart.effector.bone;
                             if (component == null)

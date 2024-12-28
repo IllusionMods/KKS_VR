@@ -225,15 +225,11 @@ namespace KK_VR.Interpreters
                 {
                     AddWait(index, EVRButtonId.k_EButton_SteamVR_Trigger, _settings.ShortPress);
                 }
-                else
+                else 
                 {
-                    if (_mouth.IsActive)
+                    if (_mouth.IsActive && !IsStateMove)
                     {
                         _mouth.OnTriggerPress();
-                    }
-                    else if (IsWait && !IsTouchpadPress(index))
-                    {
-                        PickAction();
                     }
                     else if (handler.IsBusy)
                     {
@@ -249,6 +245,10 @@ namespace KK_VR.Interpreters
                             handler.UpdateTracker();
                             handler.TriggerPress();
                         }
+                    }
+                    else if (IsWait) // && !IsTouchpadPress(index))
+                    {
+                        PickAction(Timing.Full);
                     }
                 }
             }
@@ -831,7 +831,7 @@ namespace KK_VR.Interpreters
                         case Timing.Full:
                             if (IntegrationSensibleH.active)
                             {
-                                if (IsTouchpadPress(wait.index))
+                                if (IsTriggerPress(wait.index))
                                 {
                                     // Any animation goes.
                                     IntegrationSensibleH.ChangeAnimation(-1);

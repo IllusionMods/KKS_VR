@@ -148,7 +148,7 @@ namespace KK_VR.Settings
         public HeadEffector IKHeadEffector { get; set; }
         public bool IKShowDebug { get; set; }
         public float IKDefaultBendConstraint { get; set; }
-        public bool ImperfectRotation { get; set; }
+        //public bool ImperfectRotation { get; set; }
         public bool FixMirrors { get; set; }
         public bool MaintainLimbOrientation 
         {

@@ -64,7 +64,8 @@ namespace KK_VR.Camera
             if (origin.eulerAngles.x != 0f || origin.eulerAngles.z != 0f)
             {
                 var head = VR.Camera.Head;
-                var uprightRot = Quaternion.Euler(0f, head.eulerAngles.y, 0f);
+                var uprightRot = Quaternion.Euler(0f, origin.eulerAngles.y, 0f);
+                //var uprightRot = Quaternion.Euler(0f, head.eulerAngles.y, 0f);
                 var lerpMultiplier = KoikatuInterpreter.Settings.FlightSpeed * 90f / Quaternion.Angle(head.rotation, uprightRot);
                 var lerp = 0f;
                 var startRot = origin.rotation;
