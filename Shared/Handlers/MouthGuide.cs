@@ -19,6 +19,20 @@ namespace KK_VR.Handlers
     // Port this all away from coroutines ? Too much stuff to do to address it.
     internal class MouthGuide : Handler
     {
+        internal static MouthGuide Create()
+        {
+            var mouthGuide = VR.Camera.transform.Find("MouthGuide");
+            if (mouthGuide != null && mouthGuide.GetComponent<MouthGuide>() != null)
+            {
+                return mouthGuide.GetComponent<MouthGuide>();
+            }
+            mouthGuide = new GameObject("MouthGuide") { layer = 10 }.transform;
+            mouthGuide.SetParent(VR.Camera.transform, false);
+            mouthGuide.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+            mouthGuide.localPosition = new Vector3(0, -0.07f, 0.03f);
+
+            return mouthGuide.gameObject.AddComponent<MouthGuide>();
+        }
         internal static MouthGuide Instance => _instance;
         private static MouthGuide _instance;
         internal bool PauseInteractions

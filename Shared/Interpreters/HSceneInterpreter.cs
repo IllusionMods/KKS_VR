@@ -56,10 +56,6 @@ namespace KK_VR.Interpreters
         private readonly MouthGuide _mouth;
         private static HitReaction _hitReaction;
 
-        // For the manual manipulation of an aibu item, so we don't lose it.
-
-
-
         internal static bool IsInsertIdle(string nowAnim) => nowAnim.EndsWith("InsertIdle", StringComparison.Ordinal);
         internal static bool IsIdleOutside(string nowAnim) => nowAnim.Equals("Idle");
         internal static bool IsAfterClimaxInside(string nowAnim) => nowAnim.EndsWith("IN_A", StringComparison.Ordinal);
@@ -114,7 +110,7 @@ namespace KK_VR.Interpreters
             }
         }
 
-        public HSceneInterpreter(MonoBehaviour proc)
+        internal HSceneInterpreter(MonoBehaviour proc)
         {
             var traverse = Traverse.Create(proc);
             hFlag = traverse.Field("flags").GetValue<HFlag>();
@@ -139,14 +135,8 @@ namespace KK_VR.Interpreters
             SceneExtras.AddHColliders(distinctCharas);
             GraspController.Init(distinctCharas);
 
-            var mouthGuide = new GameObject("MouthGuide") { layer = 10 }.transform;
-            mouthGuide.SetParent(VR.Camera.transform, false);
-            mouthGuide.localScale = new Vector3(0.1f, 0.1f, 0.1f);
-            mouthGuide.localPosition = new Vector3(0, -0.07f, 0.03f);
-
-            _mouth = mouthGuide.gameObject.AddComponent<MouthGuide>();
-            _pov = VR.Camera.gameObject.AddComponent<PoV>();
-            _pov.Initialize();
+            _mouth = MouthGuide.Create();
+            _pov = PoV.Create();
             adjustDirLight = true;
             // Init after everything.
 //#if KKS

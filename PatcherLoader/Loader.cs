@@ -6,6 +6,8 @@ using System.Reflection;
 using Mono.Cecil;
 using BepInEx;
 using BepInEx.Logging;
+using System.Diagnostics;
+using System.Linq;
 
 namespace PatcherLoader
 {
@@ -34,7 +36,9 @@ namespace PatcherLoader
         private static IEnumerable<string> GetDLLs()
         {
             var processName = Paths.ProcessName;
-            if (processName != "Koikatu" && processName != "Koikatsu Party")
+            if ((processName != "Koikatu" && processName != "Koikatsu Party")
+                || (!Environment.CommandLine.Contains("--vr") 
+                && !Process.GetProcesses().Where(p => p != null && p.ProcessName == "vrcompositor").Any()))
             {
                 yield break;
             }

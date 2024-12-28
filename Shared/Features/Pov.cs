@@ -78,13 +78,21 @@ namespace KK_VR.Features
         private Vector3 _prevFramePos;
         private bool _forceHideHead;
 
-
         private Vector3 GetEyesPosition() => _targetEyes.TransformPoint(_offsetVecEyes);
         private bool IsClimax => HSceneInterpreter.hFlag.nowAnimStateName.EndsWith("_Loop", System.StringComparison.Ordinal);
-        public void Initialize()
+
+        internal static PoV Create()
+        {
+            var component = VR.Camera.gameObject.GetComponent<PoV>();
+            if (component == null)
+            {
+                return component;
+            }
+            return VR.Camera.gameObject.AddComponent<PoV>();
+        }
+        private void Awake()
         {
             Instance = this;
-            _active = false;
         }
 
         private void UpdateSettings()
