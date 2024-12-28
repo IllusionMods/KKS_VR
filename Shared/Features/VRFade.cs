@@ -17,7 +17,8 @@ namespace KK_VR.Features
         /// </summary>
         //Graphic _vanillaGraphic;
         private static VRFade _instance;
-        internal static bool IsFade => _instance._alpha != 0f;
+        //internal static bool IsFade => _instance._alpha != 0f;
+        internal static bool IsFade => _instance._alpha == 1f;
 #if KK
         private Image _vanillaImage;
         private Slider _vanillaProgressBar;

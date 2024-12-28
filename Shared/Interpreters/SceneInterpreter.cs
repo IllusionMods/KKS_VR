@@ -16,7 +16,13 @@ namespace KK_VR.Interpreters
         protected KoikatuSettings _settings = VR.Context.Settings as KoikatuSettings;
         internal virtual void OnStart()
         {
-
+#if KKS
+            // KKS swaps VFX all the time gotta keep up, KK doesn't seem like.
+            if (UnityEngine.Camera.main != null)
+            {
+                VRCamera.Instance.Refresh();
+            }
+#endif
         }
         internal virtual void OnDisable()
         {

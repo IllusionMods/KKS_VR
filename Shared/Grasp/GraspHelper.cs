@@ -78,6 +78,7 @@ namespace KK_VR.Grasp
                 // One being half animated/half controlled by VRIK, with some boundaries to keep player going nuts in intercourse/service.
                 // Another one fully controlled by VRIK with custom advanced locomotion animController.
                 // Hopefully AgiShark has all the proper animations for advanced locomotion, otherwise I've no clue how to retarget animation for our rig.
+                // He doesn't. Gotta find someone who'd retarget them for us, otherwise working on VRIK is hardly worth it.
 
                 //if (chara.sex == 1)
                 //{
@@ -99,6 +100,8 @@ namespace KK_VR.Grasp
             var ik = _auxDic[chara].newFbik;
             var oldIK = _auxDic[chara].oldFbik;
             if (ik == null || oldIK == null) return;
+            // MotionIK makes adjusts animations based on the body size, doesn't seem to be used outside of H.
+            var withMotionIK = KoikatuInterpreter.CurrentScene == KoikatuInterpreter.SceneType.HScene;
             _bodyPartsDic.Add(chara,
             [
 
@@ -142,7 +145,7 @@ namespace KK_VR.Grasp
                     _name:       PartName.HandL,
                     _effector:   ik.solver.leftHandEffector,
                     _afterIK:    ik.solver.leftHandEffector.bone,
-                    _beforeIK:   ik.solver.leftHandEffector.target,
+                    _beforeIK:   withMotionIK ? ik.solver.leftHandEffector.target : BeforeIK.CreateObj("handL", chara, ik.solver.leftHandEffector.bone),
                     _chain:      ik.solver.leftArmChain
                     ),
 
@@ -150,7 +153,7 @@ namespace KK_VR.Grasp
                     _name:       PartName.HandR,
                     _effector:   ik.solver.rightHandEffector,
                     _afterIK:    ik.solver.rightHandEffector.bone,
-                    _beforeIK:   ik.solver.rightHandEffector.target,
+                    _beforeIK:   withMotionIK ? ik.solver.rightHandEffector.target : BeforeIK.CreateObj("handR", chara, ik.solver.rightHandEffector.bone),
                     _chain:      ik.solver.rightArmChain
                     ),
 
@@ -158,7 +161,7 @@ namespace KK_VR.Grasp
                     _name:       PartName.FootL,
                     _effector:   ik.solver.leftFootEffector,
                     _afterIK:    ik.solver.leftFootEffector.bone,
-                    _beforeIK:   ik.solver.leftFootEffector.target,
+                    _beforeIK:   withMotionIK ? ik.solver.leftFootEffector.target : BeforeIK.CreateObj("footL", chara, ik.solver.leftFootEffector.bone),
                     _chain:      ik.solver.leftLegChain
                     ),
 
@@ -166,7 +169,7 @@ namespace KK_VR.Grasp
                     _name:       PartName.FootR,
                     _effector:   ik.solver.rightFootEffector,
                     _afterIK:    ik.solver.rightFootEffector.bone,
-                    _beforeIK:   ik.solver.rightFootEffector.target,
+                    _beforeIK:   withMotionIK ? ik.solver.rightFootEffector.target : BeforeIK.CreateObj("footR", chara, ik.solver.rightFootEffector.bone),
                     _chain:      ik.solver.rightLegChain
                     ),
 
@@ -222,7 +225,6 @@ namespace KK_VR.Grasp
 
         private void OnDestroy()
         {
-            VRPlugin.Logger.LogWarning($"GraspHelper:OnDestroy");
             if (_bodyPartsDic != null && _bodyPartsDic.Count > 0)
             {
                 foreach (var bodyPartList in _bodyPartsDic.Values)
@@ -260,26 +262,6 @@ namespace KK_VR.Grasp
         }
 
 
-        //internal void OnSpotChangePre()
-        //{
-        //    //foreach (var orient in _origOrientList)
-        //    //{
-        //    //    orient.Restore();
-        //    //}
-        //    //_origOrientList.Clear();
-        //}
-        //internal void OnSpotChangePost()
-        //{
-        //    //VRPlugin.Logger.LogDebug($"Helper:Grasp:OnSpotChange");
-        //    //foreach (var kv in _bodyPartsDic)
-        //    //{
-        //    //    _origOrientList.Add(new(kv.Key));
-        //    //}
-        //}
-        //private void SetRelativePosition()
-        //{
-
-        //}
         //private readonly Dictionary<string, float[]> _poseRelPos = new Dictionary<string, float[]>
         //{
         //    { "kha_f_00", [ 1f, 0f ] },

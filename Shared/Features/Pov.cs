@@ -61,8 +61,6 @@ namespace KK_VR.Features
         private static ChaControl _target;
         private ChaControl _prevTarget;
 
-        // We keep it so that on exit from pov there is no need to look them up.
-        //private List<ChaControl> _charas;
         private Transform _targetEyes;
         private Mode _mode;
         private bool _newAttachPoint;
@@ -71,8 +69,6 @@ namespace KK_VR.Features
         private int _rotDeviationThreshold;
         private int _rotDeviationHalf;
         private Vector3 _offsetVecEyes;
-        private readonly MouthGuide _mouth = MouthGuide.Instance;
-        //private bool _gripMove;
         private OneWayTrip _trip;
         private MoveToPoi _moveTo;
         private SmoothDamp _smoothDamp;
@@ -207,7 +203,7 @@ namespace KK_VR.Features
         public void OnSpotChange()
         {
             StartPov();
-            StartMoveToHead(3f);
+            CameraIsFar(3f);
         }
         public void CameraIsFar(float speed = 1f)
         {
@@ -220,7 +216,10 @@ namespace KK_VR.Features
         public void CameraIsFarAndBusy()
         {
             CameraIsFar();
-            _mouth.PauseInteractions = true;
+            if (MouthGuide.Instance != null)
+            {
+                MouthGuide.Instance.PauseInteractions = true;
+            }
         }
         public void CameraIsNear()
         {
@@ -234,46 +233,21 @@ namespace KK_VR.Features
             if (_target.sex == 1)
             {
                 GirlPoV = true;
-                _mouth.PauseInteractions = true;
+                if (MouthGuide.Instance != null)
+                {
+                    MouthGuide.Instance.PauseInteractions = true;
+                }
             }
             else
             {
                 GirlPoV = false;
-                _mouth.PauseInteractions = false;
+                if (MouthGuide.Instance != null)
+                {
+                    MouthGuide.Instance.PauseInteractions = false;
+                }
             }
         }
-        //private void MoveToHead()
-        //{
-        //    if (settings.FlyInPov == KoikatuSettings.MovementTypeH.Disabled)
-        //    {
-        //        CameraIsNear();
-        //        _newAttachPoint = false;
-        //        return;
-        //    }
-        //    var head = VR.Camera.Head;
-        //    var origin = VR.Camera.Origin;
-        //    var targetPos = GetEyesPosition;
-        //    var targetRot = _newAttachPoint ? _offsetRotNewAttach : _targetEyes.rotation;
-        //    var distance = Vector3.Distance(head.position, targetPos);
-        //    var angleDelta = Quaternion.Angle(origin.rotation, targetRot);
-        //    if (_moveSpeed == 0f)
-        //    {
-        //        _moveSpeed = 0.5f + distance * 0.5f * settings.FlightSpeed;// 3f;
-        //    }
-        //    var step = Time.deltaTime * _moveSpeed;
-        //    if (distance < step)// && angleDelta < 1f)
-        //    {
-        //        CameraIsNear();
-        //        _smoothDamp = null;
-        //        _newAttachPoint = false;
-        //    }
-        //    // Does quaternion lerp perform better? looks clean sure, but how it works no clue. 
-        //    // Whatever, as they say "not broken don't fix it".
-        //    var rotSpeed = angleDelta / (distance / step);
-        //    var moveToward = Vector3.MoveTowards(head.position, targetPos, step);
-        //    origin.rotation = Quaternion.RotateTowards(origin.rotation, targetRot, rotSpeed);
-        //    origin.position += moveToward - head.position;
-        //}
+
         private void StartMoveToHead(float speed = 1f)
         {
             if (KoikatuInterpreter.Settings.FlyInPov == KoikatuSettings.MovementTypeH.Disabled)
@@ -312,11 +286,6 @@ namespace KK_VR.Features
             }
         }
 
-        //public void OnSpotChange()
-        //{
-        //    _newAttachPoint = false;
-        //    //CameraIsFar();
-        //}
 
         private int GetCurrentCharaIndex(List<ChaControl> _chaControls)
         {
@@ -332,14 +301,7 @@ namespace KK_VR.Features
             }
             return 0;
         }
-        //private void DirectImpersonation(ChaControl chara)
-        //{
-        //    _active = true;
-        //    _target = chara;
-        //    _targetEyes = _target.objHeadBone.transform.Find("cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/cf_J_FaceUp_tz");
-        //    CameraIsFarAndBusy();
-        //    UpdateSettings();
-        //}
+
         private void NextChara(bool keepChara = false)
         {
             // As some may add extra characters with kPlug, we look them all up.
@@ -356,36 +318,29 @@ namespace KK_VR.Features
             }
             var currentCharaIndex = GetCurrentCharaIndex(charas);
 
-            // Previous target becomes visible.
-            //if (settings.HideHeadInPOV && !keepChara && _target != null)
-            //    SetVisibility();
-
             if (keepChara)
             {
                 _target = charas[currentCharaIndex];
             }
             else if (currentCharaIndex == charas.Count - 1)
             {
-                //if (currentCharaIndex == 0)
-                //{
                 // No point in switching with only one active character, disable instead.
-
 
                 _prevTarget = _target;
                 _target = charas[0];
 
                 _mode = Mode.Disable;
                 return;
-                //}
-                // End of the list, back to zero index.
-                //_target = charas[0];
             }
             else
             {
                 _prevTarget = _target;
                 _target = charas[currentCharaIndex + 1];
             }
-            _mouth.OnImpersonation(_target);
+            if (MouthGuide.Instance != null)
+            {
+                MouthGuide.Instance.OnImpersonation(_target);
+            }
             _targetEyes = _target.objHeadBone.transform.Find("cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/cf_J_FaceUp_tz");
             CameraIsFarAndBusy();
             UpdateSettings();
@@ -397,6 +352,7 @@ namespace KK_VR.Features
             CameraIsNear();
             _offsetVecNewAttach = VR.Camera.Head.position - _targetEyes.position;
         }
+
         internal void OnGripMove(bool press)
         {
             //_gripMove = press;
@@ -412,6 +368,7 @@ namespace KK_VR.Features
                 }
             }
         }
+
         internal bool OnTouchpad(bool press)
         {
             // We call it only in gripMove state.
@@ -425,15 +382,23 @@ namespace KK_VR.Features
             }
             return false;
         }
+
         private void Sleep()
         {
             _active = false;
             SetVisibility(_target);
             _mode = Mode.Disable;
             _newAttachPoint = false;
-            _mouth.PauseInteractions = false;
-            _mouth.OnUnImpersonation();
+            _forceHideHead = false;
+            _moveTo = null;
+
+            if (MouthGuide.Instance != null)
+            {
+                MouthGuide.Instance.PauseInteractions = false;
+                MouthGuide.Instance.OnUnImpersonation();
+            }
         }
+
         private void Disable(bool moveTo)
         {
             if (_moveTo == null)
@@ -447,18 +412,15 @@ namespace KK_VR.Features
                     var target = _target.sex == 1 ? _target : FindObjectsOfType<ChaControl>()
                         .Where(c => c.sex == 1 && c.objTop.activeSelf && c.visibleAll)
                         .FirstOrDefault();
-                    _moveTo = new(target != null ? target : _target);
+                    _moveTo = new MoveToPoi(target != null ? target : _target, Sleep );
                 }
             }
             else
             {
-                if (_moveTo.Move() == 1f)
-                {
-                    Sleep();
-                    _moveTo = null;
-                }
+                _moveTo.Move();
             }
         }
+
         private void HandleDisable(bool moveTo = true)
         {
             if (_newAttachPoint)
@@ -471,6 +433,7 @@ namespace KK_VR.Features
                 Disable(moveTo);
             }
         }
+
         internal bool TryDisable(bool moveTo)
         {
             if (_active)
@@ -544,27 +507,26 @@ namespace KK_VR.Features
                 HideHead(chara);
             }
         }
+
         private void HideHead(ChaControl chara)
         {
-            //if (_mode != Mode.Follow || _newAttachPoint)
-            //{
-                var head = chara.objHead.transform;
-                var wasVisible = chara.fileStatus.visibleHeadAlways;
-                var headCenter = head.TransformPoint(0, 0.12f, -0.04f);
-                var sqrDistance = (VR.Camera.transform.position - headCenter).sqrMagnitude;
-                var visible = 0.0361f < sqrDistance; // 19 centimeters
-                //bool visible = !ForceHideHead && 0.0361f < sqrDistance; // 19 centimeters 0.0451f
-                chara.fileStatus.visibleHeadAlways = visible;
-                if (wasVisible && !visible)
+            var head = chara.objHead.transform;
+            var wasVisible = chara.fileStatus.visibleHeadAlways;
+            var headCenter = head.TransformPoint(0, 0.12f, -0.04f);
+            var sqrDistance = (VR.Camera.transform.position - headCenter).sqrMagnitude;
+            var visible = 0.0361f < sqrDistance; // 19 centimeters
+            chara.fileStatus.visibleHeadAlways = visible;
+            if (wasVisible && !visible)
+            {
+                chara.objHead.SetActive(false);
+
+                foreach (var hair in chara.objHair)
                 {
-                    chara.objHead.SetActive(false);
+                    hair.SetActive(false);
                 }
-            //}
-            //else
-            //{
-            //    chara.fileStatus.visibleHeadAlways = _mouth.IsActive;
-            //}
+            }
         }
+
         internal void TryEnable()
         {
             if (KoikatuInterpreter.Settings.PoV != KoikatuSettings.Impersonation.Disabled)
@@ -580,20 +542,7 @@ namespace KK_VR.Features
                     StartPov();
             }
         }
-        //internal bool HandleDirect(ChaControl chara)
-        //{
-        //    if (settings.PoV != KoikatuSettings.Impersonation.Disabled && settings.DirectImpersonation)
-        //    {
-        //        if (!_active || _target != chara)
-        //        {
-        //           //VRPlugin.Logger.LogDebug($"PoV:HandleDirect:{chara}");
-        //            DirectImpersonation(chara);
-        //            return true;
-        //        }
-        //    }
-        //    // We are ready to sync limb.
-        //    return false;
-        //}
+
         internal void OnLimbSync(bool start)
         {
             _forceHideHead = start;

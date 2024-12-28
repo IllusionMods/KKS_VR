@@ -51,6 +51,7 @@ namespace KK_VR.Interpreters
             {
                 KoikatuInterpreter.TweakShadowSettings(KoikatuSettings.ShadowType.Average);
             }
+            base.OnStart();
         }
 
         internal override void OnDisable()

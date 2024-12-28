@@ -36,7 +36,7 @@ namespace KK_VR.Interpreters
 
         internal static SceneInput SceneInput => _sceneInput;
         internal static KoikatuSettings Settings => _settings;
-
+        
         private static SceneType _currentScene;
         private static SceneInterpreter _sceneInterpreter;
         private static SceneInput _sceneInput;
@@ -80,7 +80,6 @@ namespace KK_VR.Interpreters
             SceneInterpreter.OnSceneLoaded(scene, mode);
             if (!_hands && scene.name.Equals("Title"))
             {
-                // Late init to work around VRGIN init bugs.
                 CreateHands();
             }
 #if KK
@@ -112,7 +111,6 @@ namespace KK_VR.Interpreters
                 }
             }
             KoikatuMenuTool.TakeGui();
-
         }
 
         private void CreateHands()
@@ -130,6 +128,7 @@ namespace KK_VR.Interpreters
             };
             right.AddComponent<HandHolder>().Init(1);
             Features.LoadVoice.Init();
+            IntegrationSensibleH.Init();
         }
 
         // PR was merged long time ago in KK_Subtitles.
@@ -369,7 +368,7 @@ namespace KK_VR.Interpreters
         }
         internal static void TweakShadowSettings(KoikatuSettings.ShadowType shadowType)
         {
-            // Grab "KKS_BetterShadowQualitySettings.dll" from HongFire patch, and configure it to own taste.
+            // Grab "KKS_BetterShadowQualitySettings.dll" from HongFire patch or go to REPL, and configure it to own taste.
             // Otherwise my take on "looks fine". Results should vary a bit depending on the VR hardware used.
 
             QualitySettings.shadowProjection = ShadowProjection.StableFit;

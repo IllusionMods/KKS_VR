@@ -182,7 +182,11 @@ namespace KK_VR.Settings
             set
             {
                 _shadowsOptimization = value;
-                KoikatuInterpreter.TweakShadowSettings(value);
+                // Don't do it outside of VR.
+                if (KoikatuInterpreter.SceneInterpreter != null)
+                {
+                    KoikatuInterpreter.TweakShadowSettings(value);
+                }
             }
         }
         private ShadowType _shadowsOptimization;

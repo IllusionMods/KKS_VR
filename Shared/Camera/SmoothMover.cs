@@ -25,11 +25,21 @@ namespace KK_VR.Camera
         {
             _instance = this;
         }
-        public void MoveToInH(Vector3 position, Quaternion rotation, bool spotChange, HFlag.EMode mode)
+        internal void MoveToPoV()
+        {
+            var mode = HSceneInterpreter.mode;
+            if (PoV.Active || (KoikatuInterpreter.Settings.AutoEnterPov && (mode == HFlag.EMode.houshi || mode == HFlag.EMode.sonyu)))
+            {
+                PoV.Instance.TryDisable(moveTo: false);
+                StartCoroutine(WaitForLag(PoV.Instance.StartPov, null));
+            }
+        }
+        internal void MoveToInH(Vector3 position, Quaternion rotation, bool spotChange)
         {
             //VRPlugin.Logger.LogDebug("VRMoverH:MoveToInH");
             StopAllCoroutines();
-            if (PoV.Active || (KoikatuInterpreter.Settings.AutoEnterPov && mode != HFlag.EMode.aibu))
+            var mode = HSceneInterpreter.mode;
+            if (PoV.Active || (KoikatuInterpreter.Settings.AutoEnterPov && (mode == HFlag.EMode.houshi || mode == HFlag.EMode.sonyu)))
             {
                 PoV.Instance.TryDisable(moveTo: false);
                 if (spotChange)
@@ -47,7 +57,7 @@ namespace KK_VR.Camera
             }
         }
 
-        public void MakeUpright(Action method = null, params object[] args)
+        internal void MakeUpright(Action method = null, params object[] args)
         {
             StartCoroutine(RotateToUpright(method, args));
         }

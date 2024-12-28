@@ -45,6 +45,17 @@ namespace KK_VR.Interpreters
         private bool? _sittingPose;
 
         private Transform _eyes;
+
+        private readonly List<string> _mapsWithoutPlayer =
+            [
+#if KK
+            "MyRoom",
+#else
+            "HotelMyroom",
+            "MinsyukuMyroom",
+            "GasyukuMyroom",
+#endif
+            ];
         private ActionGame.Chara.Player GetPlayer()
         {
 #if KK
@@ -137,7 +148,7 @@ namespace KK_VR.Interpreters
             if (_start)
             {
                 // We wait for a moment and grab/place everything we need during scene load.
-#if KK      
+#if KK
                 if (_talkSceneStart)
                 {
                     if (_sittingPose == null && talkScene.targetHeroine != null)
@@ -282,6 +293,11 @@ namespace KK_VR.Interpreters
         private void AdjustTalkScene()
         {
             _start = false;
+            // TODO Add collision detection? should be easy.
+            // RayCast chara.forward / -chara.forward for ~0.15f after rotation adjustment,
+            // if we catch something, move chara.forward.
+            // KKS has good map colliders, KK semi-good after sky removal, there will be edge cases.
+
             // Basic TalkScene camera if near worthless.
             // Does nothing about clippings with map objects, provides the simplest possible position,
             // a chara.forward vector + lookAt rotation, and chara orientation is determined by the position of chara/camera on the roam map.
@@ -346,6 +362,7 @@ namespace KK_VR.Interpreters
                 }
             }
 #if KK
+            // KKS handles rotation itself.
             origin.rotation = chara.transform.rotation * Quaternion.Euler(0f, 180f, 0f);
 #endif
             origin.position += new Vector3(headPos.x, head.position.y, headPos.z) - head.position;
@@ -365,26 +382,28 @@ namespace KK_VR.Interpreters
         {
 
             var player = GetPlayer();
+            if (_mapsWithoutPlayer.Contains(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name))
+            {
+                return;
+            }
             if (player.chaCtrl == null || player.chaCtrl.objTop == null)
             {
-                VRPlugin.Logger.LogDebug($"Talk/Adv:PlacePlayer:No male chara to place");
+#if DEBUG
+                VRPlugin.Logger.LogInfo($"Talk/Adv:PlacePlayer:No male chara to place");
+#endif
                 return;
             }
             foreach (Transform child in advScene.Scenario.Characters)
             {
                 if (child.name.StartsWith("chaM_", StringComparison.Ordinal))
                 {
-                    VRPlugin.Logger.LogDebug($"Talk/Adv:PlacePlayer:Scene has extra male chara, impersonating");
+#if DEBUG
+                    VRPlugin.Logger.LogInfo($"Talk/Adv:PlacePlayer:Scene has extra male chara, impersonating");
+#endif
                     VRCameraMover.Instance.Impersonate(child.GetComponent<ChaControl>());
                     return;
                 }
             }
-            //if (advScene.Scenario.characters.player.chaCtrl.objTop.activeSelf)
-            //{
-            //    VRCameraMover.Instance.Impersonate(player.chaCtrl);
-            //    VRPlugin.Logger.LogDebug($"PlacePlayer:Already present, impersonating");
-            //    return;
-            //}
             var head = VR.Camera.Head;
             var eyePos = GetEyesPosition();
             var headPos = head.position;

@@ -210,7 +210,7 @@ namespace KK_VR.Interpreters
             if (press)
             {
                 _pressedButtons[index, 0] = true;
-                if (IsStateCaress)
+                if (IsInputState(InputState.Caress))
                 {
                     if (IntegrationSensibleH.active)
                     {
@@ -221,13 +221,13 @@ namespace KK_VR.Interpreters
                         HSceneInterpreter.handCtrl.JudgeProc();
                     }
                 }
-                else if (IsStateGrasp)
+                else if (IsInputState(InputState.Grasp))
                 {
                     AddWait(index, EVRButtonId.k_EButton_SteamVR_Trigger, _settings.ShortPress);
                 }
                 else 
                 {
-                    if (_mouth.IsActive && !IsStateMove)
+                    if (_mouth.IsActive && !IsInputState(InputState.Move))
                     {
                         _mouth.OnTriggerPress();
                     }
@@ -428,14 +428,14 @@ namespace KK_VR.Interpreters
             {
                 _pressedButtons[index, 2] = true;
 
-                if (_inputState == InputState.Move)
+                if (IsInputState(InputState.Move))
                 {
                     if (!_pov.OnTouchpad(true))
                     {
                         if (!IsTriggerPress(index))
                         {
                             // Reset to upright. 
-                            AddWait(index, EVRButtonId.k_EButton_SteamVR_Touchpad, 0.6f); // 0.7f
+                            AddWait(index, EVRButtonId.k_EButton_SteamVR_Touchpad, _settings.LongPress - 0.1f); // 0.7f
                         }
                     }
 
@@ -448,7 +448,7 @@ namespace KK_VR.Interpreters
                     }
                     else if (!HandHolder.GetHand(index).Grasp.OnTouchpadResetHeld())
                     {
-                        AddWait(index, EVRButtonId.k_EButton_SteamVR_Touchpad, 0.35f);
+                        AddWait(index, EVRButtonId.k_EButton_SteamVR_Touchpad, _settings.ShortPress);
                     }
                 }
 
@@ -516,7 +516,7 @@ namespace KK_VR.Interpreters
             {
                 RemoveInputState(InputState.Move);
                 RemoveInputState(InputState.Caress);
-                if (IsStateGrasp)
+                if (IsInputState(InputState.Grasp))
                 {
                     RemoveInputState(InputState.Grasp);
                     _pov.OnGraspEnd();

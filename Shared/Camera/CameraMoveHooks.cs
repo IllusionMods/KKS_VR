@@ -187,7 +187,7 @@ namespace KK_VR.Camera
 
                 if (KoikatuInterpreter.Settings.SmoothTransition && SmoothMover.Instance != null && !VRFade.IsFade)
                 {
-                    SmoothMover.Instance.MoveToInH(cameraPosition, cameraRotation, spotChange, instance.flags.mode);
+                    SmoothMover.Instance.MoveToInH(cameraPosition, cameraRotation, spotChange);
                 }
                 else
                 {

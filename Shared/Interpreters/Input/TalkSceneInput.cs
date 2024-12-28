@@ -62,7 +62,7 @@ namespace KK_VR.Interpreters
             if (press)
             {
                 _pressedButtons[index, 0] = true;
-                if (IsStateGrasp)
+                if (IsInputState(InputState.Grasp))
                 {
                     AddWait(index, EVRButtonId.k_EButton_SteamVR_Trigger, _settings.ShortPress);
                 }
@@ -141,7 +141,7 @@ namespace KK_VR.Interpreters
             {
                 _pressedButtons[index, 2] = true;
 
-                if (_inputState == InputState.Move)
+                if (IsInputState(InputState.Move))
                 {
                     if (!IsTriggerPress(index))
                     {

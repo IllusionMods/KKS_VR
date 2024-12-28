@@ -143,7 +143,6 @@ namespace KK_VR.Interpreters
             mouthGuide.SetParent(VR.Camera.transform, false);
             mouthGuide.localScale = new Vector3(0.1f, 0.1f, 0.1f);
             mouthGuide.localPosition = new Vector3(0, -0.07f, 0.03f);
-            mouthGuide.gameObject.layer = 10;
 
             _mouth = mouthGuide.gameObject.AddComponent<MouthGuide>();
             _pov = VR.Camera.gameObject.AddComponent<PoV>();
@@ -161,17 +160,13 @@ namespace KK_VR.Interpreters
 #else
             Manager.Config.HData.HInitCamera = true;
 #endif
-            if (!IntegrationSensibleH.active)
-            {
-                IntegrationSensibleH.Init();
-            }
             if (_settings.ShadowsOptimization == KoikatuSettings.ShadowType.Auto)
             {
                 KoikatuInterpreter.TweakShadowSettings(KoikatuSettings.ShadowType.Close);
             }
-            if ((mode == EMode.houshi || mode == EMode.sonyu) && KoikatuInterpreter.Settings.AutoEnterPov)
+            if (KoikatuInterpreter.Settings.AutoEnterPov)
             {
-                _pov.TryEnable();
+                SmoothMover.Instance.MoveToPoV();
             }
         }
 

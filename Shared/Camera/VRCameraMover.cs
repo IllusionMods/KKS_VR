@@ -44,9 +44,9 @@ namespace KK_VR.Camera
             {
                 return;
             }
-#if KKS
-               //VRPlugin.Logger.LogDebug($"{}");
-#endif
+//#if DEBUG
+//               VRPlugin.Logger.LogDebug($"{GetType().Name}:MoveTo\n{new StackTrace(0)}");
+//#endif
             _lastPosition = position;
             _lastRotation = rotation;
 
@@ -133,7 +133,8 @@ namespace KK_VR.Camera
             var isFadingOut = IsFadingOut(textScenario.advFade);
 
             //VRLog.Debug("HandleTextScenarioProgress isFadingOut={0}", isFadingOut);
-
+            
+            // We catch it in TalkSceneInterpreter as we have visible male all the time.
             //if (_settings.FirstPersonADV &&
             //    FindMaleToImpersonate(out var male) &&
             //    male.objHead != null)
@@ -143,7 +144,6 @@ namespace KK_VR.Camera
             //}
             if (ShouldApproachCharacter(textScenario, out var character))
             {
-                VRPlugin.Logger.LogDebug("HandleTextScenarioProgress");
 #if KK
                 var distance = InCafe() ? 0.75f : TalkSceneInterpreter.talkDistance;
 #elif KKS
@@ -254,22 +254,25 @@ namespace KK_VR.Camera
             bool fadeOk = (fade._Fade == SimpleFade.Fade.Out) ^ fade.IsEnd;
             if (pretendFading || fadeOk || IsDestinationFar(position, rotation))
 #elif KKS
-            var fade = Manager.Scene.sceneFadeCanvas;
-            if (pretendFading || IsDestinationFar(position, rotation))
+            //var fade = Manager.Scene.sceneFadeCanvas;
+            if (Features.VRFade.IsFade || IsDestinationFar(position, rotation))  //(pretendFading || IsDestinationFar(position, rotation))
 
             // No clue what this condition should be about, in KKS it doesn't work (always true).
             // KK has no problem with it('s alternative).
-
             //var fadeOk = fade.isEnd; //(fade._Fade == SimpleFade.Fade.Out) ^ fade.IsEnd;
 #endif
             {
-                VRPlugin.Logger.LogDebug("MoveWithHeuristics:Move");
+#if DEBUG
+                VRPlugin.Logger.LogDebug($"MoveWithHeuristics:Move:Pos = {position}");
+#endif
                 MoveTo(position, rotation);
             }
+#if DEBUG
             else
             {
-                VRPlugin.Logger.LogDebug("MoveWithHeuristics:Stay");
+                VRPlugin.Logger.LogDebug($"MoveWithHeuristics:Stay:Pos = {position}");
             }
+#endif
         }
 
         private bool IsDestinationFar(Vector3 position, Quaternion rotation)

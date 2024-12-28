@@ -355,6 +355,9 @@ namespace KK_VR.Holders
         }
 
         // Due to scarcity of hotkeys, we'll go with increase only.
+        /// <summary>
+        /// Scroll hand item.
+        /// </summary>
         internal void ChangeItem()
         {
             DeactivateItem();

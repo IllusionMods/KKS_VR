@@ -24,21 +24,25 @@ namespace KK_VR.Camera
             internal float rightMin;
             internal float rightMax;
         }
-        internal MoveToPoi(ChaControl chara) //, Action onFinish)
+        internal MoveToPoi(ChaControl chara, Action onFinish)
         {
             var dicValue = _poiDic.ElementAt(Random.Range(0, _poiDic.Count)).Value;
+
             var transforms = chara.transform.GetComponentsInChildren<Transform>(includeInactive: true);
             _teleportTo = transforms
                 .Where(t => t.name.Equals(dicValue.teleportTo))
                 .FirstOrDefault();
+
             if (_teleportTo == null)
             {
                 throw new NullReferenceException($"{GetType().Name}:Bad dic, can't find the target.");
             }
+
             var lookAtName = dicValue.lookAt[Random.Range(0, dicValue.lookAt.Count)];
             _lookAt = transforms
                 .Where(t => t.name.Equals(lookAtName))
                 .FirstOrDefault();
+
             _offset = new Vector3(
                 Random.Range(dicValue.rightMin, dicValue.rightMax),
                 Random.Range(dicValue.upMin, dicValue.upMax),
@@ -46,8 +50,9 @@ namespace KK_VR.Camera
 
             _startRotation = VR.Camera.Origin.rotation;
             _startPosition = VR.Camera.Head.position;
-            var offsetPos = GetPosition();
+            var offsetPos = _teleportTo.TransformPoint(_offset);
             _targetRotation = Quaternion.LookRotation(_lookAt.position - offsetPos);
+
             _lerpMultiplier = Mathf.Min(
                 KoikatuInterpreter.Settings.FlightSpeed / Vector3.Distance(offsetPos, _startPosition),
                 KoikatuInterpreter.Settings.FlightSpeed * 60f / Quaternion.Angle(_startRotation, _targetRotation));
@@ -61,22 +66,23 @@ namespace KK_VR.Camera
         private readonly Transform _lookAt;
         private readonly Vector3 _offset;
         private readonly float _lerpMultiplier;
+
+        private readonly Action _onFinish;
+
         private float _lerp;
 
-        /// <summary>
-        /// Returns current lerp progress, 1f being the end goal.
-        /// </summary>
-        internal float Move()
+        internal void Move()
         {
             var step = Mathf.SmoothStep(0f, 1f, _lerp += Time.deltaTime * _lerpMultiplier);
-            var offsetPos = GetPosition();
+            var offsetPos = _teleportTo.TransformPoint(_offset);
             var pos = Vector3.Slerp(_startPosition, offsetPos, step);
             VR.Camera.Origin.rotation = Quaternion.Slerp(_startRotation, _targetRotation, step);
             VR.Camera.Origin.position += pos - VR.Camera.Head.position;
-            return step;
+            if (step >= 1f)
+            {
+                _onFinish?.Invoke();
+            }
         }
-
-        private Vector3 GetPosition() => _teleportTo.TransformPoint(_offset);
 
         //private readonly Dictionary<string, PoIPatternInfo> poiDicDev = new()
         //{

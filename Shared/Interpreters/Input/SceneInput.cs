@@ -59,7 +59,7 @@ namespace KK_VR.Interpreters
             _inputState |= state;
             var wasBusy = _busy;
 
-            _busy = IsStateNotDefault();
+            _busy = IsInputStateNotDefault();
             if (!wasBusy && _busy)
             {
                 HandHolder.OnBecomingBusy();
@@ -68,15 +68,12 @@ namespace KK_VR.Interpreters
         protected void RemoveInputState(InputState state)
         {
             _inputState &= ~state;
-            _busy = IsStateNotDefault();
+            _busy = IsInputStateNotDefault();
         }
-        protected bool IsStateCaress => (_inputState & InputState.Caress) != 0;
-        protected bool IsStateGrasp => (_inputState & InputState.Grasp) != 0;
-        protected bool IsStateMove => (_inputState & InputState.Move) != 0;
-        protected bool IsStateBusy => (_inputState & InputState.Busy) != 0;
-        private bool IsStateNotDefault()
+        protected bool IsInputState(InputState state) => (_inputState & state) != 0;
+        private bool IsInputStateNotDefault()
         {
-            return IsStateCaress || IsStateGrasp || IsStateMove || IsStateBusy;
+            return IsInputState(InputState.Caress) || IsInputState(InputState.Grasp) || IsInputState(InputState.Move) || IsInputState(InputState.Busy);
         }
         protected enum Timing
         {
@@ -176,7 +173,7 @@ namespace KK_VR.Interpreters
                 PickDirectionAction(wait, timing);
             else
             {
-                if (IsStateMove)
+                if (IsInputState(InputState.Move))
                 {
                     PickButtonActionGripMove(wait, timing);
                 }
@@ -284,7 +281,7 @@ namespace KK_VR.Interpreters
             {
                 _pressedButtons[index, 2] = true;
 
-                if (IsStateMove)
+                if (IsInputState(InputState.Move))
                 {
                     if (!IsTriggerPress(index))
                     {

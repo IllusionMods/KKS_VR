@@ -6,10 +6,12 @@
 //using UnityEngine;
 //using VRGIN.Core;
 
-// Guess it was moved to and conflicts with the IllusionFix nowadays, as UniRx freaks out all the time.
 //namespace KK_VR.Fixes
 //{
 //    /// <summary>
+
+//    ///Guess it was moved to and conflicts with the IllusionFix nowadays, as UniRx freaks out all the time because of this.
+
 //    /// Avoid triggering resource unload when loading UI-only scenes.
 //    /// todo move into illusionfixes?
 //    /// </summary>
