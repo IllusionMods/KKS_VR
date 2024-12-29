@@ -84,7 +84,7 @@ namespace KK_VR.Features
         internal static PoV Create()
         {
             var component = VR.Camera.gameObject.GetComponent<PoV>();
-            if (component == null)
+            if (component != null)
             {
                 return component;
             }
