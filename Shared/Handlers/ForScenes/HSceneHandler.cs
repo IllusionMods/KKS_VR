@@ -141,8 +141,9 @@ namespace KK_VR.Handlers
                 if (velocity > 1.5f || (_tracker.reactionType == Tracker.ReactionType.HitReaction && !IsAibuItemPresent(out _)))
                 {
                     if (_settings.TouchReaction != 0f 
+                        && HSceneInterpreter.mode == HFlag.EMode.aibu
                         && GraspHelper.Instance != null 
-                        && GraspHelper.Instance.IsGraspActive(_tracker.colliderInfo.chara) 
+                        && !GraspHelper.Instance.IsGraspActive(_tracker.colliderInfo.chara)
                         && UnityEngine.Random.value < _settings.TouchReaction)
                     {
                         GraspHelper.Instance.TouchReaction(_tracker.colliderInfo.chara, _hand.Anchor.position, _tracker.colliderInfo.behavior.part);

@@ -556,10 +556,7 @@ namespace KK_VR.Grasp
         }
         internal void TouchReaction(ChaControl chara, Vector3 handPosition, Tracker.Body body)
         {
-            if (((KoikatuInterpreter.CurrentScene == KoikatuInterpreter.SceneType.HScene && HSceneInterpreter.mode == HFlag.EMode.aibu)
-                || (KoikatuInterpreter.CurrentScene != KoikatuInterpreter.SceneType.HScene))
-                && _auxDic.ContainsKey(chara) 
-                && !_auxDic[chara].reaction.IsBusy)
+            if (_auxDic.ContainsKey(chara) && !_auxDic[chara].reaction.IsBusy)
             {
                 foreach (var bodyPart in _bodyPartsDic[chara])
                 {
