@@ -149,6 +149,9 @@ namespace KK_VR.Settings
         public bool IKShowDebug { get; set; }
         public float IKDefaultBendConstraint { get; set; }
         //public bool ImperfectRotation { get; set; }
+        /// <summary>
+        /// Very expensive, about ~10-20% extra gpu load.
+        /// </summary>
         public bool FixMirrors { get; set; }
         public bool MaintainLimbOrientation 
         {

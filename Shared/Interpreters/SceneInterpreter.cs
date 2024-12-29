@@ -18,10 +18,7 @@ namespace KK_VR.Interpreters
         {
 #if KKS
             // KKS swaps VFX all the time gotta keep up, KK doesn't seem like.
-            if (UnityEngine.Camera.main != null)
-            {
-                VRCamera.Instance.Refresh();
-            }
+            VREffector.Refresh();
 #endif
         }
         internal virtual void OnDisable()

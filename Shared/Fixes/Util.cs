@@ -63,18 +63,19 @@ namespace KK_VR.Fixes
             }
             return null;
         }
-        public static Component CopyComponent(Component original, GameObject destination)
-        {
-            var type = original.GetType();
-            var copy = destination.AddComponent(type);
-            // Copied fields can be restricted with BindingFlags
-            var fields = type.GetFields();
-            foreach (var field in fields)
-            {
-                field.SetValue(copy, field.GetValue(original));
-            }
-            return copy;
-        }
+        // Redundant. VRGIN.UnityHelper has it.
+        //public static Component CopyComponent(Component original, GameObject destination)
+        //{
+        //    var type = original.GetType();
+        //    var copy = destination.AddComponent(type);
+        //    // Copied fields can be restricted with BindingFlags
+        //    var fields = type.GetFields();
+        //    foreach (var field in fields)
+        //    {
+        //        field.SetValue(copy, field.GetValue(original));
+        //    }
+        //    return copy;
+        //}
         public static Vector3 Divide(Vector3 a, Vector3 b) => new(a.x / b.x, a.y / b.y, a.z / b.z);
         public static GameObject CreatePrimitive(PrimitiveType primitive, Vector3 size, Transform parent, Color color, float alpha, bool removeCollider = true)
         {

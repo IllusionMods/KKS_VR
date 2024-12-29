@@ -228,7 +228,7 @@ namespace KK_VR.Interpreters
             if (_hitReaction == null)
             {
                 // ADV scene is turned off quite often, so we can't utilized its native component.
-                _hitReaction = (HitReaction)Util.CopyComponent(advScene.GetComponent<HitReaction>(), Game.instance.gameObject);
+                _hitReaction = VRGIN.Helpers.UnityHelper.CopyComponent(advScene.GetComponent<HitReaction>(), Game.instance.gameObject);
             }
             ControllerTracker.Initialize(charas);
         }

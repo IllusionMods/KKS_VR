@@ -91,7 +91,7 @@ namespace KK_VR.Fixes
                 VRGINCameraSet = true;
                 _rendererState = true;
                 var origComponent = __instance.obiFluidRenderer[0];
-                Util.CopyComponent(origComponent, VR.Camera.gameObject);
+                VRGIN.Helpers.UnityHelper.CopyComponent(origComponent, VR.Camera.gameObject);
                 __instance.obiFluidRenderer[0] = VR.Camera.GetComponent<ObiFluidRenderer>();
                 Component.Destroy(origComponent);
             }

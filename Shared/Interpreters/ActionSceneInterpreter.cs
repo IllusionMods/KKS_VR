@@ -134,6 +134,11 @@ namespace KK_VR.Interpreters
                 _resetCamera = false;
                 VRLog.Info("ResetCamera succeeded");
             }
+#if KKS
+            // KKS swaps VFX all the time gotta keep up, KK doesn't seem like.
+            VREffector.Refresh();
+#endif
+
         }
         private void DisableCameraSystem()
         {

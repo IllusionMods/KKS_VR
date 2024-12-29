@@ -110,7 +110,20 @@ namespace KK_VR.Camera
             sunShafts.sunShaftIntensity = 0.6f;
         }
 
-        struct Mirrored<T>
+        /// <summary>
+        /// Keep up with constant VFX updates
+        /// </summary>
+        internal static void Refresh()
+        {
+            var effector = VR.Camera.GetComponent<VREffector>();
+            if (effector != null && VR.Camera.Blueprint != null)
+            {
+                effector.HandleNewGameCamera(VR.Camera.Blueprint);
+            }
+        }
+
+
+    struct Mirrored<T>
             where T : Behaviour
         {
             public T mirror;
