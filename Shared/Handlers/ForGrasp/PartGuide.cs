@@ -12,12 +12,15 @@ using BodyPart = KK_VR.Grasp.BodyPart;
 
 namespace KK_VR.Handlers
 {
-    // Component for actual character bone (bodyPart.afterIK). Can be repositioned at whim.
+    // Component for the actual character bone (bodyPart.afterIK). Can be repositioned at a whim.
     // Controls collider tracker and movement of IK object. 
     // When IK object is being set and there are appropriate colliders within range of this component, 
     // IK object may be attached to intersecting collider. Due to nature of IK setup,
     // IK object is always somewhere not where you'd expect it to be,
     // thus we manage it through this component attached to the bone that would better represent particular IK point visually.
+    /// <summary>
+    /// Component responsible for orientation of IK driven body part.
+    /// </summary>
     internal abstract class PartGuide : Handler
     {
         protected class Translate

@@ -6,6 +6,9 @@ using VRGIN.Core;
 
 namespace KK_VR.Grasp
 {
+    /// <summary>
+    /// Holds/manipulates whole character
+    /// </summary>
     internal class BaseHold
     {
         internal BaseHold(BodyPart _bodyPart, Transform _objAnim, Transform _attachPoint)

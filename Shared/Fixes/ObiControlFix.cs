@@ -16,6 +16,10 @@ namespace KK_VR.Fixes
     {
         // Due to being quite expensive (about 10 - 15% added gpu load), and vr being extremely gpu hungry, we keep it disabled until we want it.
         // In this state it adds about 1 - 2% to load, further suppression isn't worth it due to intricacy.
+        // It puzzles me why they went for gpu implenetation and not cpu. Wasn't available in older version?
+
+        // Native code resets particles every time animController changes state, changed to more persistent behavior in SensibleH.
+
         public static bool _activeState;
         public static bool _rendererState;
         public static bool VRGINCameraSet;

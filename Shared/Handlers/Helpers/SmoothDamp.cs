@@ -7,6 +7,9 @@ using UnityEngine;
 
 namespace KK_VR.Handlers
 {
+    /// <summary>
+    /// Wrapped Mathf.SmoothDamp for comfy use
+    /// </summary>
     internal class SmoothDamp
     {
         internal SmoothDamp(float smoothTime = 1f, float target = 1f)

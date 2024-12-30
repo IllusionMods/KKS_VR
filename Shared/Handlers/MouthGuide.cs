@@ -16,7 +16,9 @@ using static HandCtrl;
 
 namespace KK_VR.Handlers
 {
-    // Port this all away from coroutines ? Too much stuff to do to address it.
+    /// <summary>
+    /// Moves camera on kiss/lick
+    /// </summary>
     internal class MouthGuide : Handler
     {
         internal static MouthGuide Create()
@@ -123,8 +125,6 @@ namespace KK_VR.Handlers
                 var head = VR.Camera.Head;
                 if (Vector3.Distance(_eyes.position, head.position) < _kissDistance
                     && Quaternion.Angle(_eyes.rotation, head.rotation * _reverse) < 60f
-                    //&& Vector3.Angle(head.position - _eyes.position, _eyes.forward) < 30f
-                    //&& Vector3.Angle(_eyes.position - head.position, head.forward) < 30f
                     && IsKissingAllowed())
                 {
                     StartKiss();

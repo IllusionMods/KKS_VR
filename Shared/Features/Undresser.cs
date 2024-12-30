@@ -15,6 +15,9 @@ using static KK_VR.Trackers.Tracker;
 
 namespace KK_VR.Interactors
 {
+    /// <summary>
+    /// Simplified/expanded version from https://github.com/mosirnik/KK_MainGameVR
+    /// </summary>
     static class Undresser
     {
         public static bool IsBodyPartClothed(ChaControl chara, Body part)
@@ -158,8 +161,8 @@ namespace KK_VR.Interactors
         }
         private static readonly Dictionary<Body, List<SlotState>> UndressDic = new()
         {
-            // Sequences of cloth slots and their states for each body part.
-            // We check if specific cloth slot has corresponding state and toggle this slot to the next state.
+            // Pairs of clothing slots and their states
+            // We check each, if state is less or equal, jump to the next one, otherwise change state.
             {
                 Body.Asoko, new List<SlotState>
                 {
@@ -247,8 +250,8 @@ namespace KK_VR.Interactors
         };
         private static readonly Dictionary<Body, List<SlotState>> RedressDic = new()
         {
-            // Sequences of cloth slots and their states for each body part.
-            // We put specific cloth slot to corresponding state if it was in lesser one.
+            // Pairs of clothing slots and their states
+            // We check each, if state is less, jump to the next one, otherwise change state.
             {
                 Body.Asoko, new List<SlotState>
                 {

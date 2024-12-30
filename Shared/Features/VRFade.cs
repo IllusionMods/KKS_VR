@@ -10,6 +10,9 @@ using KK_VR.Interpreters;
 
 namespace KK_VR.Features
 {
+    /// <summary>
+    /// A VR fader that replaces the fader of the base game.
+    /// </summary>
     internal class VRFade : MonoBehaviour
     {
         /// <summary>
@@ -23,6 +26,10 @@ namespace KK_VR.Features
         private Image _vanillaImage;
         private Slider _vanillaProgressBar;
 #else
+        // KKS doesn't have fade out by default,
+        // and the fade is hidden so well couldn't even find it,
+        // so we go with the fade delegates and custom fade.
+
         private LoadingIconJob _loadingIconJob;
         private SceneFadeCanvas _sceneFadeCanvas;
         private bool _isFade;
@@ -241,6 +248,7 @@ namespace KK_VR.Features
             return (cycle.nowType) switch
             {
                 Cycle.Type.Evening => new Color(0.85f, 0.50f, 0.37f),
+                // Find better color for the night.
                 Cycle.Type.Night or Cycle.Type.GotoMyHouse or Cycle.Type.MyHouse => new Color(0.12f, 0.2f, 0.5f),
                 _ => new Color(0.44f, 0.78f, 1f),
             };

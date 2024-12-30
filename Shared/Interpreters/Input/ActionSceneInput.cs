@@ -14,7 +14,6 @@ namespace KK_VR.Interpreters
 {
     internal class ActionSceneInput : SceneInput
     {
-        private ActionSceneInterpreter _interpreter;
         private bool _standing = true;
         /// <summary>
         /// For button prompted crouch.
@@ -23,10 +22,17 @@ namespace KK_VR.Interpreters
         private bool _walking;
         private float _continuousRotation;
         private Pressed _buttons;
-        internal ActionSceneInput(ActionSceneInterpreter interpreter)
+        internal Transform _eyes;
+
+        internal Vector3 GetEyesPosition()
         {
-            _interpreter = interpreter;
+            if (_eyes == null)
+            {
+                _eyes = actionScene.Player.chaCtrl.objHeadBone.transform.Find("cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/cf_J_FaceUp_tz/cf_J_Eye_tz");
+            }
+            return _eyes.TransformPoint(0f, _settings.PositionOffsetY, _settings.PositionOffsetZ);
         }
+
         enum Pressed
         {
             LeftMouse = 1,
@@ -213,14 +219,14 @@ namespace KK_VR.Interpreters
 
             //var headCam = VR.Camera.transform;
 
-            var pos = _interpreter.GetEyesPosition();
+            var pos = GetEyesPosition();
             if (!_settings.UsingHeadPos)
             {
                 var player = actionScene.Player;
                 pos.y = player.position.y + (_standing ? _settings.StandingCameraPos : _settings.CrouchingCameraPos);
             }
 
-            VR.Mode.MoveToPosition(pos, onlyPosition ? Quaternion.Euler(0f, VR.Camera.transform.eulerAngles.y, 0f) : _interpreter._eyes.rotation, false);
+            VR.Mode.MoveToPosition(pos, onlyPosition ? Quaternion.Euler(0f, VR.Camera.transform.eulerAngles.y, 0f) : _eyes.rotation, false);
             //VRMover.Instance.MoveTo(
             //    //pos + cf * 0.23f, // 首が見えるとうざいのでほんの少し前目にする
             //    pos,
@@ -234,7 +240,7 @@ namespace KK_VR.Interpreters
             var player = actionScene.Player;
             var head = VR.Camera.Head;
 
-            var vec = player.position - _interpreter.GetEyesPosition();
+            var vec = player.position - GetEyesPosition();
             if (!_settings.UsingHeadPos)
             {
                 var attachPoint = player.position;

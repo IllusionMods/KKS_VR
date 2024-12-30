@@ -23,6 +23,9 @@ using KK_VR.Holders;
 
 namespace KK_VR.Handlers
 {
+    /// <summary>
+    /// Implementation for a controller based component
+    /// </summary>
     class ItemHandler : Handler
     {
         protected ControllerTracker _tracker;
@@ -156,10 +159,6 @@ namespace KK_VR.Handlers
         {
             return tryToAvoidChara == null && preferredSex == -1 ? _tracker.GetGraspBodyPart() : _tracker.GetGraspBodyPart(tryToAvoidChara, preferredSex);
         }
-        //internal void RemoveGuideObjects()
-        //{
-        //    _tracker.RemoveGuideObjects();
-        //}
         internal void RemoveCollider(Collider other)
         {
             _tracker.RemoveCollider(other);

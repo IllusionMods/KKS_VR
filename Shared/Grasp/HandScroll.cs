@@ -9,6 +9,9 @@ using UnityEngine;
 
 namespace KK_VR.Grasp
 {
+    /// <summary>
+    /// Changes blend values of the character's hand
+    /// </summary>
     internal class HandScroll
     {
         internal HandScroll(GraspController.PartName partName, ChaControl chara, bool increase)

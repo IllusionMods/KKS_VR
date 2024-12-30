@@ -8,7 +8,7 @@ using UnityEngine;
 namespace KK_VR.IK
 {
     /// <summary>
-    /// Component that assumes orientation of target bone just before IK solver. 
+    /// Component that assumes orientation of the target bone just before IK solver reads it. 
     /// </summary>
     [DefaultExecutionOrder(9900)]
     public class BeforeIK : MonoBehaviour

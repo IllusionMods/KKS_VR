@@ -21,6 +21,9 @@ using KK_VR.Trackers;
 
 namespace KK_VR.Handlers
 {
+    /// <summary>
+    /// Component responsible for the management of functions associated with colliders
+    /// </summary>
     internal class Handler : MonoBehaviour
     {
         protected virtual Tracker Tracker { get; set; }

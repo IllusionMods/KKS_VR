@@ -29,7 +29,6 @@ namespace KK_VR.Interpreters
         internal static Transform FakeCamera;
         private GameObject _map;
         private GameObject _cameraSystem;
-        internal Transform _eyes;
         private bool _resetCamera;
         private float _originAngle;
 
@@ -156,27 +155,19 @@ namespace KK_VR.Interpreters
 
         private void EnableCameraSystem()
         {
-            VRLog.Info("ActionScene ReleaseCamera");
+            //VRLog.Info("ActionScene ReleaseCamera");
 
             if (_cameraSystem != null)
             {
                 _cameraSystem.SetActive(true);
 
-                VRLog.Info("succeeded");
+                //VRLog.Info("succeeded");
             }
         }
 
 
 
 
-        internal Vector3 GetEyesPosition()
-        {
-            if (_eyes == null)
-            {
-                _eyes = actionScene.Player.chaCtrl.objHeadBone.transform.Find("cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/cf_J_FaceUp_tz/cf_J_Eye_tz");
-            }
-            return _eyes.TransformPoint(0f, _settings.PositionOffsetY, _settings.PositionOffsetZ);
-        }
 
 
 

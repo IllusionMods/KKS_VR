@@ -111,7 +111,7 @@ namespace KK_VR.Features
                 __instance.isCrossFade = true;
                 if (KoikatuInterpreter.CurrentScene == KoikatuInterpreter.SceneType.TalkScene)
                 {
-                    // Speed up considerably crossFade after touchScene reaction.
+                    // Speed up considerably crossFade after Talk/AdvScene TouchReaction function.
                     __instance.transitionDuration = Reaction ? Random.Range(0.1f, 0.2f) : Random.Range(0.5f, 1f);
                     Reaction = false;
                     if (__instance.state.StartsWith("f_reaction_", StringComparison.Ordinal))

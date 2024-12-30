@@ -14,6 +14,10 @@ namespace KK_VR.IK
     // Fixing it properly would require filling all the motion data by hand and storing with plugin assets, while not that big of an endeavor,
     // it only responsible for offsets from attachment points, and VR hardly cares about it, we have Grasp and soon VRIK.
 
+    /// <summary>
+    /// Fixes IK on animations added by AnimationLoader plugin. 
+    /// Doesn't add MotionIK data i.e. offsets for different body sizes
+    /// </summary>
     public class AnimLoaderHelper
     {
         internal static void FixExtraAnim(ChaControl chara, List<BodyPart> bodyPartList)

@@ -12,7 +12,10 @@ using Illusion.Extensions;
 
 namespace KK_VR.Holders
 {
-    internal class Holder : MonoBehaviour
+    /// <summary>
+    /// Provides orientation of the held model
+    /// </summary>
+    internal abstract class Holder : MonoBehaviour
     {
         protected Rigidbody _rigidBody;
         protected ItemType _activeItem;

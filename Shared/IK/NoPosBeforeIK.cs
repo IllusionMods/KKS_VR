@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace KK_VR.IK
 {
+    /// <summary>
+    /// Component that assumes rotation of the target bone just before IK solver reads it. 
+    /// </summary>
     [DefaultExecutionOrder(9900)]
     internal class NoPosBeforeIK : MonoBehaviour
     {

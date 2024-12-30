@@ -10,6 +10,9 @@ using KK_VR.Interpreters;
 
 namespace KK_VR.Grasp
 {
+    /// <summary>
+    /// Visual cue of a character's body part to help during IK manipulation.
+    /// </summary>
     internal class VisualObject
     {
         internal readonly GameObject gameObject;

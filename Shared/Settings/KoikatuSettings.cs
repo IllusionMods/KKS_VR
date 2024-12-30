@@ -146,7 +146,7 @@ namespace KK_VR.Settings
         public HandType HideHandOnUserInput { get; set; }
         public bool FollowRotationDuringKiss { get; set; }
         public HeadEffector IKHeadEffector { get; set; }
-        public bool IKShowDebug { get; set; }
+        //public bool IKShowDebug { get; set; }
         public float IKDefaultBendConstraint { get; set; }
         //public bool ImperfectRotation { get; set; }
         /// <summary>
@@ -192,7 +192,7 @@ namespace KK_VR.Settings
                 }
             }
         }
-        private ShadowType _shadowsOptimization;
+        private ShadowType _shadowsOptimization { get; set; }
         public float TouchReaction { get; set; }
         public bool ReturnBodyPartAfterSync { get; set; }
         public GripMoveStabilization GripMoveStabilize { get; set; }

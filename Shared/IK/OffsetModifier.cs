@@ -5,7 +5,7 @@ using RootMotion.FinalIK;
 
 namespace KK_VR.IK
 {
-    // From final ik scripts.
+    // Simplified version from FinalIK scripts
     /// <summary>
     /// Base class for all FBBIK effector positionOffset modifiers. Works with animatePhysics, safe delegates, offset limits.
     /// </summary>

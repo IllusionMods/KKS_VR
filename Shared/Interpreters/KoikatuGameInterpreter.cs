@@ -221,7 +221,7 @@ namespace KK_VR.Interpreters
         {
             return sceneType switch
             {
-                SceneType.ActionScene => new ActionSceneInput((ActionSceneInterpreter)SceneInterpreter),
+                SceneType.ActionScene => new ActionSceneInput(),
                 SceneType.HScene => new HSceneInput((HSceneInterpreter)SceneInterpreter),
                 SceneType.TalkScene => new TalkSceneInput((TalkSceneInterpreter)SceneInterpreter),
                 _ => new SceneInput(),

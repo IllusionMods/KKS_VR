@@ -9,6 +9,9 @@ using Random = UnityEngine.Random;
 
 namespace KK_VR.Handlers
 {
+    /// <summary>
+    /// Starts proactive kiss
+    /// </summary>
     internal class KissHelper
     {
         private float _kissAttemptTimestamp;

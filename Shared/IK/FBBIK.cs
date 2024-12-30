@@ -6,6 +6,9 @@ using UnityEngine;
 
 namespace KK_VR.IK
 {
+    /// <summary>
+    /// Copies config from old FullBodyBipedIK to the new one
+    /// </summary>
     internal static class FBBIK
     {
         // IKSolver exec order is 9999

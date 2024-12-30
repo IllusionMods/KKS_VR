@@ -12,6 +12,9 @@ using VRGIN.Core;
 
 namespace KK_VR.Holders
 {
+    /// <summary>
+    /// Provides SFX for character/controller interactions
+    /// </summary>
     internal class HandNoise
     {
         private readonly AudioSource _audioSource;

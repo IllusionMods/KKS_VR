@@ -25,6 +25,10 @@ using KK_VR.Features;
 
 namespace KK_VR.Grasp
 {
+    /// <summary>
+    /// Singleton, helps Grasp with hooks/init/end. 
+    /// Removes everything Grasp related OnDestroy()
+    /// </summary>
     internal class GraspHelper : MonoBehaviour
     {
         internal static GraspHelper Instance => _instance;

@@ -9,6 +9,9 @@ using UnityEngine;
 
 namespace KK_VR.Grasp
 {
+    /// <summary>
+    /// Convergence of everything we need to manipulate each body part of a character with the IK
+    /// </summary>
     internal class BodyPart
     {
         internal readonly PartName name;

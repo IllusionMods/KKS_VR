@@ -10,6 +10,9 @@ using static KK_VR.Grasp.GraspController;
 
 namespace KK_VR.Grasp
 {
+    /// <summary>
+    /// Component that applies extra IK offsets during manual caress
+    /// </summary>
     internal class IKCaress : OffsetManipulator
     {
         private bool _end;

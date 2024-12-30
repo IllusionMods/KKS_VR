@@ -11,6 +11,9 @@ using UnityEngine.SceneManagement;
 
 namespace KK_VR.Interpreters
 {
+    /// <summary>
+    /// Scene based actions that don't correlate with the input
+    /// </summary>
     abstract class SceneInterpreter
     {
         protected KoikatuSettings _settings = VR.Context.Settings as KoikatuSettings;

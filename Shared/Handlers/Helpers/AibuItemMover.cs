@@ -10,6 +10,9 @@ using UnityEngine;
 
 namespace KK_VR.Handlers.Helpers
 {
+    /// <summary>
+    /// Feeds ~controller position to the hFlag.xy field 
+    /// </summary>
     internal class AibuItemMover
     {
         internal AibuItemMover(AibuColliderKind touch, Transform anchor)

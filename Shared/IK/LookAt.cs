@@ -8,6 +8,7 @@ using VRGIN.Core;
 
 namespace KK_VR.IK
 {
+    // Requires proper implementation with added scripts to manage it in SensibleH (WIP).
     internal class LookAt
     {
         internal static LookAtController SetupLookAtIK(ChaControl chara)

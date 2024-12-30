@@ -7,6 +7,7 @@ using UnityEngine;
 
 namespace KK_VR.IK
 {
+    // Simplified version from FinalIK scripts
     internal abstract class OffsetManipulator : OffsetModifier
     {
         protected class EffectorLink

@@ -19,6 +19,9 @@ using Random = UnityEngine.Random;
 
 namespace KK_VR.Features
 {
+    /// <summary>
+    /// Plays native voice lines for any chara at any moment
+    /// </summary>
     public static class LoadVoice
     {
         public enum VoiceType

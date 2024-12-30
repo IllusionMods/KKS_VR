@@ -13,6 +13,9 @@ using static VRGIN.Controls.Controller;
 
 namespace KK_VR.Interpreters
 {
+    /// <summary>
+    /// Manages input of the corresponding scene, has access to the interpreter but not vice versa.
+    /// </summary>
     internal class SceneInput
     {
         protected readonly KoikatuSettings _settings = VR.Context.Settings as KoikatuSettings;
@@ -42,6 +45,12 @@ namespace KK_VR.Interpreters
             Grasp = 2,
             Move = 4,
             Busy = 8,
+        }
+        protected enum Timing
+        {
+            Fraction,
+            Half,
+            Full
         }
         internal void SetBusy(bool state)
         {
@@ -75,12 +84,6 @@ namespace KK_VR.Interpreters
         {
             return IsInputState(InputState.Caress) || IsInputState(InputState.Grasp) || IsInputState(InputState.Move) || IsInputState(InputState.Busy);
         }
-        protected enum Timing
-        {
-            Fraction,
-            Half,
-            Full
-        }
         internal virtual void OnDisable()
         {
 
@@ -110,7 +113,7 @@ namespace KK_VR.Interpreters
             PickAction(
                 _waitList
                 .OrderByDescending(w => w.button)
-                .First());
+                .FirstOrDefault());
         }
 
         protected void PickAction(Timing timing)
@@ -118,7 +121,7 @@ namespace KK_VR.Interpreters
             PickAction(
                 _waitList
                 .OrderByDescending(w => w.button)
-                .First(), timing);
+                .FirstOrDefault(), timing);
         }
 
         protected void PickAction(int index, EVRButtonId button)
@@ -130,7 +133,7 @@ namespace KK_VR.Interpreters
                 .FirstOrDefault());
         }
 
-        protected void PickAction(int index, Controller.TrackpadDirection direction)
+        protected void PickAction(int index, TrackpadDirection direction)
         {
             if (_waitList.Count == 0) return;
             PickAction(
@@ -327,12 +330,12 @@ namespace KK_VR.Interpreters
             _waitList.Add(new InputWait(index, button, duration));
         }
 
-        protected void AddWait(int index, Controller.TrackpadDirection direction, bool manipulateSpeed, float duration)
+        protected void AddWait(int index, TrackpadDirection direction, bool manipulateSpeed, float duration)
         {
             _waitList.Add(new InputWait(index, direction, manipulateSpeed, duration));
         }
 
-        protected void AddWait(int index, Controller.TrackpadDirection direction, float duration)
+        protected void AddWait(int index, TrackpadDirection direction, float duration)
         {
             _waitList.Add(new InputWait(index, direction, duration));
         }

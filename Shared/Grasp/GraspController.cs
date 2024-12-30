@@ -30,6 +30,9 @@ namespace KK_VR.Grasp
     // it has VRIK for player, it has animClip baker. Far beyond "enough of a reason" in my book.
     // Cons. Can't seem to make 'Reach' of IKEffector to work, not in game nor in editor. Old one has it working just fine.
 
+    /// <summary>
+    /// Manipulates IK of the character
+    /// </summary>
     internal class GraspController
     {
         private readonly HandHolder _hand;

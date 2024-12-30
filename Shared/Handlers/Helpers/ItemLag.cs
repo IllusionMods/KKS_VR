@@ -7,6 +7,9 @@ using VRGIN.Core;
 
 namespace KK_VR.Handlers
 {
+    /// <summary>
+    /// Stabilizes orientation of a model representing the controller
+    /// </summary>
     internal class ItemLag
     {
         private readonly Transform _transform;

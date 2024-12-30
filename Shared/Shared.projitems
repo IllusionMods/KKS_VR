@@ -62,7 +62,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Handlers\ForScenes\TalkSceneHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Handlers\Handler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Handlers\Helpers\AibuItemMover.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Handlers\Helpers\CameraLag.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Handlers\Helpers\ItemLag.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Handlers\Helpers\KissHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Handlers\Helpers\SmoothDamp.cs" />
@@ -83,11 +82,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)IK\OffsetModifier.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IK\VRIK.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IK\VRIKGuide.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Interactors\Undresser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\Undresser.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interpreters\ActionSceneInterpreter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interpreters\CustomSceneInterpreter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interpreters\Extras\IntegrationSensibleH.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Interpreters\Extras\InputWait.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interpreters\Input\InputWait.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interpreters\Extras\MeshCollider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interpreters\Extras\SceneExtras.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interpreters\HSceneInterpreter.cs" />
