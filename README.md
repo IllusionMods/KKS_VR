@@ -26,8 +26,9 @@ The studio part is a fork of the [KKS_CharaStudioVR](https://vr-erogamer.com/arc
 
 The game (not the studio) also can be launched without any added arguments if SteamVR is running.
 
-## Tip
+## Tips
  * Be advised to set InterPupillary Distance (IPD) in the settings to change the scale of the world according to own taste and used hardware.
+ * If VR mode doesn't launch, make sure that neither of controllers is asleep during game launch.*
 
 ## Controls Game
 ### Overview

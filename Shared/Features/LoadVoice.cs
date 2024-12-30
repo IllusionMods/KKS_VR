@@ -62,7 +62,7 @@ namespace KK_VR.Features
         }
             public static void Init()
         {
-            var type = AccessTools.TypeByName("KK_MaleBreathVR.MaleBreath");
+            var type = AccessTools.TypeByName("KK_MaleBreath.MaleBreath");
             if (type != null)
             {
                 _maleBreathPersonality = AccessTools.MethodDelegate<Func<int>>(AccessTools.FirstMethod(type, m => m.Name.Equals("GetPlayerPersonality")));
