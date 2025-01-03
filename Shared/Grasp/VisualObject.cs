@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using static KK_VR.Grasp.GraspController;
 using UnityEngine;
-using KK_VR.Fixes;
-using KK_VR.Settings;
 using KK_VR.Interpreters;
 
 namespace KK_VR.Grasp
@@ -27,7 +22,7 @@ namespace KK_VR.Grasp
         ];
         internal VisualObject(BodyPart bodyPart)
         {
-            gameObject = Util.CreatePrimitive(
+            gameObject = KK_VR.Fixes.Util.CreatePrimitive(
                     PrimitiveType.Sphere,
                     GetGuideObjectSize(bodyPart.name),
                     bodyPart.afterIK,

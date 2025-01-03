@@ -103,13 +103,13 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.Subsystem.Registration">
-      <HintPath>..\Libs\Unity.Subsystem.Registration.dll</HintPath>
+      <HintPath>..\VRGIN_OpenXR\Libs\Unity.Subsystem.Registration.dll</HintPath>
     </Reference>
     <Reference Include="Unity.XR.Management">
-      <HintPath>..\Libs\Unity.XR.Management.dll</HintPath>
+      <HintPath>..\VRGIN_OpenXR\Libs\Unity.XR.Management.dll</HintPath>
     </Reference>
     <Reference Include="Unity.XR.OpenVR">
-      <HintPath>..\Libs\Unity.XR.OpenVR.dll</HintPath>
+      <HintPath>..\VRGIN_OpenXR\Libs\Unity.XR.OpenVR.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\IllusionLibs.KoikatsuSunshine.UnityEngine.CoreModule.2019.4.9\lib\net46\UnityEngine.dll</HintPath>
@@ -140,7 +140,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.SpatialTracking">
-      <HintPath>..\Libs\UnityEngine.SpatialTracking.dll</HintPath>
+      <HintPath>..\VRGIN_OpenXR\Libs\UnityEngine.SpatialTracking.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\IllusionLibs.KoikatsuSunshine.UnityEngine.UI.2019.4.9\lib\net46\UnityEngine.UI.dll</HintPath>
@@ -162,13 +162,13 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.XR.LegacyInputHelpers">
-      <HintPath>..\Libs\UnityEngine.XR.LegacyInputHelpers.dll</HintPath>
+      <HintPath>..\VRGIN_OpenXR\Libs\UnityEngine.XR.LegacyInputHelpers.dll</HintPath>
     </Reference>
     <Reference Include="Valve.Newtonsoft.Json">
-      <HintPath>..\Libs\Valve.Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\VRGIN_OpenXR\Libs\Valve.Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="WindowsInput">
-      <HintPath>..\Libs\WindowsInput.dll</HintPath>
+      <HintPath>..\VRGIN_OpenXR\Libs\WindowsInput.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

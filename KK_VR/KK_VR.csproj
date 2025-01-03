@@ -78,7 +78,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="WindowsInput">
-      <HintPath>..\Libs\WindowsInput.dll</HintPath>
+      <HintPath>..\VRGIN\Libs\WindowsInput.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
