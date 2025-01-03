@@ -5,36 +5,49 @@ else {
     $dir = $PSScriptRoot + "\bin\"
 }
 
-$solutionDir = $dir + "..\"
+$out = $dir + "\out"
+Remove-Item -Force -Path ($out) -Recurse -ErrorAction SilentlyContinue
 
-$copy = $dir + "\copy\BepInEx\plugins\KKS_VR"
+# KK -------------------------------------
+Write-Output ("Creating KK release")
 
-$ver = "v" + (Get-ChildItem -Path ($dir) -Filter ("KKS_MainGameVR.dll") -Recurse -Force)[0].VersionInfo.FileVersion.ToString() -replace "([\d+\.]+?\d+)[\.0]*$", '${1}'
+New-Item -ItemType Directory -Force -Path ($out + "\BepInEx\plugins\KoikatuVR\Images") | Out-Null
+New-Item -ItemType Directory -Force -Path ($out + "\BepInEx\patchers\KoikatuVR") | Out-Null
+New-Item -ItemType Directory -Force -Path ($out + "\Koikatu_Data") | Out-Null
 
-Remove-Item -Force -Path ($dir + "\copy") -Recurse -ErrorAction SilentlyContinue
-New-Item -ItemType Directory -Force -Path $copy
+Copy-Item -Path ($dir + "\KK\*") -Destination ($out + "\BepInEx\plugins\KoikatuVR") -ErrorAction Stop -Force | Out-Null
+# Copy-Item copies empty directories and I don't see any way to tell it to only copy files
+Remove-Item -Path ($out + "\BepInEx\plugins\KoikatuVR\Data") -Force
+Remove-Item -Path ($out + "\BepInEx\plugins\KoikatuVR\Patcher") -Force
+Remove-Item -Path ($out + "\BepInEx\plugins\KoikatuVR\Plugins") -Force
 
-Copy-Item -Path ($dir + "\KKS_*.dll") -Destination $copy -Recurse -Force
+Copy-Item -Path ($dir + "\KK\Patcher\*") -Destination ($out + "\BepInEx\patchers\KoikatuVR") | Out-Null
+Copy-Item -Path ($dir + "\KK\Images\*") -Destination ($out + "\BepInEx\plugins\KoikatuVR\Images\") -Force | Out-Null
+Copy-Item -Path ($dir + "\KK\Data\*") -Destination ($out + "\Koikatu_Data") -Recurse  | Out-Null
 
-Copy-Item -Path ($solutionDir + "\VRGIN_OpenXR\bin\*.dll") -Destination $copy -Force
+$ver = "v" + (Get-ChildItem -Path ($dir + "\KK\KoikatuVR.dll") -Force -ErrorAction Stop)[0].VersionInfo.FileVersion.ToString() -replace "([\d+\.]+?\d+)[\.0]*$", '${1}'
+Write-Output ("Version " + $ver)
+Compress-Archive -Path ($out + "\*") -Force -CompressionLevel "Optimal" -DestinationPath ($dir +"KK_VR_" + $ver + ".zip")
 
-Copy-Item -Path ($solutionDir + "\README.md") -Destination $copy -Recurse -Force
-Copy-Item -Path ($solutionDir + "\LICENSE") -Destination $copy -Recurse -Force
+Remove-Item -Force -Path ($out) -Recurse -ErrorAction SilentlyContinue
 
-New-Item -ItemType Directory -Force -Path ($copy + "\Images")
-Copy-Item -Path ($solutionDir + "\Images\*") -Destination ($copy + "\Images") -Recurse -Force
+# KKS ------------------------------------
+Write-Output ("Creating KKS release")
 
+New-Item -ItemType Directory -Force -Path ($out + "\BepInEx\plugins\KKS_VR\Images") | Out-Null
+New-Item -ItemType Directory -Force -Path ($out + "\CharaStudio_Data") | Out-Null
+New-Item -ItemType Directory -Force -Path ($out + "\KoikatsuSunshine_Data") | Out-Null
 
-Copy-Item -Path ($solutionDir + "\VRGIN_OpenXR\Libs\*.dll") -Destination $copy -Force
+Copy-Item -Path ($dir + "\KKS\*") -Destination ($out + "\BepInEx\plugins\KKS_VR") -Force -ErrorAction Stop | Out-Null
+# Copy-Item copies empty directories and I don't see any way to tell it to only copy files
+Remove-Item -Path ($out + "\BepInEx\plugins\KKS_VR\Libs") -Force
 
-New-Item -ItemType Directory -Force -Path ($dir + "\copy\CharaStudio_Data")
-Copy-Item -Path ($solutionDir + "\VRGIN_OpenXR\Libs\_Data\*") -Destination ($dir + "\copy\CharaStudio_Data") -Recurse -Force
+Copy-Item -Path ($dir + "\KKS\Images\*") -Destination ($out + "\BepInEx\plugins\KKS_VR\Images\") -Force | Out-Null
+Copy-Item -Path ($dir + "\KKS\Libs\_Data\*") -Destination ($out + "\CharaStudio_Data") -Recurse  | Out-Null
+Copy-Item -Path ($dir + "\KKS\Libs\_Data\*") -Destination ($out + "\KoikatsuSunshine_Data") -Recurse  | Out-Null
 
-New-Item -ItemType Directory -Force -Path ($dir + "\copy\KoikatsuSunshine_Data")
-Copy-Item -Path ($solutionDir + "\VRGIN_OpenXR\Libs\_Data\*") -Destination ($dir + "\copy\KoikatsuSunshine_Data") -Recurse -Force
+$ver = "v" + (Get-ChildItem -Path ($dir + "\KKS\KKS_MainGameVR.dll") -Force -ErrorAction Stop)[0].VersionInfo.FileVersion.ToString() -replace "([\d+\.]+?\d+)[\.0]*$", '${1}'
+Write-Output ("Version " + $ver)
+Compress-Archive -Path ($out + "\*") -Force -CompressionLevel "Optimal" -DestinationPath ($dir +"KKS_VR_" + $ver + ".zip")
 
-
-Compress-Archive -Path ($dir + "\copy\*") -Force -CompressionLevel "Optimal" -DestinationPath ($dir +"KKS_VR_" + $ver + ".zip")
-
-
-Remove-Item -Force -Path ($dir + "\copy") -Recurse -ErrorAction SilentlyContinue
+Remove-Item -Force -Path ($out) -Recurse -ErrorAction SilentlyContinue

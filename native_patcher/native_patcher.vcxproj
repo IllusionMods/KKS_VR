@@ -159,7 +159,7 @@
       <ModuleDefinitionFile>patcher.def</ModuleDefinitionFile>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(TargetPath)" "$(SolutionDir)bin\KK\" /y</Command>
+      <Command>copy "$(TargetPath)" "$(SolutionDir)bin\KK\Patcher\" /y</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
