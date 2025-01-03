@@ -6,6 +6,7 @@ using KK_VR.Holders;
 using Manager;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using UniRx;
@@ -178,16 +179,15 @@ namespace KK_VR.Trackers
             }
             SetState();
         }
-#if DEBUG
+        [Conditional("DEBUG")]
         internal void DebugShowActive()
         {
-           VRPlugin.Logger.LogDebug($"Tracker:ActiveTracks");
+            VRPlugin.Logger.LogDebug($"Tracker:ActiveTracks");
             foreach (var track in _trackList)
             {
-               VRPlugin.Logger.LogDebug($"* {track.name}");
+                VRPlugin.Logger.LogDebug($"* {track.name}");
             }
         }
-#endif
 
         protected bool IsInBlacklist(ChaControl chara, Body part)
         {
