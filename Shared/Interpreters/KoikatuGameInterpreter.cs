@@ -16,6 +16,7 @@ using KK_VR.Holders;
 using System;
 using UnityEngine.EventSystems;
 using KK_VR.Controls;
+using BepInEx;
 
 namespace KK_VR.Interpreters
 {
@@ -42,6 +43,10 @@ namespace KK_VR.Interpreters
         private static SceneInput _sceneInput;
         private static KoikatuSettings _settings;
         private static KoikatuInterpreter _instance;
+#if KK
+        internal static bool IsParty => _party;
+        private static bool _party;
+#endif
 
         private KK_VR.Fixes.Mirror.Manager _mirrorManager;
         private int _kkapiCanvasHackWait;
@@ -57,6 +62,9 @@ namespace KK_VR.Interpreters
             _settings = VR.Context.Settings as KoikatuSettings;
             TweakShadowSettings(_settings.ShadowsOptimization);
             SceneManager.sceneLoaded += OnSceneLoaded;
+#if KK
+            _party = Paths.ProcessName.Equals($"Koikatsu Party");
+#endif
         }
         
         protected override void OnUpdate()
