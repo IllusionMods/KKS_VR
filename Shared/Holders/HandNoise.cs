@@ -9,6 +9,13 @@ using System.Text;
 using UnityEngine.Networking;
 using UnityEngine;
 using VRGIN.Core;
+using System.Reflection;
+using System.Resources;
+using System.Runtime.Serialization.Formatters.Binary;
+using KKAPI.Utilities;
+using ADV.Commands.Base;
+using static UnityEngine.UI.DefaultControls;
+using static Manager.KeyInput.Pad;
 
 namespace KK_VR.Holders
 {
@@ -111,16 +118,80 @@ namespace KK_VR.Holders
         private static readonly Dictionary<Sfx, List<List<List<AudioClip>>>> sfxDic = [];
         private static void InitDic()
         {
-            for (var i = 0; i < Enum.GetNames(typeof(Sfx)).Length; i++)
+            var sfxNames = Enum.GetNames(typeof(Sfx));
+            var surfaceNames = Enum.GetNames(typeof(Surface));
+            var intenseNames = Enum.GetNames(typeof(Intensity));
+
+            for (var i = 0; i < sfxNames.Length; i++)
             {
                 var key = (Sfx)i;
                 sfxDic.Add(key, []);
-                for (var j = 0; j < Enum.GetNames(typeof(Surface)).Length; j++)
+                for (var j = 0; j < surfaceNames.Length; j++)
                 {
                     sfxDic[key].Add([]);
-                    for (var k = 0; k < Enum.GetNames(typeof(Intensity)).Length; k++)
+                    for (var k = 0; k < intenseNames.Length; k++)
                     {
                         sfxDic[key][j].Add([]);
+                    }
+                }
+            }
+        }
+
+        private static bool FindIndex(string[] array, string name, out int index)
+        {
+            index = Array.FindIndex(array, n => n.Equals(name, StringComparison.OrdinalIgnoreCase));
+            return index != -1;
+        }
+        private static void Populate()
+        {
+            var assembly = Assembly.GetAssembly(typeof(HandNoise));
+            var resources = assembly.GetManifestResourceNames();
+            var sfxNames = Enum.GetNames(typeof(Sfx));
+            var surfaceNames = Enum.GetNames(typeof(Surface));
+            var intenseNames = Enum.GetNames (typeof(Intensity));
+            foreach (var resource in resources)
+            {
+                var stream = assembly.GetManifestResourceStream(resource);
+                if (stream == null)
+                {
+                    VRPlugin.Logger.LogWarning($"Failed to get stream from resource\n{resource}");
+                    continue;
+                }
+
+                var assetBundle =
+#if KK
+                    AssetBundle.LoadFromMemory(ResourceUtils.ReadAllBytes(stream));
+#else
+                    AssetBundle.LoadFromStream(stream);
+#endif
+                stream.Close();
+
+                if (assetBundle == null)
+                {
+                    VRPlugin.Logger.LogWarning($"Failed to load embedded resource\n{resource}");
+                    continue;
+                }
+
+                foreach (var asset in assetBundle.GetAllAssetNames())
+                {
+                    var words = asset.Trim().Split('/');
+                    if (words.Length > 5
+                        && words[0].Equals("assets", StringComparison.OrdinalIgnoreCase)
+                        && words[1].Equals("sfx", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (FindIndex(sfxNames, words[2], out var sfxIndex)
+                            && FindIndex(surfaceNames, words[3], out var surfaceIndex)
+                            && FindIndex(intenseNames, words[4], out var intenseIndex))
+                        {
+                            var audioClip = assetBundle.LoadAsset<AudioClip>(words[5]);
+                            if (audioClip != null)
+                            {
+#if DEBUG
+                                VRPlugin.Logger.LogDebug($"AddEmbeddedAsset - {words[5]} : {asset}");
+#endif
+                                sfxDic[(Sfx)sfxIndex][surfaceIndex][intenseIndex].Add(audioClip);
+                            }
+                        }
                     }
                 }
             }
@@ -128,39 +199,42 @@ namespace KK_VR.Holders
         private static void PopulateDic()
         {
             InitDic();
-            for (var i = 0; i < sfxDic.Count; i++)
-            {
-                var key = (Sfx)i;
-                for (var j = 0; j < sfxDic[key].Count; j++)
-                {
-                    for (var k = 0; k < sfxDic[key][j].Count; k++)
-                    {
-                        var directory = BepInEx.Utility.CombinePaths(
-                            [
-                                Paths.PluginPath,
-                                "SFX",
-                                key.ToString(),
-                                ((Surface)j).ToString(),
-                                ((Intensity)k).ToString()
-                            ]);
-                        if (Directory.Exists(directory))
-                        {
-                            var dirInfo = new DirectoryInfo(directory);
-                            var clipNames = new List<string>();
-                            //foreach (var file in dirInfo.GetFiles("*.wav"))
-                            //{
-                            //    clipNames.Add(file.Name);
-                            //}
-                            foreach (var file in dirInfo.GetFiles("*.ogg"))
-                            {
-                                clipNames.Add(file.Name);
-                            }
-                            if (clipNames.Count == 0) continue;
-                            VRManager.Instance.StartCoroutine(LoadAudioFile(directory, clipNames, sfxDic[key][j][k]));
-                        }
-                    }
-                }
-            }
+            Populate();
+            return;
+            //for (var i = 0; i < sfxDic.Count; i++)
+            //{
+            //    var key = (Sfx)i;
+            //    for (var j = 0; j < sfxDic[key].Count; j++)
+            //    {
+            //        for (var k = 0; k < sfxDic[key][j].Count; k++)
+            //        {
+            //            //var directory = BepInEx.Utility.CombinePaths(
+            //            //    [
+            //            //        Paths.PluginPath,
+            //            //        "SFX",
+            //            //        key.ToString(),
+            //            //        ((Surface)j).ToString(),
+            //            //        ((Intensity)k).ToString()
+            //            //    ]);
+            //            //if (Directory.Exists(directory))
+            //            //{
+
+            //                var dirInfo = new DirectoryInfo(directory);
+            //                var clipNames = new List<string>();
+            //                //foreach (var file in dirInfo.GetFiles("*.wav"))
+            //                //{
+            //                //    clipNames.Add(file.Name);
+            //                //}
+            //                foreach (var file in dirInfo.GetFiles("*.ogg"))
+            //                {
+            //                    clipNames.Add(file.Name);
+            //                }
+            //                if (clipNames.Count == 0) continue;
+            //                VRManager.Instance.StartCoroutine(LoadAudioFile(directory, clipNames, sfxDic[key][j][k]));
+            //            //}
+            //        }
+            //    }
+            //}
         }
 
         private static IEnumerator LoadAudioFile(string path, List<string> clipNames, List<AudioClip> destination)
