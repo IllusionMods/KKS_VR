@@ -28,7 +28,7 @@ The game (not the studio) also can be launched without any added arguments if St
 
 ## Tips
  * Be advised to set InterPupillary Distance (IPD) in the settings to change the scale of the world according to own taste and used hardware.
- * If VR mode doesn't launch, make sure that neither of controllers is asleep during game launch.*
+ * If VR mode doesn't launch, make sure that neither of controllers is asleep during game launch.
 
 ## Controls Game
 ### Overview
