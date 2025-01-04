@@ -547,6 +547,9 @@ namespace KK_VR.Grasp
         }
         internal bool OnFreeHorizontalScroll(Tracker.Body trackerPart, ChaControl chara, bool increase)
         {
+#if KK
+            if (KoikatuInterpreter.IsParty) return false;
+#endif
             if (_helper != null && trackerPart == Tracker.Body.HandL || trackerPart == Tracker.Body.HandR)
             {
                 _helper.ScrollHand((PartName)trackerPart, chara, increase);
