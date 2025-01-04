@@ -430,8 +430,8 @@ namespace KK_VR.Interpreters
 
             mode = (int)anim.mode switch
             {
-                1 or 6 or 8 => EMode.houshi,
-                2 or 7 or 9 => EMode.sonyu,
+                EMode.houshi or EMode.houshi3P or EMode.houshi3PMMF => EMode.houshi,
+                EMode.sonyu or EMode.sonyu3P or EMode.sonyu3PMMF => EMode.sonyu,
                 _ => anim.mode,
             };
             adjustDirLight = true;
