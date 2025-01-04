@@ -36,6 +36,7 @@ namespace KK_VR.Holders
         }
         internal void PlaySfx(float volume, Sfx sfx, Surface surface, Intensity intensity, bool overwrite)
         {
+            if (!KoikatuInterpreter.Settings.EnableSFX) return;
             if (_audioSource.isPlaying)
             {
                 if (!overwrite) return;
