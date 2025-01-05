@@ -61,6 +61,14 @@ Has settings for stabilization. Depending on the context may behave differently.
 
 ### Impersonation aka PoV
 Assume orientation of a character head and follow it loosely.  
+
+<details>
+  <summary>Example</summary>
+  <div align="left">
+    <video src="https://github.com/user-attachments/assets/808da605-b2d1-464c-b779-e8847149b7b6"></video>
+  </div>
+</details>
+
 Available in **H Scene** outside of character interactions.  
 * **Touchpad** to start, stop, change or reset *Impersonation*. Registers after *LongPress*.  
 * **Touchpad** while in *Impersonation* and in *GripMove* with pressed *Trigger* to set custom offset.  
@@ -69,6 +77,14 @@ Has settings for gender preferences and automatization.
 
 ### Assisted kiss/lick
 Attach the camera to a partner's PoI to follow it.  
+
+<details>
+  <summary>Example</summary>
+  <div align="left">
+    <video src="https://github.com/user-attachments/assets/67504211-d458-4b00-8ee5-0fe3ba0632da"></video>
+  </div>
+</details>
+
 Available in **H Scene** when the camera is in direct proximity to the said PoI. Outside of the caress positions requires *GripMove*.  
 * **Grip** while *Assisted* to start altered version of *GripMove* to acquire precise offsets on the fly. The long gap between the camera and the PoI will cause disengagement.
 * **Trigger** while *Assisted* and not in *GripMove* to stop the action and disengage.
@@ -77,6 +93,14 @@ Has plenty of settings for customization.
 
 ### Controller representation
 Native in-game items serving as the controller representation.  
+
+<details>
+  <summary>Example</summary>
+  <div align="left">
+    <video src="https://github.com/user-attachments/assets/9191875c-c331-4953-8e8b-6b53bd1b403d"></video>
+  </div>
+</details>
+
 Available in **Any Scene** as the last priority action i.e. when no better actions are available.  
 They won't go inside of things easily, preferring instead to stick to the surface.
 * **Touchpad** with pressed *Trigger* to cycle available items.
@@ -86,15 +110,11 @@ They won't go inside of things easily, preferring instead to stick to the surfac
 Alter currently playing animation on the fly.  
 
 <details>
-  
-<summary>Example</summary>
-
-<div align="left">
-<video src="https://github.com/user-attachments/assets/fca65be0-c96d-40a9-aa59-047037384a2a">
-</div>
-
+  <summary>Example</summary>
+  <div align="left">
+    <video src="https://github.com/user-attachments/assets/fca65be0-c96d-40a9-aa59-047037384a2a"></video>
+  </div>
 </details>
-
 
 Available in **H, Talk and Text Scenes** when interacting with a character i.e. controller is in close proximity to it.  
 * **Grip** to start *Grasp* i.e. hold relevant bodyParts and reposition them with the controller movements.
@@ -113,6 +133,14 @@ Available in **H, Talk and Text Scenes** when interacting with a character i.e. 
 Setting *Maintain limb orientation* changes drastically behavior of arms.
 
 ### Menu interaction
+
+<details>
+  <summary>Example</summary>
+  <div align="left">
+    <video src="https://github.com/user-attachments/assets/bd3506d8-e1a5-4944-a11a-7cdbd6d5ad0b"></video>
+  </div>
+</details>
+
 Available in **Any Scene** when aiming controller at the floating in-game *Menu*.
 * **Grip** to grab *Menu*.
 * **Touchpad** while holding *Menu* with pressed *Trigger* to abandon it in the world.
