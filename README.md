@@ -1,7 +1,7 @@
-# KKS_VR - VR Plugin for Koikatsu and Koikatsu Sunshine
-<p align="center">
+# VR Plugin for Koikatsu and Koikatsu Sunshine
+<div align="center">
 <img src="https://github.com/user-attachments/assets/23c86830-69a9-427d-9ca9-669604c485b1">
-</p>
+</div>
 A BepInEx plugin for Koikatsu (KK) and Koikatsu Sunshine (KKS) that allows you to play the main game and studio (Sunshine only) in VR. 
 The difference from the official VR modules is that you have access to the full game/studio, while the official modules have limited features and spotty mod support.
 
@@ -84,6 +84,18 @@ They won't go inside of things easily, preferring instead to stick to the surfac
 
 ### IK Manipulator aka Grasp
 Alter currently playing animation on the fly.  
+
+<details>
+  
+<summary>Example</summary>
+
+<div align="left">
+<video src="https://github.com/user-attachments/assets/fca65be0-c96d-40a9-aa59-047037384a2a">
+</div>
+
+</details>
+
+
 Available in **H, Talk and Text Scenes** when interacting with a character i.e. controller is in close proximity to it.  
 * **Grip** to start *Grasp* i.e. hold relevant bodyParts and reposition them with the controller movements.
 * **Trigger** while in *Grasp* and the visual cue of the held bodyPart is green to attach it.  
