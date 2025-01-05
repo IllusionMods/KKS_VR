@@ -68,7 +68,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Handlers\ItemHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Handlers\MouthGuide.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Holders\HandHolder.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Holders\HandNoise.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SFX\SFXLoader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Holders\Holder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Holders\TongueHolder.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IK\Amplifier.cs" />
@@ -125,5 +125,42 @@
     <None Include="$(MSBuildThisFileDirectory)Fixes\Mirror\mirror-shader" />
     <None Include="$(MSBuildThisFileDirectory)Obsolete\Fixes\topmostgui.shader" />
     <None Include="$(MSBuildThisFileDirectory)Obsolete\Fixes\topmostguishader" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Slap\Skin\Rough\MeidosSlap00.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Slap\Skin\Rough\MeidosSlap01.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Slap\Skin\Rough\Slaps A1.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Slap\Skin\Rough\Slaps A2.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Slap\Skin\Rough\Slaps B1.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Slap\Skin\Rough\Slaps B4.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Slap\Skin\Rough\sv_se_h_40.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Slap\Skin\Rough\sv_se_h_41.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Slap\Skin\Rough\sv_se_h_42.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Slap\Skin\Rough\sv_se_h_43.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Slap\Skin\Rough\sv_se_h_44.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Slap\Skin\Soft\Slaps A2.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Slap\Skin\Soft\sv_se_h_40.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Slap\Skin\Soft\sv_se_h_42.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Slap\Skin\Soft\sv_se_h_43.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Tap\Cloth\Rough\PAT DOWN COAT_1.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Tap\Cloth\Soft\SUFFLE AND TAPPING 47.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Tap\Skin\Rough\SUFFLE AND TAPPING 114_1.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Tap\Skin\Rough\SUFFLE AND TAPPING 59.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Tap\Skin\Soft\SUFFLE AND TAPPING 114.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Tap\Skin\Soft\SUFFLE AND TAPPING 115.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Tap\Skin\Soft\SUFFLE AND TAPPING 118.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Tap\Skin\Soft\SUFFLE AND TAPPING 118_1.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Tap\Skin\Soft\SUFFLE AND TAPPING 35.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Tap\Skin\Soft\SUFFLE AND TAPPING 4.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Tap\Skin\Soft\SUFFLE AND TAPPING 49.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Tap\Skin\Soft\SUFFLE AND TAPPING 5_1.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Tap\Skin\Soft\SUFFLE AND TAPPING 63.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Tap\Skin\Soft\SUFFLE AND TAPPING 8.ogg" />
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)SFX\Traverse\Skin\Soft\SUFFLE AND TAPPING 5_1.ogg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="$(MSBuildThisFileDirectory)SFX\Slap\Cloth\" />
+    <Folder Include="$(MSBuildThisFileDirectory)SFX\Tap\Skin\Wet\" />
+    <Folder Include="$(MSBuildThisFileDirectory)SFX\Traverse\Cloth\" />
+    <Folder Include="$(MSBuildThisFileDirectory)SFX\Traverse\Hair\" />
+    <Folder Include="$(MSBuildThisFileDirectory)SFX\Undress\Cloth\" />
   </ItemGroup>
 </Project>

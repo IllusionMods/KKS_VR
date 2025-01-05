@@ -196,13 +196,6 @@
     </None>
     <None Include="packages.config" />
     <EmbeddedResource Include="..\Shared\Fixes\Mirror\mirror-shader" />
-    <EmbeddedResource Include="Resources\sfx\slap\skin\rough" />
-    <EmbeddedResource Include="Resources\sfx\slap\skin\soft" />
-    <EmbeddedResource Include="Resources\sfx\tap\cloth\rough" />
-    <EmbeddedResource Include="Resources\sfx\tap\cloth\soft" />
-    <EmbeddedResource Include="Resources\sfx\tap\skin\rough" />
-    <EmbeddedResource Include="Resources\sfx\tap\skin\soft" />
-    <EmbeddedResource Include="Resources\sfx\traverse\skin\soft" />
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>IF EXIST "$(SolutionDir)PostBuild.bat" CALL "$(SolutionDir)PostBuild.bat" "$(TargetDir)\KKS_MainGameVR.dll" KKS</PostBuildEvent>

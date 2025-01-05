@@ -498,7 +498,7 @@ namespace KK_VR.Grasp
                         var component = bodyPart.beforeIK.GetComponent<NoPosBeforeIK>();
                         if (_auxDic[kv.Key].oldFbik.solver.effectors[i].rotationWeight == 0f)
                         {
-                            VRPlugin.Logger.LogWarning($"GraspHelper:RetargetEffectors:[{i}]");
+                            //VRPlugin.Logger.LogWarning($"GraspHelper:RetargetEffectors:[{i}]");
                             //bodyPart.baseData.pos = kv.Key.objBodyBone.transform.InverseTransformDirection(bodyPart.baseData.transform.position - bodyPart.effector.bone.position);
                             //bodyPart.baseData.bone = bodyPart.effector.bone;
                             if (component == null)

@@ -95,13 +95,6 @@
     </None>
     <None Include="packages.config" />
     <EmbeddedResource Include="../Shared/Fixes/Mirror/mirror-shader" />
-    <EmbeddedResource Include="Resources\sfx\slap\skin\rough" />
-    <EmbeddedResource Include="Resources\sfx\slap\skin\soft" />
-    <EmbeddedResource Include="Resources\sfx\tap\cloth\rough" />
-    <EmbeddedResource Include="Resources\sfx\tap\cloth\soft" />
-    <EmbeddedResource Include="Resources\sfx\tap\skin\rough" />
-    <EmbeddedResource Include="Resources\sfx\tap\skin\soft" />
-    <EmbeddedResource Include="Resources\sfx\traverse\skin\soft" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\KoikatuCompatibilityAnalyzer.1.1.0\analyzers\dotnet\cs\KoikatuCompatibilityAnalyzer.dll" />
@@ -109,7 +102,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
-    <Folder Include="Resources\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\images\credits.txt">
