@@ -36,6 +36,7 @@ namespace KK_VR.Grasp
         internal readonly PartGuide guide;
         // Primitive to show attachment point.
         internal readonly VisualObject visual;
+        internal bool IsHand => name == PartName.HandL && name == PartName.HandR;
         internal bool IsLimb() => name > PartName.ThighR && name < PartName.Head;
         internal BodyPart(
             PartName _name,

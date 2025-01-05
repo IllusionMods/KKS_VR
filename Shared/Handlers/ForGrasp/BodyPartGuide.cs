@@ -76,7 +76,7 @@ namespace KK_VR.Handlers
             {
                 _bodyPart.chain.bendConstraint.weight = KoikatuInterpreter.Settings.IKDefaultBendConstraint;
             }
-            if (_bodyPart.effector.maintainRelativePositionWeight != 1f && KoikatuInterpreter.Settings.MaintainLimbOrientation)
+            if (_bodyPart.effector.maintainRelativePositionWeight != 1f && KoikatuInterpreter.Settings.MaintainLimbOrientation && _bodyPart.IsHand)
             {
                 _translateEx = true;
                 //_translateOffset = _bodyPart.afterIK.position - transform.position;
@@ -154,13 +154,16 @@ namespace KK_VR.Handlers
                 _hand.OnBecomingParent();
             }
             _hand = null;
-            _translateEx = true;
+            if (_bodyPart.IsHand)
+            {
+                _translateEx = true;
+                _translateExOffset = _anchor.position - _bodyPart.afterIK.position;
+            }
             _attach = true;
             _target = target;
             _bodyPart.visual.Hide();
             _bodyPart.state = State.Attached;
 
-            _translateExOffset = _anchor.position - _bodyPart.afterIK.position;
 
             _offsetRot = Quaternion.Inverse(_target.rotation) * _anchor.rotation;
             _offsetPos = _target.InverseTransformPoint(_anchor.position);
@@ -178,7 +181,7 @@ namespace KK_VR.Handlers
             {
                 if (_translateEx)
                 {
-                    if (_follow)
+                    if (!_attach)
                     {
                         if (KoikatuInterpreter.Settings.MaintainLimbOrientation)
                         {
