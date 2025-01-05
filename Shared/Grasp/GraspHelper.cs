@@ -625,7 +625,7 @@ namespace KK_VR.Grasp
             return index switch
             {
                 0 => _auxDic[chara].newFbik.solver.rootNode,   // chara.objBodyBone.transform.Find("cf_n_height/cf_j_hips/cf_j_spine01"),
-                1 or 2 or 9 => chara.dictRefObj[ChaReference.RefObjKey.BUSTUP_TARGET].transform, //  chara.objBodyBone.transform.Find("cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03"),
+                1 or 2 or 9 => chara.objBodyBone.transform.Find("cf_n_height/cf_j_hips/cf_j_spine01/cf_j_spine02/cf_j_spine03"),
                 3 or 4 or > 9 => chara.objBodyBone.transform.Find("cf_n_height/cf_j_hips/cf_j_waist01/cf_j_waist02"),
                 _ => _auxDic[chara].newFbik.solver.effectors[index].bone.transform
             };
