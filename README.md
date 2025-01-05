@@ -1,7 +1,9 @@
 # VR Plugin for Koikatsu and Koikatsu Sunshine
+
 <div align="center">
-  <img src="https://raw.githubusercontent.com/IllusionMods/KKS_VR/master/Images/logo-github-final-v4.gif">
+  <img src="https://raw.githubusercontent.com/IllusionMods/KKS_VR/master/Images/logo-github.gif">
 </div>
+
 A BepInEx plugin for Koikatsu (KK) and Koikatsu Sunshine (KKS) that allows you to play the main game and studio (Sunshine only) in VR. 
 The difference from the official VR modules is that you have access to the full game/studio, while the official modules have limited features and spotty mod support.
 
@@ -10,6 +12,7 @@ Currently only the standing (aka room-scale) mode is fully supported.
 The main game part is a fork/port of the KoikatuVR/KK_MainGameVR plugin developed by mosirnik, vrhth, KoikatsuVrThrowaway and Ooetksh.
 
 The studio part is a fork of the [KKS_CharaStudioVR](https://vr-erogamer.com/archives/1065) plugin.
+
 ## Prerequisites
 
 * Koikatsu or Koikatsu Sunshine
