@@ -2,9 +2,6 @@
 A BepInEx plugin for Koikatsu (KK) and Koikatsu Sunshine (KKS) that allows you to play the main game and studio (Sunshine only) in VR. 
 The difference from the official VR modules is that you have access to the full game/studio, while the official modules have limited features and spotty mod support.
 
-<div align="center">
-  <img src="https://raw.githubusercontent.com/IllusionMods/KKS_VR/master/Images/logo-github.gif">
-</div>
 
 Currently only the standing (aka room-scale) mode is fully supported.
 
@@ -35,6 +32,11 @@ The game (not the studio) also can be launched without any added arguments if St
  * If VR mode doesn't launch, make sure that neither of controllers is asleep during game launch.
 
 ## Controls Game
+
+<div align="center">
+  <img src="https://raw.githubusercontent.com/IllusionMods/KKS_VR/master/Images/logo-github.gif">
+</div>
+
 ### Overview
 
 There are two controllers for each hand with identical functional without any tools or modes.  
