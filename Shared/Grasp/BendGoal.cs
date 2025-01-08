@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Illusion.Component.Correct;
+using KK_VR.Interpreters;
 using UnityEngine;
 
 namespace KK_VR.Grasp
@@ -26,6 +28,12 @@ namespace KK_VR.Grasp
             var gameObject = new GameObject("BendGoal_" + bodyPart.GetLowerCaseName());
             gameObject.transform.SetParent(bodyPart.chain.bendConstraint.bendGoal, false);
             var goal = gameObject.AddComponent<BendGoal>();
+            var baseData = bodyPart.chain.bendConstraint.bendGoal.GetComponent<BaseData>();
+            // Male doesn't have bendGoals by default outside of H.
+            if (KoikatuInterpreter.CurrentScene != KoikatuInterpreter.SceneType.HScene && baseData.bone == null)
+            {
+                baseData.bone = bodyPart.chain.bendConstraint.bone2;
+            }
             goal.Init(bodyPart);
             return goal;
         }
