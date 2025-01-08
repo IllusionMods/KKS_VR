@@ -34,7 +34,7 @@ namespace KK_VR.Holders
         protected ItemHandler _handler;
         protected readonly struct AnimParam
         {
-            internal AnimParam(int _index, int[] _layers, List<ColInfo[]> _dbcInfo, int _startLayer, string _movePartName, Vector3 _posOffset, Quaternion _rotOffset)
+            internal AnimParam(int _index, int[] _layers, List<ColliderInfo[]> _dbcInfo, int _startLayer, string _movePartName, Vector3 _posOffset, Quaternion _rotOffset)
             {
                 index = _index;
                 layers = _layers;
@@ -46,16 +46,16 @@ namespace KK_VR.Holders
             }
             internal readonly int index;
             internal readonly int[] layers;
-            internal readonly List<ColInfo[]> dbcInfo;
+            internal readonly List<ColliderInfo[]> dbcInfo;
             internal readonly int startLayer;
             internal readonly string movingPartName;
             internal readonly Vector3 positionOffset;
             internal readonly Quaternion rotationOffset;
         }
 
-        protected class ColInfo
+        protected class ColliderInfo
         {
-            internal ColInfo(Vector3 _center, float _radius, float _height, int _direction, Quaternion _localRot)
+            internal ColliderInfo(Vector3 _center, float _radius, float _height, int _direction, Quaternion _localRot)
             {
                 center = _center;
                 radius = _radius;
@@ -79,15 +79,15 @@ namespace KK_VR.Holders
                 _dbcInfo: 
                 [
                     [
-                    new ColInfo(new Vector3(0f, 0.01f, 0f), 0.025f, 0.1f, 2, Quaternion.identity),
+                    new ColliderInfo(new Vector3(0f, 0.01f, 0f), 0.025f, 0.1f, 2, Quaternion.identity),
                     null,
                     ],
                     [
-                    new ColInfo(new Vector3(0f, 0.01f, 0f), 0.025f, 0.1f, 2, Quaternion.identity),
+                    new ColliderInfo(new Vector3(0f, 0.01f, 0f), 0.025f, 0.1f, 2, Quaternion.identity),
                     null,
                     ],
                     [
-                    new ColInfo(new Vector3(0f, 0.01f, 0f), 0.025f, 0.1f, 2, Quaternion.identity),
+                    new ColliderInfo(new Vector3(0f, 0.01f, 0f), 0.025f, 0.1f, 2, Quaternion.identity),
                     null,
                     ]
                 ],
@@ -103,24 +103,24 @@ namespace KK_VR.Holders
                 _dbcInfo:
                 [
                     [ // 1
-                    new ColInfo(new Vector3(0f, 0.005f, 0f), 0.025f, 0.04f, 2, Quaternion.identity),
-                    new ColInfo(new Vector3(-0.018f, 0.02f, 0.03f), 0.01f, 0.06f, 2,  Quaternion.Euler(45, 0, 0)),
+                    new ColliderInfo(new Vector3(0f, 0.005f, 0f), 0.025f, 0.04f, 2, Quaternion.identity),
+                    new ColliderInfo(new Vector3(-0.018f, 0.02f, 0.03f), 0.01f, 0.06f, 2,  Quaternion.Euler(45, 0, 0)),
                     ],
                     [ // 3
-                    new ColInfo(new Vector3(0f, 0.005f, 0f), 0.025f, 0.04f, 2, Quaternion.identity),
-                    new ColInfo(new Vector3(-0.018f, 0.015f, 0.02f), 0.01f, 0.05f, 2, Quaternion.Euler(60, 0, 0)),
+                    new ColliderInfo(new Vector3(0f, 0.005f, 0f), 0.025f, 0.04f, 2, Quaternion.identity),
+                    new ColliderInfo(new Vector3(-0.018f, 0.015f, 0.02f), 0.01f, 0.05f, 2, Quaternion.Euler(60, 0, 0)),
                     ],
                     [ // 9
-                    new ColInfo(new Vector3(0f, 0.005f, 0f), 0.025f, 0.04f, 2, Quaternion.identity),
-                    new ColInfo(new Vector3(-0.015f, 0.01f, 0.025f), 0.01f, 0.1f, 2, Quaternion.identity),
+                    new ColliderInfo(new Vector3(0f, 0.005f, 0f), 0.025f, 0.04f, 2, Quaternion.identity),
+                    new ColliderInfo(new Vector3(-0.015f, 0.01f, 0.025f), 0.01f, 0.1f, 2, Quaternion.identity),
                     ],
                     [ // 4
-                    new ColInfo(new Vector3(0f, 0.005f, 0f), 0.025f, 0.04f, 2, Quaternion.identity),
-                    new ColInfo(new Vector3(-0.015f, 0.01f, 0.035f), 0.01f, 0.08f, 2, Quaternion.Euler(15, 0, 0)),
+                    new ColliderInfo(new Vector3(0f, 0.005f, 0f), 0.025f, 0.04f, 2, Quaternion.identity),
+                    new ColliderInfo(new Vector3(-0.015f, 0.01f, 0.035f), 0.01f, 0.08f, 2, Quaternion.Euler(15, 0, 0)),
                     ],
                     [ // 6
-                    new ColInfo(new Vector3(0f, 0.005f, 0f), 0.025f, 0.04f, 2, Quaternion.identity),
-                    new ColInfo(new Vector3(-0.01f, 0.02f, 0.03f), 0.013f, 0.07f, 2, Quaternion.Euler(45, 0, 0))
+                    new ColliderInfo(new Vector3(0f, 0.005f, 0f), 0.025f, 0.04f, 2, Quaternion.identity),
+                    new ColliderInfo(new Vector3(-0.01f, 0.02f, 0.03f), 0.013f, 0.07f, 2, Quaternion.Euler(45, 0, 0))
                     ]
                 ],
                 _startLayer: 9,
@@ -135,12 +135,12 @@ namespace KK_VR.Holders
                 _dbcInfo:
                 [
                     [
-                    new ColInfo(new Vector3(0f, 0f, 0.115f), 0.032f, 0.05f, 2, Quaternion.identity),
-                    new ColInfo(Vector3.zero, 0.025f, 0.1f, 2, Quaternion.identity),
+                    new ColliderInfo(new Vector3(0f, 0f, 0.115f), 0.032f, 0.05f, 2, Quaternion.identity),
+                    new ColliderInfo(Vector3.zero, 0.025f, 0.1f, 2, Quaternion.identity),
                     ],
                     [
-                    new ColInfo(new Vector3(0f, 0f, 0.115f), 0.032f, 0.05f, 2, Quaternion.identity),
-                    new ColInfo(Vector3.zero, 0.025f, 0.1f, 2, Quaternion.identity),
+                    new ColliderInfo(new Vector3(0f, 0f, 0.115f), 0.032f, 0.05f, 2, Quaternion.identity),
+                    new ColliderInfo(Vector3.zero, 0.025f, 0.1f, 2, Quaternion.identity),
                     ]
                 ],
                 _startLayer: 0,
@@ -155,12 +155,12 @@ namespace KK_VR.Holders
                 _dbcInfo:
                 [
                     [
-                    new ColInfo(new Vector3(0f, 0f, 0.1f), 0.02f, 0.28f, 2, Quaternion.identity),
-                    new ColInfo(new Vector3(0f, -0.0325f, 0.1100f), 0.012f, 0.03f, 2, Quaternion.Euler(-30, 0, 0)),
+                    new ColliderInfo(new Vector3(0f, 0f, 0.1f), 0.02f, 0.28f, 2, Quaternion.identity),
+                    new ColliderInfo(new Vector3(0f, -0.0325f, 0.1100f), 0.012f, 0.03f, 2, Quaternion.Euler(-30, 0, 0)),
                     ],
                     [
-                    new ColInfo(new Vector3(0f, 0f, 0.1f), 0.02f, 0.28f, 2, Quaternion.identity),
-                    new ColInfo(new Vector3(0f, -0.0325f, 0.1100f), 0.012f, 0.03f, 2, Quaternion.Euler(-30, 0, 0)),
+                    new ColliderInfo(new Vector3(0f, 0f, 0.1f), 0.02f, 0.28f, 2, Quaternion.identity),
+                    new ColliderInfo(new Vector3(0f, -0.0325f, 0.1100f), 0.012f, 0.03f, 2, Quaternion.Euler(-30, 0, 0)),
                     ]
                 ],
                 _startLayer: 0,
@@ -176,12 +176,12 @@ namespace KK_VR.Holders
                 _dbcInfo:
                 [
                     [
-                    new ColInfo(new Vector3(0f, -0.0350f, 0.03f), 0.02f, 0.06f, 0, Quaternion.identity),
-                    new ColInfo(new Vector3(0f, 0.0075f, 0.1f), 0.02f, 0.18f, 2, Quaternion.Euler(7, 0, 0)),
+                    new ColliderInfo(new Vector3(0f, -0.0350f, 0.03f), 0.02f, 0.06f, 0, Quaternion.identity),
+                    new ColliderInfo(new Vector3(0f, 0.0075f, 0.1f), 0.02f, 0.18f, 2, Quaternion.Euler(7, 0, 0)),
                     ],
                     [
-                    new ColInfo(new Vector3(0f, -0.0350f, 0.03f), 0.02f, 0.06f, 0, Quaternion.identity),
-                    new ColInfo(new Vector3(0f, 0.0075f, 0.1f), 0.02f, 0.18f, 2, Quaternion.Euler(7, 0, 0)),
+                    new ColliderInfo(new Vector3(0f, -0.0350f, 0.03f), 0.02f, 0.06f, 0, Quaternion.identity),
+                    new ColliderInfo(new Vector3(0f, 0.0075f, 0.1f), 0.02f, 0.18f, 2, Quaternion.Euler(7, 0, 0)),
                     ]
                 ],
                 _startLayer: 1,
@@ -197,11 +197,11 @@ namespace KK_VR.Holders
                 _dbcInfo:
                 [
                     [
-                    new ColInfo(new Vector3(0f, 0f, 0f), 0.015f, 0.04f, 2, Quaternion.identity),
+                    new ColliderInfo(new Vector3(0f, 0f, 0f), 0.015f, 0.04f, 2, Quaternion.identity),
                     null,
                     ],
                     [
-                    new ColInfo(new Vector3(0f, 0f, 0f), 0.015f, 0.04f, 2, Quaternion.identity),
+                    new ColliderInfo(new Vector3(0f, 0f, 0f), 0.015f, 0.04f, 2, Quaternion.identity),
                     null,
                     ]
                 ],

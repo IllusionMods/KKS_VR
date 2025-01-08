@@ -292,9 +292,17 @@ namespace KK_VR.Features
 
         internal void OnGraspEnd()
         {
-            if (_active &&  !_newAttachPoint)
+            if (_active)
             {
-                CameraIsFar(0.25f);
+                if (_newAttachPoint)
+                {
+                    // A bit of a clutch.
+                    _mode = Mode.Follow;
+                }
+                else
+                {
+                    CameraIsFar(0.25f);
+                }
             }
         }
 

@@ -363,7 +363,7 @@ namespace KK_VR.Interpreters
         // Thus all frame based calculations are done with 45fps in mind, feel free to supersede.
         internal static int ScaleWithFps(int number)
         {
-            return Mathf.FloorToInt(_targetFps / Time.deltaTime * number);
+            return Mathf.CeilToInt(_targetFps / Time.deltaTime * number);
         }
         internal static void RunAfterUpdate(Action action)
         {

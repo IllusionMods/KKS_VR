@@ -40,6 +40,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Fixes\Mirror\Manager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Fixes\Mirror\VRReflection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Fixes\ObiControlFix.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Grasp\BendGoal.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Grasp\Translate\TranslateCompensate.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Grasp\Translate\TranslateMove.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Grasp\Translate\Translate.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interpreters\Extras\IntegrationMaleBreath.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Obsolete\Fixes\ReduceAssetUnloads.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Fixes\UnityPatches.cs" />
