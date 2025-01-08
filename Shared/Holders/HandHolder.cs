@@ -39,8 +39,8 @@ namespace KK_VR.Holders
         private ItemLag _itemLag;
         private bool _parent;
         internal bool IsParent => _parent;
-        private HandNoise _handNoise;
-        internal HandNoise Noise => _handNoise;
+        private SFXLoader _handSFX;
+        internal SFXLoader SFX => _handSFX;
         internal Controller Controller { get; private set; }
         internal int Index { get; private set; }
         internal ItemHandler Handler => _handler;
@@ -70,11 +70,11 @@ namespace KK_VR.Holders
             if (_loadedAssetsList.Count == 0)
             {
                 LoadAssets();
-                HandNoise.Init();
+                SFXLoader.Init();
             }
             SetItems(index);
             Grasp = new GraspController(this);
-            _handNoise = new HandNoise(gameObject.AddComponent<AudioSource>());
+            _handSFX = new SFXLoader(gameObject.AddComponent<AudioSource>());
         }
 
         internal static void OnBecomingBusy()
