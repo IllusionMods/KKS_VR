@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using static HandCtrl;
+using static KK_VR.IntegrationMaleBreath;
 
 namespace KK_VR
 {
@@ -54,22 +55,60 @@ namespace KK_VR
         {
             var type = AccessTools.TypeByName("KK_SensibleH.AutoMode.LoopController");
 
-            if (type != null)
+            if (type == null) return;
+
+            if (GetMethod(type, "ClickButton", out var clickButton))
             {
-                ClickButton = AccessTools.MethodDelegate<Action<string>>(AccessTools.FirstMethod(type, m => m.Name.Equals("ClickButton")));
-                ChangeLoop = AccessTools.MethodDelegate<Action<int>>(AccessTools.FirstMethod(type, m => m.Name.Equals("AlterLoop")));
-                ChangeAnimation = AccessTools.MethodDelegate<Action<int>>(AccessTools.FirstMethod(type, m => m.Name.Equals("PickAnimation")));
-                StopAuto = AccessTools.MethodDelegate<Action>(AccessTools.FirstMethod(type, m => m.Name.Equals("Sleep")));
-                OnUserInput = AccessTools.MethodDelegate<Action>(AccessTools.FirstMethod(type, m => m.Name.Equals("OnUserInput")));
+                ClickButton = AccessTools.MethodDelegate<Action<string>>(clickButton);
+            }
 
-                type = AccessTools.TypeByName("KK_SensibleH.Caress.MoMiController");
+            if (GetMethod(type, "AlterLoop", out var alterLoop))
+            {
+                ChangeLoop = AccessTools.MethodDelegate<Action<int>>(alterLoop);
+            }
 
-                ReleaseItem = AccessTools.MethodDelegate<Action<AibuColliderKind>>(AccessTools.FirstMethod(type, m => m.Name.Equals("ReleaseItem")));
-                JudgeProc = AccessTools.MethodDelegate<Action<AibuColliderKind>>(AccessTools.FirstMethod(type, m => m.Name.Equals("MoMiJudgeProc")));
-                OnLickStart = AccessTools.MethodDelegate<Action<AibuColliderKind>>(AccessTools.FirstMethod(type, m => m.Name.Equals("OnLickStart")));
-                OnKissStart = AccessTools.MethodDelegate<Action<AibuColliderKind>>(AccessTools.FirstMethod(type, m => m.Name.Equals("OnKissStart")));
-                OnKissEnd = AccessTools.MethodDelegate<Action>(AccessTools.FirstMethod(type, m => m.Name.Equals("OnKissEnd")));
+            if (GetMethod(type, "PickAnimation", out var pickAnimation))
+            {
+                ChangeAnimation = AccessTools.MethodDelegate<Action<int>>(pickAnimation);
+            }
 
+            if (GetMethod(type, "Sleep", out var sleep))
+            {
+                StopAuto = AccessTools.MethodDelegate<Action>(sleep);
+            }
+
+            if (GetMethod(type, "OnUserInput", out var onUserInput))
+            {
+                OnUserInput = AccessTools.MethodDelegate<Action>(onUserInput);
+            }
+
+            type = AccessTools.TypeByName("KK_SensibleH.Caress.MoMiController");
+            if (type == null) return;
+
+
+            if (GetMethod(type, "ReleaseItem", out var releaseItem))
+            {
+                ReleaseItem = AccessTools.MethodDelegate<Action<AibuColliderKind>>(releaseItem);
+            }
+
+            if (GetMethod(type, "MoMiJudgeProc", out var moMiJudgeProc))
+            {
+                JudgeProc = AccessTools.MethodDelegate<Action<AibuColliderKind>>(moMiJudgeProc);
+            }
+
+            if (GetMethod(type, "OnLickStart", out var onLickStart))
+            {
+                OnLickStart = AccessTools.MethodDelegate<Action<AibuColliderKind>>(onLickStart);
+            }
+
+            if (GetMethod(type, "OnKissStart", out var onKissStart))
+            {
+                OnKissStart = AccessTools.MethodDelegate<Action<AibuColliderKind>>(onKissStart);
+            }
+
+            if (GetMethod(type, "OnKissEnd", out var onKissEnd))
+            {
+                OnKissEnd = AccessTools.MethodDelegate<Action>(onKissEnd);
             }
 
             _active = ClickButton != null
@@ -82,6 +121,8 @@ namespace KK_VR
                 && OnLickStart != null
                 && OnKissStart != null
                 && OnKissEnd != null;
+
+
         }
     }
 }

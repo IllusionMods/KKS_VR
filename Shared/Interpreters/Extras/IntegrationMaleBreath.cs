@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using HarmonyLib;
 
@@ -23,14 +24,25 @@ namespace KK_VR
 
         internal static void Init()
         {
-
             var type = AccessTools.TypeByName("KK_MaleBreath.MaleBreath");
             if (type != null)
             {
-                GetMaleBreathPersonality = AccessTools.MethodDelegate<Func<int>>(AccessTools.FirstMethod(type, m => m.Name.Equals("GetPlayerPersonality")));
-                OnPov = AccessTools.MethodDelegate<Action<bool, ChaControl>>(AccessTools.FirstMethod(type, m => m.Name.Equals("OnPov")));
+                if (GetMethod(type, "GetPlayerPersonality", out var getPlayerPersonality))
+                {
+                    GetMaleBreathPersonality = AccessTools.MethodDelegate<Func<int>>(getPlayerPersonality);
+                }
+
+                if (GetMethod(type, "OnPov", out var onPov))
+                {
+                    OnPov = AccessTools.MethodDelegate<Action<bool, ChaControl>>(onPov);
+                }
+                _active = GetMaleBreathPersonality != null && OnPov != null;
             }
-            _active = GetMaleBreathPersonality != null && OnPov != null;
+        }
+        internal static bool GetMethod(Type type, string methodName, out MethodInfo method)
+        {
+            method = AccessTools.FirstMethod(type, m => m.Name.Equals(methodName));
+            return method != null;
         }
     }
 }
