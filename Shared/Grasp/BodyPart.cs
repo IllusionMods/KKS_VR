@@ -34,10 +34,11 @@ namespace KK_VR.Grasp
         internal List<Collider> colliders = [];
         // Component responsible for moving and collider tracking.
         internal readonly PartGuide guide;
+        internal readonly BendGoal goal;
         // Primitive to show attachment point.
         internal readonly VisualObject visual;
-        internal bool IsHand => name == PartName.HandL && name == PartName.HandR;
-        internal bool IsLimb() => name > PartName.ThighR && name < PartName.Head;
+        internal bool IsHand => name == PartName.HandL || name == PartName.HandR;
+        internal bool IsLimb => name > PartName.ThighR && name < PartName.Head;
         internal BodyPart(
             PartName _name,
             Transform _afterIK,
@@ -88,6 +89,10 @@ namespace KK_VR.Grasp
             else
             {
                 guide = visual.gameObject.AddComponent<HeadPartGuide>();
+            }
+            if (IsLimb)
+            {
+                goal = BendGoal.Create(this);
             }
         }
         internal string GetLowerCaseName()

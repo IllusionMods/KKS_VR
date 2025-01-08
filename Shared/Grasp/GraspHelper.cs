@@ -200,7 +200,7 @@ namespace KK_VR.Grasp
                 //    Fixes.Util.CreatePrimitive(PrimitiveType.Sphere, new Vector3(0.06f, 0.06f, 0.06f), bodyPart.anchor, Color.yellow, 0.5f);
                 //    //Util.CreatePrimitive(PrimitiveType.Sphere, new Vector3(0.12f, 0.12f, 0.12f), bodyPart.afterIK, Color.yellow, 0.4f);
                 //}
-                if (bodyPart.IsLimb())
+                if (bodyPart.IsLimb)
                 {
                     FindColliders(bodyPart, chara);
                 }
@@ -237,13 +237,21 @@ namespace KK_VR.Grasp
                     {
                         if (bodyPart.anchor.parent != null && bodyPart.anchor.parent.name.StartsWith("ik_b4", StringComparison.OrdinalIgnoreCase))
                         {
-                            GameObject.Destroy(bodyPart.anchor.parent.gameObject);
+                            Destroy(bodyPart.anchor.parent.gameObject);
                         }
                         else
                         {
-                            GameObject.Destroy(bodyPart.anchor.gameObject);
+                            Destroy(bodyPart.anchor.gameObject);
                         }
-                        GameObject.Destroy(bodyPart.guide.gameObject);
+                        // Null check shouldn't be necessary.
+                        if (bodyPart.guide != null)
+                        {
+                            Destroy(bodyPart.guide.gameObject);
+                        }
+                        if (bodyPart.goal != null)
+                        {
+                            Destroy(bodyPart.goal.gameObject);
+                        }
                     }
                 }
                 foreach (var ik in _auxDic.Values)
@@ -344,7 +352,7 @@ namespace KK_VR.Grasp
 
                         if (bodyPart.chain != null)
                         {
-                            bodyPart.chain.bendConstraint.weight = bodyPart.state == State.Default ? 1f : KoikatuInterpreter.Settings.IKDefaultBendConstraint;
+                            bodyPart.chain.bendConstraint.weight = bodyPart.state == State.Default || bodyPart.goal.IsBusy ? 1f : KoikatuInterpreter.Settings.IKDefaultBendConstraint;
                         }
                     }
                 }
@@ -489,7 +497,7 @@ namespace KK_VR.Grasp
                 {
                     var bodyPart = kv.Value[i];
                     bodyPart.guide.Sleep(instant: true);
-                    if (bodyPart.IsLimb())
+                    if (bodyPart.IsLimb)
                     {
                         if (bodyPart.baseData.bone == null)
                         {
@@ -564,7 +572,7 @@ namespace KK_VR.Grasp
             {
                 foreach (var bodyPart in _bodyPartsDic[chara])
                 {
-                    if (bodyPart.IsLimb())
+                    if (bodyPart.IsLimb)
                     {
                         ((BodyPartGuide)bodyPart.guide).StartRelativeRotation();
                     }
@@ -612,7 +620,7 @@ namespace KK_VR.Grasp
         {
             foreach (var bodyPart in _bodyPartsDic[chara])
             {
-                if (bodyPart.IsLimb())
+                if (bodyPart.IsLimb)
                 {
                     ((BodyPartGuide)bodyPart.guide).StopRelativeRotation();
                 }

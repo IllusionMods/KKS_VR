@@ -133,6 +133,11 @@ namespace KK_VR.Handlers
             }
             BodyPart.visual.Hide();
             ClearTracker();
+
+            if (BodyPart.goal != null)
+            {
+                BodyPart.goal.Sleep(instant);
+            }    
         }
         protected virtual void Disable()
         {

@@ -51,6 +51,7 @@ namespace KK_VR.Grasp
         private ChaControl _syncedChara;
 
         // For Grip.
+        private BendGoal _heldBendGoal;
         private readonly List<BodyPart> _heldBodyParts = [];
         // For Trigger conditional long press. 
         private readonly List<BodyPart> _tempHeldBodyParts = [];
@@ -73,7 +74,7 @@ namespace KK_VR.Grasp
         ];
 
         // Add held items too once implemented. All bodyParts have black list entries, dic is sufficient.
-        internal bool IsBusy => _blackListDic.Count != 0 || (_helper != null && _helper.baseHold != null);
+        internal bool IsBusy => _blackListDic.Count > 0 || _heldBendGoal != null || (_helper != null && _helper.baseHold != null);
         internal Dictionary<ChaControl, List<Tracker.Body>> GetBlacklistDic => _blackListDic;
         internal List<BodyPart> GetFullBodyPartList(ChaControl chara) => _bodyPartsDic[chara];
         internal enum State
@@ -320,7 +321,7 @@ namespace KK_VR.Grasp
                 // If there is no track, then expand limbs we are holding.
                 var heldBodyParts = _heldBodyParts.Concat(_tempHeldBodyParts);
                 var bodyPartsLimbs = heldBodyParts
-                    .Where(b => b.IsLimb() && b.guide.IsBusy);
+                    .Where(b => b.IsLimb && b.guide.IsBusy);
                 if (bodyPartsLimbs.Any())
                 {
                     foreach (var bodyPart in bodyPartsLimbs)
@@ -403,15 +404,34 @@ namespace KK_VR.Grasp
         // Reset currently held body parts.
         internal bool OnTouchpadResetHeld()
         {
-            if (_helper != null && _heldBodyParts.Count > 0)
+            if (_helper != null)
             {
-                ResetBodyParts(_heldBodyParts, false);
-                ResetBodyParts(_tempHeldBodyParts, false);
-                StopGrasp();
-                //_hand.Handler.ClearTracker();
-                return true;
+                if (_heldBodyParts.Count > 0)
+                {
+                    ResetBodyParts(_heldBodyParts, false);
+                    ResetBodyParts(_tempHeldBodyParts, false);
+                    StopGrasp();
+                    //_hand.Handler.ClearTracker();
+                    return true;
+                }
+                else if (_heldBendGoal != null)
+                { 
+                    _heldBendGoal.Sleep();
+                    ReleaseBendGoal();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
             return false;
+        }
+
+        private void ReleaseBendGoal()
+        {
+            _heldBendGoal = null;
+            _hand.OnGraspRelease();
         }
         // Reset tracking by controller body part if not in default state.
         internal bool OnTouchpadResetActive(Tracker.Body trackerPart, ChaControl chara)
@@ -482,13 +502,28 @@ namespace KK_VR.Grasp
             {
                 var anchor = _hand.Anchor;
                 var bodyParts = GetTargetParts(_bodyPartsDic[chara], ConvertTrackerToIK(trackerPart), anchor.position);
+                var firstBodyPart = bodyParts[0];
 
-                // Update blackList before actual grasp !!!
-                UpdateGrasp(bodyParts, chara);
-                UpdateBlackList();
-                foreach (var bodyPart in bodyParts)
+                // If limb is altered already and bend goal is very close, alter it instead.
+                if (firstBodyPart.IsLimb && firstBodyPart.state != State.Default && firstBodyPart.goal.IsClose(anchor.position))
                 {
-                    GraspBodyPart(bodyPart, anchor);
+
+                    // Going for colliders currently isn't optimal,
+                    // maybe later if I'll manage to stuff in mesh collider in KK,
+                    // then we can go for it. Having it KKS only isn't viable.
+
+                    _heldBendGoal = firstBodyPart.goal;
+                    firstBodyPart.goal.Follow(anchor);
+                }
+                else
+                {
+                    // Update blackList before actual grasp !!!
+                    UpdateGrasp(bodyParts, chara);
+                    UpdateBlackList();
+                    foreach (var bodyPart in bodyParts)
+                    {
+                        GraspBodyPart(bodyPart, anchor);
+                    }
                 }
                 if (MouthGuide.Instance != null)
                 {
@@ -511,6 +546,11 @@ namespace KK_VR.Grasp
                     ReleaseBodyParts(_heldBodyParts);
                     ReleaseBodyParts(_tempHeldBodyParts);
                     StopGrasp();
+                }
+                else if (_heldBendGoal != null)
+                {
+                    _heldBendGoal.Stay();
+                    ReleaseBendGoal();
                 }
             }
         }
@@ -672,6 +712,7 @@ namespace KK_VR.Grasp
                 bodyGuide.OnSyncStart();
             }
             bodyPart.chain.bendConstraint.weight = KoikatuInterpreter.Settings.IKDefaultBendConstraint;
+            bodyPart.goal.Sleep();
         }
 
         // We attach bodyPart to a static object or to ik driven chara.
@@ -680,7 +721,7 @@ namespace KK_VR.Grasp
         {
             if (bodyPart.chain != null)
             {
-                bodyPart.chain.bendConstraint.weight = KoikatuInterpreter.Settings.IKDefaultBendConstraint;
+                bodyPart.chain.bendConstraint.weight = bodyPart.goal.IsBusy ? 1f : KoikatuInterpreter.Settings.IKDefaultBendConstraint;
             }
             bodyPart.guide.Attach(attachPoint);
             
