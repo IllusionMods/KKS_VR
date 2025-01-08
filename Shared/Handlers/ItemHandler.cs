@@ -90,7 +90,7 @@ namespace KK_VR.Handlers
                 {
                     DoStartSfx(velocity);
                 }
-                else if (!_hand.Noise.IsPlaying)
+                else if (!_hand.SFX.IsPlaying)
                 {
                     DoSfx(velocity);
                 }
@@ -100,9 +100,9 @@ namespace KK_VR.Handlers
         protected void DoStartSfx(float velocity)
         {
             var fast = velocity > 1.5f;
-            _hand.Noise.PlaySfx(
+            _hand.SFX.PlaySfx(
                 fast ? 0.5f + velocity * 0.2f : 1f,
-                fast ? HandNoise.Sfx.Slap : HandNoise.Sfx.Tap,
+                fast ? SFXLoader.Sfx.Slap : SFXLoader.Sfx.Tap,
                 GetSurfaceType(_tracker.colliderInfo.behavior.part),
                 GetIntensityType(_tracker.colliderInfo.behavior.part),
                 overwrite: true
@@ -112,30 +112,30 @@ namespace KK_VR.Handlers
         protected void DoSfx(float velocity)
         {
             _tracker.SetSuggestedInfo();
-            _hand.Noise.PlaySfx(
+            _hand.SFX.PlaySfx(
                 velocity > 1.5f ? 0.5f + velocity * 0.2f : 1f,
-                velocity > 0.5f ? HandNoise.Sfx.Tap : HandNoise.Sfx.Traverse,
+                velocity > 0.5f ? SFXLoader.Sfx.Tap : SFXLoader.Sfx.Traverse,
                 GetSurfaceType(_tracker.colliderInfo.behavior.part),
                 GetIntensityType(_tracker.colliderInfo.behavior.part),
                 overwrite: false
                 );
         }
 
-        protected HandNoise.Surface GetSurfaceType(Tracker.Body part)
+        protected SFXLoader.Surface GetSurfaceType(Tracker.Body part)
         {
             return part switch
             {
-                Tracker.Body.Head => HandNoise.Surface.Hair,
-                _ => Interactors.Undresser.IsBodyPartClothed(_tracker.colliderInfo.chara, part) ? HandNoise.Surface.Cloth : HandNoise.Surface.Skin
+                Tracker.Body.Head => SFXLoader.Surface.Hair,
+                _ => Interactors.Undresser.IsBodyPartClothed(_tracker.colliderInfo.chara, part) ? SFXLoader.Surface.Cloth : SFXLoader.Surface.Skin
             };
         }
-        protected HandNoise.Intensity GetIntensityType(Tracker.Body part)
+        protected SFXLoader.Intensity GetIntensityType(Tracker.Body part)
         {
             return part switch
             {
-                Tracker.Body.Asoko => HandNoise.Intensity.Wet,
-                Tracker.Body.MuneL or Tracker.Body.MuneR or Tracker.Body.ThighL or Tracker.Body.ThighR or Tracker.Body.Groin => HandNoise.Intensity.Soft,
-                _ => HandNoise.Intensity.Rough
+                Tracker.Body.Asoko => SFXLoader.Intensity.Wet,
+                Tracker.Body.MuneL or Tracker.Body.MuneR or Tracker.Body.ThighL or Tracker.Body.ThighR or Tracker.Body.Groin => SFXLoader.Intensity.Soft,
+                _ => SFXLoader.Intensity.Rough
             };
         }
 

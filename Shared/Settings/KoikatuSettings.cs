@@ -202,6 +202,7 @@ namespace KK_VR.Settings
 
         public float ShortPress {  get; set; }
         public float LongPress { get; set; }
+        public bool EnableSFX { get; set; }
         public enum GripMoveStabilization
         {
             None,
