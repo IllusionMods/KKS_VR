@@ -106,7 +106,7 @@ namespace KK_VR.Handlers
                 && touch < AibuColliderKind.reac_head
                 && chara == HSceneInterpreter.lstFemale[0])
             {
-                if (IntegrationSensibleH.active && !MouthGuide.Instance.IsActive && HSceneInterpreter.handCtrl.GetUseAreaItemActive() != -1)
+                if (IntegrationSensibleH.IsActive && !MouthGuide.Instance.IsActive && HSceneInterpreter.handCtrl.GetUseAreaItemActive() != -1)
                 {
                     // If VRMouth isn't active but automatic caress is going. Disable it.
                     IntegrationSensibleH.OnKissEnd();
@@ -155,11 +155,11 @@ namespace KK_VR.Handlers
                 }
                 else if (_tracker.reactionType == Tracker.ReactionType.Short)
                 {
-                    Features.LoadVoice.PlayVoice(Features.LoadVoice.VoiceType.Short, _tracker.colliderInfo.chara, voiceWait: true);
+                    Features.LoadGameVoice.PlayVoice(Features.LoadGameVoice.VoiceType.Short, _tracker.colliderInfo.chara, voiceWait: true);
                 }
                 else //if (_tracker.reactionType == ControllerTracker.ReactionType.Laugh)
                 {
-                    Features.LoadVoice.PlayVoice(Features.LoadVoice.VoiceType.Laugh, _tracker.colliderInfo.chara, voiceWait: true);
+                    Features.LoadGameVoice.PlayVoice(Features.LoadGameVoice.VoiceType.Laugh, _tracker.colliderInfo.chara, voiceWait: true);
                 }
                 _controller.StartRumble(new RumbleImpulse(1000));
             }

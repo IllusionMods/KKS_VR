@@ -6,9 +6,10 @@ using static HandCtrl;
 
 namespace KK_VR
 {
-    internal class IntegrationSensibleH
+    internal static class IntegrationSensibleH
     {
-        internal static bool active;
+        internal static bool IsActive => _active;
+        private static bool _active;
 
         // Concedes control of an aibu item.
         internal static Action<AibuColliderKind> ReleaseItem;
@@ -45,16 +46,15 @@ namespace KK_VR
         // Hook to start AutoMode.
         internal static Action OnUserInput;
 
-        // Custom top of the excitement gauge to trigger orgasm, set by SensibleH dynamically.
-        internal static Func<float> GetFemaleCeiling;
-        internal static Func<float> GetMaleCeiling;
+        //// Custom top of the excitement gauge to trigger orgasm, set by SensibleH dynamically.
+        //internal static Func<float> GetFemaleCeiling;
+        //internal static Func<float> GetMaleCeiling;
 
         internal static void Init()
         {
             var type = AccessTools.TypeByName("KK_SensibleH.AutoMode.LoopController");
-            active = type != null;
 
-            if (active)
+            if (type != null)
             {
                 ClickButton = AccessTools.MethodDelegate<Action<string>>(AccessTools.FirstMethod(type, m => m.Name.Equals("ClickButton")));
                 ChangeLoop = AccessTools.MethodDelegate<Action<int>>(AccessTools.FirstMethod(type, m => m.Name.Equals("AlterLoop")));
@@ -71,6 +71,17 @@ namespace KK_VR
                 OnKissEnd = AccessTools.MethodDelegate<Action>(AccessTools.FirstMethod(type, m => m.Name.Equals("OnKissEnd")));
 
             }
+
+            _active = ClickButton != null
+                && ChangeLoop != null
+                && ChangeAnimation != null
+                && StopAuto != null
+                && OnUserInput != null
+                && ReleaseItem != null
+                && JudgeProc != null
+                && OnLickStart != null
+                && OnKissStart != null
+                && OnKissEnd != null;
         }
     }
 }

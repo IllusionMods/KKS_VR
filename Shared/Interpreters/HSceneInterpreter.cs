@@ -241,7 +241,7 @@ namespace KK_VR.Interpreters
             }
             else
             {
-                Features.LoadVoice.PlayVoice(Features.LoadVoice.VoiceType.Short, chara, voiceWait);
+                Features.LoadGameVoice.PlayVoice(Features.LoadGameVoice.VoiceType.Short, chara, voiceWait);
             }
             return false;
         }
@@ -286,7 +286,7 @@ namespace KK_VR.Interpreters
         internal static void LeanToKiss()
         {
             HScenePatches.HoldKissLoop();
-            if (IntegrationSensibleH.active)
+            if (IntegrationSensibleH.IsActive)
             {
                 IntegrationSensibleH.OnKissStart(AibuColliderKind.none);
             }
@@ -428,7 +428,7 @@ namespace KK_VR.Interpreters
             //    _ => anim.mode,
             //};
 
-            mode = (int)anim.mode switch
+            mode = anim.mode switch
             {
                 EMode.houshi or EMode.houshi3P or EMode.houshi3PMMF => EMode.houshi,
                 EMode.sonyu or EMode.sonyu3P or EMode.sonyu3PMMF => EMode.sonyu,

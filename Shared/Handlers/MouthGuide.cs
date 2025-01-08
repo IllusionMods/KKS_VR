@@ -105,6 +105,7 @@ namespace KK_VR.Handlers
         internal void OnUnImpersonation()
         {
             _mouthBlacklistDic.Clear();
+            PauseInteractions = false;
         }
         private void Update()
         {
@@ -187,7 +188,7 @@ namespace KK_VR.Handlers
             _mousePress = true;
             _followAfter = _eyes;
             _lookAt = _eyes;
-            if (IntegrationSensibleH.active)
+            if (IntegrationSensibleH.IsActive)
             {
                 IntegrationSensibleH.OnKissStart(AibuColliderKind.none);
             }
@@ -199,7 +200,7 @@ namespace KK_VR.Handlers
             }
             DestroyGripMove();
             yield return CoroutineUtils.WaitForEndOfFrame;
-            if (IntegrationSensibleH.active)
+            if (IntegrationSensibleH.IsActive)
             {
                 IntegrationSensibleH.OnKissStart(AibuColliderKind.mouth);
             }
@@ -298,7 +299,7 @@ namespace KK_VR.Handlers
                 DestroyGripMove();
                 _lastChara = HSceneInterpreter.lstFemale[0];
                 ActiveCo = true;
-                if (IntegrationSensibleH.active)
+                if (IntegrationSensibleH.IsActive)
                 {
                     IntegrationSensibleH.OnLickStart(AibuColliderKind.none);
                 }
@@ -417,7 +418,7 @@ namespace KK_VR.Handlers
                 }
                 yield return null;
             }
-            if (IntegrationSensibleH.active)
+            if (IntegrationSensibleH.IsActive)
             {
                 IntegrationSensibleH.OnLickStart(colliderKind);
             }
@@ -590,7 +591,7 @@ namespace KK_VR.Handlers
             if (ActiveCo)
             {
                 StopAllCoroutines();
-                if (IntegrationSensibleH.active)
+                if (IntegrationSensibleH.IsActive)
                 {
                     IntegrationSensibleH.OnKissEnd();
                 }

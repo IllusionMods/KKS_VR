@@ -135,8 +135,8 @@ namespace KK_VR.Interpreters
                 layer = 10
             };
             right.AddComponent<HandHolder>().Init(1);
-            Features.LoadVoice.Init();
             IntegrationSensibleH.Init();
+            IntegrationMaleBreath.Init();
         }
 
         // PR was merged long time ago in KK_Subtitles.

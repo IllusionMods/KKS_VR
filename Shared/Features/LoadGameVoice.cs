@@ -22,14 +22,15 @@ namespace KK_VR.Features
     /// <summary>
     /// Plays native voice lines for any chara at any moment
     /// </summary>
-    public static class LoadVoice
+    
+    // Was named poorly, overlaps with in-game type (LoadVoice).
+    public static class LoadGameVoice
     {
         public enum VoiceType
         {
             Laugh,
             Short
         }
-        private static Func<int> _maleBreathPersonality;
         private const string _path = "sound/data/pcm/c**/";
         private static string GetBundleH(int personalityId)
         {
@@ -60,14 +61,6 @@ namespace KK_VR.Features
                 _ => "00"
             };
         }
-            public static void Init()
-        {
-            var type = AccessTools.TypeByName("KK_MaleBreath.MaleBreath");
-            if (type != null)
-            {
-                _maleBreathPersonality = AccessTools.MethodDelegate<Func<int>>(AccessTools.FirstMethod(type, m => m.Name.Equals("GetPlayerPersonality")));
-            }
-        }
         private static void Play(VoiceType type, ChaControl chara)//, bool setCooldown)
         {
             // Copy MaleBreath method here, prettier.
@@ -88,9 +81,9 @@ namespace KK_VR.Features
                 .FirstOrDefault();
 
             var personalityId = chara.fileParam.personality;
-            if (chara.sex == 0 && _maleBreathPersonality != null)
+            if (chara.sex == 0 && IntegrationMaleBreath.IsActive)
             {
-                personalityId = _maleBreathPersonality();
+                personalityId = IntegrationMaleBreath.GetMaleBreathPersonality();
             }
 
             if (hExp == SaveData.Heroine.HExperienceKind.不慣れ)

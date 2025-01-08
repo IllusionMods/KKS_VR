@@ -37,7 +37,7 @@ namespace KK_VR.Interpreters
 
         private void HandleSpeed()
         {
-            if (IntegrationSensibleH.active)
+            if (IntegrationSensibleH.IsActive)
             {
                 IntegrationSensibleH.StopAuto();
             }
@@ -116,7 +116,7 @@ namespace KK_VR.Interpreters
             // Happens only when we recently pressed the button.
             _manipulateSpeed = false;
             Pull();
-            if (IntegrationSensibleH.active)
+            if (IntegrationSensibleH.IsActive)
             {
                 IntegrationSensibleH.StopAuto();
             }
@@ -212,7 +212,7 @@ namespace KK_VR.Interpreters
                 _pressedButtons[index, 0] = true;
                 if (IsInputState(InputState.Caress))
                 {
-                    if (IntegrationSensibleH.active)
+                    if (IntegrationSensibleH.IsActive)
                     {
                         IntegrationSensibleH.JudgeProc(_lastAibuKind[index]);
                     }
@@ -384,7 +384,7 @@ namespace KK_VR.Interpreters
                             {
                                 _interpreter.ScrollAibuAnim(direction == TrackpadDirection.Right);
                             }
-                            else if (IntegrationSensibleH.active)
+                            else if (IntegrationSensibleH.IsActive)
                             {
                                 IntegrationSensibleH.ChangeLoop(_interpreter.GetCurrentLoop(direction == TrackpadDirection.Right));
                             }
@@ -414,7 +414,7 @@ namespace KK_VR.Interpreters
             else if (_manipulateSpeed)
             {
                 _manipulateSpeed = false;
-                if (IntegrationSensibleH.active)
+                if (IntegrationSensibleH.IsActive)
                 {
                     IntegrationSensibleH.OnUserInput();
                 }
@@ -481,7 +481,7 @@ namespace KK_VR.Interpreters
                         AddInputState(InputState.Caress);
                         handler.StartMovingAibuItem(touch);
                         _lastAibuKind[index] = touch;
-                        if (IntegrationSensibleH.active && HSceneInterpreter.handCtrl.GetUseAreaItemActive() != -1)
+                        if (IntegrationSensibleH.IsActive && HSceneInterpreter.handCtrl.GetUseAreaItemActive() != -1)
                         {
                             IntegrationSensibleH.ReleaseItem(touch);
                         }
@@ -555,7 +555,7 @@ namespace KK_VR.Interpreters
         /// </summary>
         private void ClickRandomButton()
         {
-            if (IntegrationSensibleH.active)
+            if (IntegrationSensibleH.IsActive)
             {
                 IntegrationSensibleH.ClickButton("");
             }
@@ -584,7 +584,7 @@ namespace KK_VR.Interpreters
         {
             if (!IsFrameWait() && PullHelper())
             {
-                if (IntegrationSensibleH.active)
+                if (IntegrationSensibleH.IsActive)
                 {
                     IntegrationSensibleH.ClickButton("Pull");
                 }
@@ -640,7 +640,7 @@ namespace KK_VR.Interpreters
         {
             if (InsertHelper())
             {
-                if (IntegrationSensibleH.active)
+                if (IntegrationSensibleH.IsActive)
                 {
                     IntegrationSensibleH.ClickButton(GetButtonName(anal, hFlag.isDenialvoiceWait || noVoice));
                 }
@@ -660,7 +660,7 @@ namespace KK_VR.Interpreters
                 {
                     // Sonyu start auto.
                     hFlag.click = ClickKind.modeChange;
-                    if (IntegrationSensibleH.active)
+                    if (IntegrationSensibleH.IsActive)
                     {
                         IntegrationSensibleH.OnUserInput();
                     }
@@ -680,7 +680,7 @@ namespace KK_VR.Interpreters
                 {
                     // Start houshi after pose change/long pause after finish.
                     hFlag.click = ClickKind.speedup;
-                    if (IntegrationSensibleH.active)
+                    if (IntegrationSensibleH.IsActive)
                     {
                         IntegrationSensibleH.OnUserInput();
                     }
@@ -829,7 +829,7 @@ namespace KK_VR.Interpreters
                             PlayShort(lstFemale[0]);
                             break;
                         case Timing.Full:
-                            if (IntegrationSensibleH.active)
+                            if (IntegrationSensibleH.IsActive)
                             {
                                 if (IsTriggerPress(wait.index))
                                 {

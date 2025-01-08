@@ -573,7 +573,7 @@ namespace KK_VR.Grasp
                 var vec = (GetClosestBone(chara, index).position - handPosition);
                 vec.y = 0f;
                 _auxDic[chara].reaction.React(index, vec.normalized);
-                Features.LoadVoice.PlayVoice(Features.LoadVoice.VoiceType.Short, chara);
+                Features.LoadGameVoice.PlayVoice(Features.LoadGameVoice.VoiceType.Short, chara);
             }
         }
         private int ConvertToTouch(Tracker.Body part)

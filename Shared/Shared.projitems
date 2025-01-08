@@ -28,7 +28,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Controls\LocationPicker.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\CrossFader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\HideMaleHead.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Features\LoadVoice.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\LoadGameVoice.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\OldVRFade.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Pov.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\PrivacyScreen.cs" />
@@ -40,6 +40,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Fixes\Mirror\Manager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Fixes\Mirror\VRReflection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Fixes\ObiControlFix.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interpreters\Extras\IntegrationMaleBreath.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Obsolete\Fixes\ReduceAssetUnloads.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Fixes\UnityPatches.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Fixes\Util.cs" />

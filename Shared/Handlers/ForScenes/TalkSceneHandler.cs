@@ -64,11 +64,11 @@ namespace KK_VR.Handlers
                 }
                 else if (_tracker.reactionType == Tracker.ReactionType.Short)
                 {
-                    Features.LoadVoice.PlayVoice(Features.LoadVoice.VoiceType.Short, chara, voiceWait: UnityEngine.Random.value < 0.5f);
+                    Features.LoadGameVoice.PlayVoice(Features.LoadGameVoice.VoiceType.Short, chara, voiceWait: UnityEngine.Random.value < 0.5f);
                 }
                 else if (_tracker.reactionType == Tracker.ReactionType.Laugh)
                 {
-                    Features.LoadVoice.PlayVoice(Features.LoadVoice.VoiceType.Laugh, chara, voiceWait: UnityEngine.Random.value < 0.5f);
+                    Features.LoadGameVoice.PlayVoice(Features.LoadGameVoice.VoiceType.Laugh, chara, voiceWait: UnityEngine.Random.value < 0.5f);
                 }
                 _controller.StartRumble(new RumbleImpulse(1000));
             }

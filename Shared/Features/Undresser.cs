@@ -8,7 +8,7 @@ using HarmonyLib;
 
 using static ChaFileDefine;
 using KK_VR.Fixes;
-using static KK_VR.Features.LoadVoice;
+using static KK_VR.Features.LoadGameVoice;
 using KK_VR.Controls;
 using KK_VR.Features;
 using static KK_VR.Trackers.Tracker;

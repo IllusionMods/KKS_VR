@@ -284,7 +284,7 @@ namespace KK_VR.Interpreters
             {
                 _lateHitReaction = true;
             }
-            Features.LoadVoice.PlayVoice(Random.value < 0.4f ? Features.LoadVoice.VoiceType.Laugh : Features.LoadVoice.VoiceType.Short, chara);
+            Features.LoadGameVoice.PlayVoice(Random.value < 0.4f ? Features.LoadGameVoice.VoiceType.Laugh : Features.LoadGameVoice.VoiceType.Short, chara);
         }
 
         /// <summary>
