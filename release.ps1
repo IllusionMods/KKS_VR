@@ -14,7 +14,6 @@ Write-Output ("Creating KK release")
 New-Item -ItemType Directory -Force -Path ($out + "\BepInEx\plugins\KK_MainGameVR\Images") | Out-Null
 New-Item -ItemType Directory -Force -Path ($out + "\BepInEx\patchers\KK_MainGameVR_Patcher") | Out-Null
 New-Item -ItemType Directory -Force -Path ($out + "\Koikatu_Data") | Out-Null
-New-Item -ItemType Directory -Force -Path ($out + "\Koikatsu Party_Data") | Out-Null
 
 Copy-Item -Path ($dir + "\KK\*") -Destination ($out + "\BepInEx\plugins\KK_MainGameVR") -ErrorAction Stop -Force | Out-Null
 # Copy-Item copies empty directories and I don't see any way to tell it to only copy files
