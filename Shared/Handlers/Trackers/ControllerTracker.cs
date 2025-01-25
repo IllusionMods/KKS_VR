@@ -22,7 +22,8 @@ namespace KK_VR.Handlers
             if (_referenceTrackDic.TryGetValue(other, out var info))
             {
                 // Temporal clutch until we can grab objects.
-                if (info.chara != null && info.chara.visibleAll && !IsInBlacklist(info.chara, info.behavior.part))
+                // KKS doesn't update chara.visibleAll.
+                if (info.chara != null && info.chara.rendBody.isVisible && !IsInBlacklist(info.chara, info.behavior.part))
                 {
                     colliderInfo = info;
                     SetReaction();
