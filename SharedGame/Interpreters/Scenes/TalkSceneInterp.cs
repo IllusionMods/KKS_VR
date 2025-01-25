@@ -365,10 +365,9 @@ namespace KK_VR.Interpreters
             HitReactionInitialize(charas);
             GraspController.Init(charas);
             
-#if KK
             // KKS has fixed dir light during Talk/ADV by default.
+            // Reported that KKS has poor default orientation. 
             RepositionDirLight(chara);
-#endif
         }
 
         private void PlacePlayer(Vector3 floor, Quaternion rotation)
