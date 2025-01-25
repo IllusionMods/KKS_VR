@@ -161,21 +161,25 @@ namespace KK_VR.Features
 
             foreach (var resource in resources)
             {
+#if DEBUG
+                VRPlugin.Logger.LogDebug($"LoadEmbeddedResources:{resource}");
+#endif
                 if (!resource.EndsWith(".ogg", StringComparison.OrdinalIgnoreCase)) continue;
 
-                var folders = resource.Trim().Split('.');
+                // KKS_VR.SFX.Slap.Skin.Rough.sv_se_h_44.ogg -> Slap.Skin.Rough.sv_se_h_44.ogg
+                var folders = resource.Remove(0, resource.IndexOf("SFX") + 4).Trim().Split('.');
 
-                if (folders.Length > 6)
+                if (folders.Length > 4)
                 {
                     // Approx estimated structure:
-                    // KKS_VR.SFX.Slap.Skin.Rough.sv_se_h_44.ogg
+                    // Slap.Skin.Rough.sv_se_h_44.ogg
 
                     // Split into:
-                    // KKS_VR   SFX   Slap   Skin   Rough   sv_se_h_44   ogg
+                    // Slap   Skin   Rough   sv_se_h_44   ogg
 
-                    if (FindIndex(sfxNames, folders[2], out var sfxIndex)
-                        && FindIndex(surfaceNames, folders[3], out var surfaceIndex)
-                        && FindIndex(intenseNames, folders[4], out var intenseIndex))
+                    if (FindIndex(sfxNames, folders[0], out var sfxIndex)
+                        && FindIndex(surfaceNames, folders[1], out var surfaceIndex)
+                        && FindIndex(intenseNames, folders[2], out var intenseIndex))
                     {
 
 
