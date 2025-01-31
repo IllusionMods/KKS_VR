@@ -1,8 +1,10 @@
-﻿using KK_VR.Handlers;
+﻿using HarmonyLib;
+using KK_VR.Handlers;
 using KK_VR.Holders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 
@@ -39,6 +41,12 @@ namespace KK_VR.Fixes
             float cross_z = from.x * to.y - from.y * to.x;
             float sign = Mathf.Sign(axis.x * cross_x + axis.y * cross_y + axis.z * cross_z);
             return unsignedAngle * sign;
+        }
+        /// <returns>True if found, false if not(null)</returns>
+        internal static bool GetMethod(Type type, string methodName, out MethodInfo method)
+        {
+            method = AccessTools.FirstMethod(type, m => m.Name.Equals(methodName));
+            return method != null;
         }
     }
 }

@@ -10,6 +10,7 @@ using VRGIN.Controls;
 using KK_VR.Controls;
 using KK_VR.Handlers;
 using KK_VR.Grasp;
+using KK_VR.Settings;
 
 namespace KK_VR.Holders
 {
@@ -291,10 +292,24 @@ namespace KK_VR.Holders
         //        aibuItemList[i].SetHandColor(color);
         //    }
         //}
+
+        internal static void UpdateOffsets()
+        {
+            foreach (var inst in _instances)
+            {
+                inst.UpdateActiveOffsets();
+            }
+        }
+        private void UpdateActiveOffsets()
+        {
+            var posVec = KoikSettings.ModelPosition.Value;
+            var rotVec = KoikSettings.ModelRotation.Value;
+            _activeOffsetPos = _activeItem.animParam.positionOffset + (Index == 0 ? new Vector3(-posVec.x, posVec.y, posVec.z) : posVec);
+            _activeOffsetRot = _activeItem.animParam.rotationOffset * Quaternion.Euler((Index == 0 ? new Vector3(rotVec.x, -rotVec.y, rotVec.z) : rotVec));
+        }
         private void ActivateItem()
         {
-            _activeOffsetPos = _activeItem.animParam.positionOffset;
-            _activeOffsetRot = _activeItem.animParam.rotationOffset;
+            UpdateActiveOffsets();
             _anchor.SetPositionAndRotation(_controller.TransformPoint(_activeOffsetPos), _controller.rotation);
             _activeItem.rootPoint.localScale = Fixes.Util.Divide(Vector3.Scale(Vector3.one, _activeItem.rootPoint.localScale), _activeItem.rootPoint.lossyScale);
             _activeItem.rootPoint.gameObject.SetActive(true);

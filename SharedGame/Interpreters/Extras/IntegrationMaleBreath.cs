@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using HarmonyLib;
+using static KK_VR.Fixes.Util;
 
 namespace KK_VR
 {
@@ -38,11 +39,6 @@ namespace KK_VR
                 }
                 _active = GetMaleBreathPersonality != null && OnPov != null;
             }
-        }
-        internal static bool GetMethod(Type type, string methodName, out MethodInfo method)
-        {
-            method = AccessTools.FirstMethod(type, m => m.Name.Equals(methodName));
-            return method != null;
         }
     }
 }

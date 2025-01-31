@@ -9,6 +9,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using static KK_VR.Grasp.GraspController;
 using KK_VR.Holders;
+using System.Linq;
+using static KK_VR.Fixes.Util;
+using HarmonyLib;
 
 namespace KK_VR.Grasp
 {
@@ -77,6 +80,26 @@ namespace KK_VR.Grasp
                     //_origOrientList.Add(new(chara));
                 //}
             }
+
+            // By default component <Lookat_dan> aims dick before IK solver but we want it after.
+            // The easiest solution seems to be to call it again as it isn't heavy.
+            if (charas.Any())
+            {
+                var lookat_dan = FindObjectsOfType<Lookat_dan>()
+                .Where(t => t.male != null);
+                var type = typeof(Lookat_dan);
+
+                foreach (var dan in lookat_dan)
+                {
+                    if (GetMethod(type, "LateUpdate", out var method))
+                    {
+                        var methodDelegate = AccessTools.MethodDelegate<Action>(method, dan);
+                        _auxDic.Last().Value.newFbik.solver.OnPostUpdate += () => methodDelegate();
+                    }
+                }
+            }
+            
+
         }
         private void AddChara(ChaControl chara)
         {

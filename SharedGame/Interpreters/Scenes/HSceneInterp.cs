@@ -151,6 +151,18 @@ namespace KK_VR.Interpreters
             {
                 _pov.Impersonation += (active, chara) => IntegrationMaleBreath.OnPov(active, chara);
             }
+
+            // Hide adv scene male if progressing from masturbation scene to normal one, as it has adv scene in-between where.
+            var prevSceneMales = UnityEngine.Object.FindObjectsOfType<ChaControl>()
+                .Where(c => c.sex == 0 && c.transform.parent != null && !c.transform.parent.name.Equals("HScene"));
+            foreach (var prevSceneMale in prevSceneMales)
+            {
+#if KK
+                prevSceneMale.visibleAll = false;
+#elif KKS
+                prevSceneMale.objTop.SetActive(false);
+#endif
+            }
         }
 
 

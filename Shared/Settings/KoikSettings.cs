@@ -4,6 +4,7 @@ using System.Text;
 using BepInEx.Configuration;
 using KK_VR.Features;
 using KK_VR.Grasp;
+using KK_VR.Holders;
 using KKAPI.Utilities;
 using UnityEngine;
 using VRGIN.Core;
@@ -74,6 +75,8 @@ namespace KK_VR.Settings
         public static ConfigEntry<float> LongPress { get; private set; }
         public static ConfigEntry<bool> EnableSFX { get; private set; }
         public static ConfigEntry<ShadowType> ShadowSetting { get; private set; }
+        public static ConfigEntry<Vector3> ModelRotation { get; private set; }
+        public static ConfigEntry<Vector3> ModelPosition { get; private set; }
 
         #endregion
 
@@ -255,6 +258,20 @@ namespace KK_VR.Settings
                     "Optimize shadows for preferred distance.",
                     null,
                     new ConfigurationManagerAttributes { Order = -10 }));
+
+
+            ModelPosition = config.Bind(SectionGeneral, "Adjust model position", Vector3.zero,
+                new ConfigDescription(
+                    "",
+                    null,
+                    new ConfigurationManagerAttributes { Order = -25 }));
+
+
+            ModelRotation = config.Bind(SectionGeneral, "Adjust model rotation", Vector3.zero,
+                new ConfigDescription(
+                    "",
+                    null,
+                    new ConfigurationManagerAttributes { Order = -30 }));
 
 
             EnableBoop = config.Bind(SectionGeneral, "Enable Boop", true,
@@ -466,11 +483,13 @@ namespace KK_VR.Settings
             IKMaintainRelativePosition.SettingChanged += (sender, e) => UpdateIKMaintainRelativePosition();
             IKPushParent.SettingChanged += (sender, e) => UpdateIKPushParent();
             PrivacyScreen.SettingChanged += (sender, e) => Features.PrivacyScreen.UpdatePrivacyScreen();
-
+            ModelPosition.SettingChanged += (sender, e) => HandHolder.UpdateOffsets();
+            ModelRotation.SettingChanged += (sender, e) => HandHolder.UpdateOffsets();
 
             UpdateIPD();
             UpdateNearClipPlane();
             UpdateShadowSetting();
+            HandHolder.UpdateOffsets();
             Features.PrivacyScreen.UpdatePrivacyScreen();
         }
 
