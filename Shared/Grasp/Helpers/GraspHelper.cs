@@ -89,9 +89,9 @@ namespace KK_VR.Grasp
                 .Where(t => t.male != null);
                 var type = typeof(Lookat_dan);
 
-                foreach (var dan in lookat_dan)
+                if (GetMethod(type, "LateUpdate", out var method))
                 {
-                    if (GetMethod(type, "LateUpdate", out var method))
+                    foreach (var dan in lookat_dan)
                     {
                         var methodDelegate = AccessTools.MethodDelegate<Action>(method, dan);
                         _auxDic.Last().Value.newFbik.solver.OnPostUpdate += () => methodDelegate();
