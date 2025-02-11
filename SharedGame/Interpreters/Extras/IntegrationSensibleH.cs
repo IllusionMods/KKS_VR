@@ -10,8 +10,11 @@ namespace KK_VR
 {
     internal static class IntegrationSensibleH
     {
-        internal static bool IsActive => _active;
+        internal static bool IsActive => _active && IsPluginEnabled();
         private static bool _active;
+
+        // Check state of SensibleH plugin.
+        private static Func<bool> IsPluginEnabled;
 
         // Concedes control of an aibu item.
         internal static Action<AibuColliderKind> ReleaseItem;
@@ -123,7 +126,16 @@ namespace KK_VR
                 && OnKissStart != null
                 && OnKissEnd != null;
 
+            if (_active)
+            {
+                type = AccessTools.TypeByName("KK_SensibleH.SensibleHController");
+                if (type == null) return;
 
+                var getter = AccessTools.PropertyGetter(type, "IsEnabled");
+                if (getter == null) return;
+
+                IsPluginEnabled = AccessTools.MethodDelegate<Func<bool>>(getter);
+            }
         }
     }
 }
