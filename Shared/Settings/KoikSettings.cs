@@ -523,11 +523,12 @@ namespace KK_VR.Settings
         public static void UpdateShadowSetting(ShadowType shadowType = ShadowType.Disabled)
         {
             var enabled =
-#if KK
-            SteamVR.enabled;
-#else
-            Valve.VR.SteamVR.enabled;
+#if KKS
+            Valve.VR.
 #endif
+            // SteamVR.enabled doesn't work in KKS.
+            SteamVR.active;
+
             if (enabled)
             {
                 if (shadowType == ShadowType.Disabled)
