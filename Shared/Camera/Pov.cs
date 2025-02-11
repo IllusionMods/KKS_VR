@@ -568,21 +568,33 @@ namespace KK_VR.Features
 
         private void HideHead(ChaControl chara)
         {
-            var head = chara.objHead.transform;
-            var wasVisible = chara.fileStatus.visibleHeadAlways;
-            var headCenter = head.TransformPoint(0, 0.12f, -0.04f);
-            var sqrDistance = (VR.Camera.transform.position - headCenter).sqrMagnitude;
-            var visible = 0.0361f < sqrDistance; // 19 centimeters
-            chara.fileStatus.visibleHeadAlways = visible;
-            if (wasVisible && !visible)
+            if (chara.fileStatus.visibleHeadAlways)
             {
-                chara.objHead.SetActive(false);
-
-                foreach (var hair in chara.objHair)
+                if (IsHeadClose(chara.objHead.transform))
                 {
-                    hair.SetActive(false);
+                    SetHeadActive(chara, false);
                 }
             }
+            else
+            {
+                if (!IsHeadClose(chara.objHead.transform))
+                {
+                    SetHeadActive(chara, true);
+                }
+            }
+        }
+
+        private void SetHeadActive(ChaControl chara, bool active)
+        {
+            chara.fileStatus.visibleHeadAlways = active;
+            foreach (var hair in chara.objHair)
+            {
+                hair.SetActive(active);
+            }
+        }
+        private bool IsHeadClose(Transform head)
+        {
+            return Vector3.SqrMagnitude(VR.Camera.transform.position - head.TransformPoint(0, 0.12f, -0.04f)) < 0.0361f;
         }
 
         internal void TryEnable()
