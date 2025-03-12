@@ -305,7 +305,7 @@ namespace KK_VR.Holders
             var posVec = KoikSettings.ModelPosition.Value;
             var rotVec = KoikSettings.ModelRotation.Value;
             _activeOffsetPos = _activeItem.animParam.positionOffset + (Index == 0 ? new Vector3(-posVec.x, posVec.y, posVec.z) : posVec);
-            _activeOffsetRot = _activeItem.animParam.rotationOffset * Quaternion.Euler((Index == 0 ? new Vector3(rotVec.x, -rotVec.y, rotVec.z) : rotVec));
+            _activeOffsetRot = _activeItem.animParam.rotationOffset * Quaternion.Euler((Index == 0 ? new Vector3(rotVec.x, -rotVec.y, -rotVec.z) : rotVec));
         }
         private void ActivateItem()
         {
