@@ -22,7 +22,6 @@ namespace KK_VR
     [BepInProcess(KoikatuAPI.GameProcessName)]
     [BepInProcess(KoikatuAPI.GameProcessNameSteam)]
     [BepInDependency(KoikatuAPI.GUID, KoikatuAPI.VersionConst)]
-    [BepInDependency(KK.PluginFinalIK.GUID, KK.PluginFinalIK.Version)]
     [BepInIncompatibility("bero.crossfadervr")]
     public class VRPlugin : BaseUnityPlugin
     {

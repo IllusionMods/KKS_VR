@@ -58,7 +58,7 @@
       <HintPath>..\packages\IllusionModdingAPI.KKSAPI.1.41.0\lib\net46\KKSAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="KK_FinalIK, Version=2.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="KK_FinalIK, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libs\KK_FinalIK.dll</HintPath>
     </Reference>

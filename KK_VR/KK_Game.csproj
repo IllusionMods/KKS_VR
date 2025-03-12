@@ -60,7 +60,8 @@
       <HintPath>..\packages\IllusionModdingAPI.KKAPI.1.41.0\lib\net35\KKAPI.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="KK_FinalIK">
+    <Reference Include="KK_FinalIK, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libs\KK_FinalIK.dll</HintPath>
     </Reference>
     <Reference Include="System" />
