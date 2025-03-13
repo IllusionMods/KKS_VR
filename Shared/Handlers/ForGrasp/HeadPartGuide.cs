@@ -31,7 +31,9 @@ namespace KK_VR.Handlers
             _target = target;
 
             //if (KoikGame.Settings.ShowGuideObjects) _bodyPart.visual.Show();
-            _bodyPart.state = State.Grasped;
+
+            _bodyPart.ResetState();
+            _bodyPart.AddState(State.Active | State.Grasped);
 
             _offsetRot = Quaternion.Inverse(target.rotation) * _anchor.rotation;
             _offsetPos = target.InverseTransformPoint(_anchor.position);

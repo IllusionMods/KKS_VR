@@ -128,6 +128,7 @@ namespace KK_VR.Settings
         public static ConfigEntry<float> IKDefaultBendConstraint { get; private set; }
 
         public static ConfigEntry<bool> IKReturnBodyPartAfterSync { get; private set; }
+        public static ConfigEntry<bool> IKAutoHandAttachment { get; private set; }
 
         #endregion
 
@@ -409,6 +410,14 @@ namespace KK_VR.Settings
                     "Return limb to the default state when sync stops.",
                     null,
                     new ConfigurationManagerAttributes { Order = -8 }
+                    ));
+
+
+            IKAutoHandAttachment = config.Bind(SectionIK, "Auto hand attachment", true,
+                new ConfigDescription(
+                    "Attempt sneaky hand attachment to a partner every time animation controller changes state.",
+                    null,
+                    new ConfigurationManagerAttributes { Order = -12 }
                     ));
 
 

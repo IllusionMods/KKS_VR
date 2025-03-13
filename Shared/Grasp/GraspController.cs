@@ -67,13 +67,12 @@ namespace KK_VR.Grasp
         internal List<BodyPart> GetFullBodyPartList(ChaControl chara) => _bodyPartsDic[chara];
         internal enum State
         {
-            Default,     // Follows animation, no offsets, no rigidBodies.
-            Translation,  // Is being returned to default/??? state.
-            Active,      // Has offset and rigidBody(for Limbs) or specialHandler(for Joints/Head. Not implemented). 
-            Grasped,     // Is being held.
-            Synced,      // Follows some weird transform, rigidBody disabled. For now only limbs, later joints/head.
-            Attached,    // 
-            //Grounded     // Not implemented. Is attached to floor/some map item collider. 
+            Default = 1,      // Not influenced by player.
+            Active = 2,       // Influenced by player. 
+            Translation = 4,  // Returns to default position.
+            Grasped = 8,      // Being held by player.
+            Synced = 16,      // Follows player's controller.
+            Attached = 32,    // Closely follows some object.
         }
         
         public enum PartName
@@ -353,7 +352,7 @@ namespace KK_VR.Grasp
                 .OrderBy(bodyPart => bodyPart.name)
                 .First().name;
             var nearbyPart = GetChild(closestToCore);
-            if (nearbyPart == closestToCore || bodyPartList[(int)nearbyPart].state > State.Translation)
+            if (nearbyPart == closestToCore || !bodyPartList[(int)nearbyPart].IsState(State.Default))
             {
                 nearbyPart = GetParent(closestToCore);
             }
@@ -434,7 +433,7 @@ namespace KK_VR.Grasp
                     var result = false;
                     foreach (var bodyPart in bodyParts)
                     {
-                        if (bodyPart.state > State.Translation)
+                        if (!bodyPart.IsState(State.Default) && !bodyPart.IsState(State.Translation))
                         {
                             bodyPart.guide.Sleep(false);
                             result = true;
@@ -449,19 +448,19 @@ namespace KK_VR.Grasp
                 else
                 {
                     // If torso - reset whole chara.
-                    return OnTouchpadResetEverything(chara, State.Synced);
+                    return OnTouchpadResetEverything(chara);
                 }
             }
             return false;            
         }
-        internal bool OnTouchpadResetEverything(ChaControl chara, State upToState = State.Synced)
+        internal bool OnTouchpadResetEverything(ChaControl chara)
         {
             if (_helper != null && _bodyPartsDic.ContainsKey(chara))
             {
                 var result = false;
                 foreach (var bodyPart in _bodyPartsDic[chara])
                 {
-                    if (bodyPart.state > State.Translation && bodyPart.state <= upToState)
+                    if (bodyPart.IsState(State.Active) || bodyPart.IsState(State.Attached))
                     {
                         bodyPart.guide.Sleep(false);
                         result = true;
@@ -493,7 +492,7 @@ namespace KK_VR.Grasp
                 var firstBodyPart = bodyParts[0];
 
                 // If limb is altered already and bend goal is very close, alter it instead.
-                if (firstBodyPart.IsLimb && firstBodyPart.state != State.Default && firstBodyPart.goal.IsClose(anchor.position))
+                if (firstBodyPart.IsLimb && !firstBodyPart.IsState(State.Default) && firstBodyPart.goal.IsClose(anchor.position))
                 {
 
                     // Going for colliders currently isn't optimal,
@@ -631,7 +630,7 @@ namespace KK_VR.Grasp
             foreach (var bodyPart in bodyPartsList)
             {
                 // Attached bodyParts released one by one if they overstretch (not implemented), or by directly grabbing/resetting one.
-                if (bodyPart.state != State.Default && bodyPart.state != State.Attached)
+                if (!bodyPart.IsState(State.Default) && !bodyPart.IsState(State.Attached))
                 {
                     bodyPart.guide.Stay();
                 }
@@ -642,7 +641,7 @@ namespace KK_VR.Grasp
         {
             foreach (var bodyPart in bodyPartList)
             {
-                if (bodyPart.state != State.Default)
+                if (!bodyPart.IsState(State.Default))
                 {
                     bodyPart.guide.Sleep(instant);
                 }

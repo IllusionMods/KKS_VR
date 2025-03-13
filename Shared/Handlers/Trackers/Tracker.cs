@@ -20,6 +20,22 @@ namespace KK_VR.Handlers
         protected Dictionary<ChaControl, List<Body>> _blacklistDic;
         protected readonly List<Collider> _trackList = [];
         internal ColliderInfo colliderInfo;
+
+        /// <summary>
+        /// Checks if the collider is in use.
+        /// </summary>
+        internal static bool IsColliderPresent(Collider collider, out ChaControl chara)
+        {
+            if (_referenceTrackDic.ContainsKey(collider))
+            {
+                chara = _referenceTrackDic[collider].chara;
+                return true;
+            }
+            chara = null;
+            return false;
+        }       
+
+
         internal void SetBlacklistDic(Dictionary<ChaControl, List<Body>> dic)
         {
             _blacklistDic = dic;

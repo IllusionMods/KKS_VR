@@ -52,12 +52,8 @@ namespace KK_VR.Handlers
             _target = target;
             if (!_anchor.gameObject.activeSelf)
             {
-                //SetBodyPartCollidersToTrigger(true);
                 _anchor.gameObject.SetActive(true);
-                //transform.parent = _objAnim;
             }
-            //_bodyPart.effector.rotationWeight = 1f;
-            //_bodyPart.effector.target = _bodyPart.anchor;
             if (_bodyPart.goal != null && !_bodyPart.goal.IsBusy)
             {
                 _bodyPart.chain.bendConstraint.weight = KoikSettings.IKDefaultBendConstraint.Value;
@@ -75,7 +71,8 @@ namespace KK_VR.Handlers
             _offsetRot = Quaternion.Inverse(target.rotation) * _anchor.rotation;
             _offsetPos = target.InverseTransformPoint(_anchor.position);
 
-            _bodyPart.state = State.Grasped;
+            _bodyPart.ResetState();
+            _bodyPart.AddState(State.Active | State.Grasped);
 
             if (hand != null)
             {
@@ -92,9 +89,8 @@ namespace KK_VR.Handlers
             _hand = null;
             _follow = false;
             _attach = false;
-            //SetBodyPartCollidersToTrigger(false);
             _bodyPart.visual.Hide();
-            _bodyPart.state = State.Active;
+            _bodyPart.RemoveState(State.Grasped);
             ClearTracker();
         }
 
@@ -145,10 +141,12 @@ namespace KK_VR.Handlers
                 _translateEx = true;
                 _translateExOffset = _anchor.position - _bodyPart.afterIK.position;
             }
+            _follow = true;
             _attach = true;
             _target = target;
             _bodyPart.visual.Hide();
-            _bodyPart.state = State.Attached;
+            _bodyPart.RemoveState(State.Grasped);
+            _bodyPart.AddState(State.Attached);
 
 
             _offsetRot = Quaternion.Inverse(_target.rotation) * _anchor.rotation;
@@ -157,7 +155,8 @@ namespace KK_VR.Handlers
 
         internal void OnSyncStart()
         {
-            _bodyPart.state = State.Synced;
+            _bodyPart.ResetState();
+            _bodyPart.AddState(State.Synced);
             _translate = new Translate(_anchor, () => _effector.maintainRelativePositionWeight -= Time.deltaTime, () => _translate = null);
         }
 
@@ -205,32 +204,8 @@ namespace KK_VR.Handlers
         }
         private void LateUpdate()
         {
-            _effector.positionOffset += _anchor.position - _effector.bone.position; 
+            _effector.positionOffset += _anchor.position - _effector.bone.position;
         }
-
-        //private void FixedUpdate()
-        //{
-        //    //if (_unwind)
-        //    //{
-        //    //    _timer = Mathf.Clamp01(_timer - Time.deltaTime);
-        //    //    _rigidBody.velocity *= _timer;
-        //    //    if (_timer == 0f)
-        //    //    {
-        //    //        _unwind = false;
-        //    //    }
-        //    //}
-        //    if (_follow)
-        //    {
-        //        _rigidBody.MovePosition(_target.TransformPoint(_offsetPos));
-        //        _rigidBody.MoveRotation(_target.rotation * _offsetRot);
-
-        //        if (_translate)
-        //        {
-        //            TranslateOnFollow();
-        //        }
-        //    }
-        //}
-
     }
 }
 

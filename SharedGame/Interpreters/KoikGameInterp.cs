@@ -9,6 +9,7 @@ using KK_VR.Holders;
 using System;
 using KK_VR.Controls;
 using BepInEx;
+using KKAPI.Utilities;
 
 namespace KK_VR.Interpreters
 {
@@ -360,15 +361,20 @@ namespace KK_VR.Interpreters
         {
             return Mathf.CeilToInt(_targetFps / Time.deltaTime * number);
         }
-        internal static void RunAfterUpdate(Action action)
+
+        internal static void RunAfterUpdate(Action action, bool onEndFrame = false, int numberOfUpdates = 1)
         {
-            _instance.StartCoroutine(_instance.RunAfterUpdateCo(action));
+            _instance.StartCoroutine(RunAfterUpdateCo(action, onEndFrame, numberOfUpdates));
         }
-        private IEnumerator RunAfterUpdateCo(Action action)
+
+        private static IEnumerator RunAfterUpdateCo(Action action, bool onEndFrame, int numberOfUpdates)
         {
-            yield return null;
+            var ret = onEndFrame ? CoroutineUtils.WaitForEndOfFrame : null;
+            while (numberOfUpdates-- > 0)
+            {
+                yield return ret;
+            }
             action.Invoke();
         }
-        
     }
 }

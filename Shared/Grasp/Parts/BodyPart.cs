@@ -31,7 +31,7 @@ namespace KK_VR.Grasp
         //internal readonly KK_VR.IK.OffsetEffector offsetEffector;
         // Default component. We need it to not upset default code when animator changes state.
         internal readonly BaseData baseData;
-        internal State state;
+        private State _state;
         internal List<Collider> colliders = [];
         // Component responsible for moving and collider tracking.
         internal readonly PartGuide guide;
@@ -107,5 +107,10 @@ namespace KK_VR.Grasp
         // They are very cheap.. Limit IK on hidden targets instead, that stuff is VERY expensive.
         internal bool GetDefaultState() => name > PartName.ThighR;
         internal void Destroy() => GameObject.Destroy(guide.gameObject);
+
+        internal void AddState(State state) => _state |= state;
+        internal void RemoveState(State state) => _state &= ~state;
+        internal void ResetState(bool toDefault = false) => _state = toDefault ? State.Default : 0;
+        internal bool IsState(State state) => (_state & state) != 0;
     }
 }

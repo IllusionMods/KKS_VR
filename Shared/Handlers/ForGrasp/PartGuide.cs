@@ -110,7 +110,6 @@ namespace KK_VR.Handlers
         /// </summary>
         internal void Sleep(bool instant)
         {
-            BodyPart.state = Grasp.GraspController.State.Active;
             _hand = null;
             _follow = false;
             _attach = false;
@@ -122,7 +121,8 @@ namespace KK_VR.Handlers
             }
             else
             {
-                BodyPart.state = Grasp.GraspController.State.Translation;
+                BodyPart.ResetState();
+                BodyPart.AddState(Grasp.GraspController.State.Translation);
                 _translate = new(_anchor, null, Disable);
             }
             BodyPart.visual.Hide();
@@ -140,7 +140,7 @@ namespace KK_VR.Handlers
             {
                 BodyPart.chain.bendConstraint.weight = 1f;
             }
-            BodyPart.state = Grasp.GraspController.State.Default;
+            BodyPart.ResetState(toDefault: true);
             _anchor.gameObject.SetActive(BodyPart.GetDefaultState());
         }
 
