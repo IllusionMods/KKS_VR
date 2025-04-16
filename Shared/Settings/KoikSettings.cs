@@ -95,6 +95,8 @@ namespace KK_VR.Settings
         public static ConfigEntry<float> FlightSpeed { get; private set; }
         public static ConfigEntry<int> PovDeviationThreshold { get; private set; }
         public static ConfigEntry<bool> PovAutoEnter { get; private set; }
+        public static ConfigEntry<bool> PovNoRotation { get; private set; }
+
 
         #endregion
 
@@ -316,21 +318,23 @@ namespace KK_VR.Settings
                 new ConfigDescription(
                     "The range of targets for impersonations.",
                     null,
-                    new ConfigurationManagerAttributes { Order = 10 }
+                    new ConfigurationManagerAttributes { Order = 100 }
                     ));
 
 
-            HideHeadInPov = config.Bind(SectionPov, "Hide head", true,
-                "Hide the corresponding head when the camera is in it. " +
-                "Can be used in combination with camera offset to have simultaneously visible head and PoV mode.(~0.11 Z-offset for that)");
-
-
-            // No second mode after rework yet.
-            FlyInPov = config.Bind(SectionPov, "Smooth transition", PovMovementType.Upright,
+            PovAutoEnter = config.Bind(SectionPov, "Auto impersonation", true,
                 new ConfigDescription(
-                    "Apply camera's movements smoothly during impersonation.",
+                    "Automatically impersonate on position change if appropriate according to the setting.",
                     null,
-                    new ConfigurationManagerAttributes { Order = 9 }
+                    new ConfigurationManagerAttributes { Order = 90 }
+                    ));
+
+
+            PovNoRotation = config.Bind(SectionPov, "No rotation", false,
+                new ConfigDescription(
+                    "Disable rotation adjustment.",
+                    null,
+                    new ConfigurationManagerAttributes { Order = 80 }
                     ));
 
 
@@ -339,14 +343,36 @@ namespace KK_VR.Settings
                     "Introduces lazy impersonation when above 0. " +
                     "Follows camera in less invasive way for as long as the angle deviation is within limit.\n" +
                     "Changes take place after new impersonation.",
-                    new AcceptableValueRange<int>(0, 60)
+                    new AcceptableValueRange<int>(0, 60),
+                    new ConfigurationManagerAttributes { Order = 70 }
+                    ));
+
+
+            // No second mode after rework yet.
+            FlyInPov = config.Bind(SectionPov, "Smooth transition", PovMovementType.Upright,
+                new ConfigDescription(
+                    "Apply camera's movements smoothly during impersonation.",
+                    null,
+                    new ConfigurationManagerAttributes { Order = 60 }
                     ));
 
 
             FlightSpeed = config.Bind(SectionPov, "Transition speed", 1f,
                 new ConfigDescription(
                     "Speed of the smooth transition.",
-                    new AcceptableValueRange<float>(0.1f, 3f)));
+                    new AcceptableValueRange<float>(0.1f, 3f),
+                    new ConfigurationManagerAttributes { Order = 50 }
+                    ));
+
+
+            HideHeadInPov = config.Bind(SectionPov, "Hide head", true,
+                new ConfigDescription(
+                    "Hide the corresponding head when the camera is in it. " +
+                    "Can be used in combination with camera offset to have simultaneously visible head and PoV mode.(~0.11 Z-offset for that)",
+                    null,
+                    new ConfigurationManagerAttributes { Order = 40 }
+                    ));
+
 
             // Didn't meet the expectations.
             //var directImpersonation = config.Bind(SectionPov, "DirectImpersonation", false, "");
@@ -354,12 +380,8 @@ namespace KK_VR.Settings
 
 
 
-            PovAutoEnter = config.Bind(SectionPov, "Auto impersonation", true,
-                "Automatically impersonate on position change if appropriate according to the setting.");
-
-
             #endregion
-            
+
             #region SectionIK
 
 

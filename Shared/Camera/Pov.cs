@@ -143,10 +143,12 @@ namespace KK_VR.Features
             _rotDeviationHalf = (int)(_rotDeviationThreshold * 0.4f);
             _offsetVecEyes = new Vector3(0f, KoikSettings.PositionOffsetY.Value, KoikSettings.PositionOffsetZ.Value);
         }
+
         private void SetVisibility(ChaControl chara)
         {
             if (chara != null) chara.fileStatus.visibleHeadAlways = true;
         }
+
         private void MoveToPos()
         {
             var origin = VR.Camera.Origin;
@@ -240,6 +242,24 @@ namespace KK_VR.Features
                 }
             }
         }
+
+        private void MoveToPosNoRot()
+        {
+            if (IsClimax) return;
+
+            if (_newAttachPoint)
+            {
+                VR.Camera.Origin.position += _targetEyes.position + _offsetVecNewAttach - VR.Camera.Head.position;
+                
+            }
+            else
+            {
+                var pos = GetEyesPosition;
+                VR.Camera.Origin.position += pos - _prevFramePos;
+                _prevFramePos = pos;
+            }
+        }
+
         public void StartPov()
         {
             _active = true;
@@ -270,13 +290,23 @@ namespace KK_VR.Features
         }
         public void CameraIsNear()
         {
+            // Switch to following.
             _mode = Mode.Follow;
+
+            // Update setting for adaptive rotation.
             _sync = false;
             _syncTimestamp = 0f;
             _rotationRequired = true;
             _smoothDamp = new SmoothDamp();
+
+            // Update position for no rotation mode.
+            _prevFramePos = VR.Camera.Head.position;
+
+            // Hide previous target
             SetVisibility(_prevTarget);
             _prevTarget = null;
+
+            // Hook for SensibleH, as it does something with this.
             if (_target.sex == 1)
             {
                 GirlPoV = true;
@@ -285,6 +315,8 @@ namespace KK_VR.Features
             {
                 GirlPoV = false;
             }
+
+            // Invoke delegates.
             Impersonation?.Invoke(true, _target);
         }
 
@@ -292,18 +324,25 @@ namespace KK_VR.Features
         {
             if (KoikSettings.FlyInPov.Value == KoikSettings.PovMovementType.Disabled)
             {
+                // Teleport camera to the head, as 'follow' method uses delta vector between frames.
+                VR.Camera.Origin.position += GetEyesPosition - VR.Camera.Head.position;
+
                 _newAttachPoint = false;
                 CameraIsNear();
             }
             else
             {
                 // Only one mode is currently operational.
+
+                var targetRot = KoikSettings.PovNoRotation.Value ? Quaternion.Euler(0f, _targetEyes.eulerAngles.y, 0f) : _targetEyes.rotation;
+
                 _trip = new OneWayTrip(Mathf.Min(
                     KoikSettings.FlightSpeed.Value * speed / Vector3.Distance(VR.Camera.Head.position, GetEyesPosition),
-                    KoikSettings.FlightSpeed.Value * 60f / Quaternion.Angle(VR.Camera.Origin.rotation, _targetEyes.rotation)),
-                    _targetEyes.rotation);
+                    KoikSettings.FlightSpeed.Value * 60f / Quaternion.Angle(VR.Camera.Origin.rotation, targetRot)),
+                    targetRot);
             }
         }
+
         private void MoveToHeadEx()
         {
             if (_trip == null)
@@ -532,7 +571,14 @@ namespace KK_VR.Features
                             HandleDisable();
                             break;
                         case Mode.Follow:
-                            MoveToPos();
+                            if (KoikSettings.PovNoRotation.Value)
+                            {
+                                MoveToPosNoRot();
+                            }
+                            else
+                            {
+                                MoveToPos();
+                            }
                             break;
                         case Mode.Move:
                             MoveToHeadEx();
