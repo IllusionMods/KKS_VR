@@ -1,6 +1,7 @@
 ﻿using KK_VR.Holders;
 using KK_VR.Settings;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using static KK_VR.Grasp.GraspController;
 using BodyPart = KK_VR.Grasp.BodyPart;
@@ -131,26 +132,82 @@ namespace KK_VR.Handlers
         }
         internal override void Attach(Transform target)
         {
-            if (target.name.StartsWith("hand", StringComparison.Ordinal))
+            if (target == null) return;
+
+            if (_hand != null && target.name.StartsWith("hand", StringComparison.Ordinal))
             {
+                // Signifies that attachment point is the controller (hand representing it).
                 _hand.OnBecomingParent();
             }
+
+            if (_bodyPart.chain != null)
+            {
+                _bodyPart.chain.bendConstraint.weight = _bodyPart.goal.IsBusy ? 1f : KoikSettings.IKDefaultBendConstraint.Value;
+            }
+
             _hand = null;
+            _bodyPart.visual.Hide();
+
+            AttachInternal(target);
+        }
+        
+        private void AttachInternal(Transform target)
+        {
             if (_bodyPart.IsHand)
             {
                 _translateEx = true;
                 _translateExOffset = _anchor.position - _bodyPart.afterIK.position;
             }
+
             _follow = true;
             _attach = true;
+
             _target = target;
-            _bodyPart.visual.Hide();
+
             _bodyPart.RemoveState(State.Grasped);
             _bodyPart.AddState(State.Attached);
 
-
             _offsetRot = Quaternion.Inverse(_target.rotation) * _anchor.rotation;
             _offsetPos = _target.InverseTransformPoint(_anchor.position);
+        }
+
+        /// <summary>
+        /// On animator's state change we attempt to attach hands so that they stay attach (if animation implied that they were) when modified through IK.
+        /// </summary>
+        internal override void AutoAttach(List<Tracker.Body> blackList, ChaControl chara)
+        {
+            // Look for extra colliders that don't actually collide, as often hands placed too far.
+            FindExtraColliders(_anchor.position, 0.05f);
+
+            if (IsBusy)
+            {
+                // Remove particular body parts (specified in helper class) from tracker to avoid the clang.
+                // Don't attach male to himself.
+                UpdateTrackerNoBlacks(blackList, tryToAvoid: chara, skipChara: chara.sex == 0);
+
+                // If somethings is still left in the tracker, attach to it.
+                if (!InBlack)
+                {
+                    // We want default bend constraint here 100%.
+                    if (_bodyPart.chain != null)
+                    {
+                        _bodyPart.chain.bendConstraint.weight = 1f;
+                    }
+
+                    AttachInternal(GetTrackTransform);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void FindExtraColliders(Vector3 center, float radius)
+        {
+            foreach (var collider in Physics.OverlapSphere(center, radius))
+            {
+                Tracker.AddCollider(collider);
+            }
         }
 
         internal void OnSyncStart()

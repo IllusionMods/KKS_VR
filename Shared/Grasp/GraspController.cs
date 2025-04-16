@@ -313,7 +313,7 @@ namespace KK_VR.Grasp
                 {
                     foreach (var bodyPart in bodyPartsLimbs)
                     {
-                        AttachBodyPart(bodyPart, bodyPart.guide.GetTrackTransform, bodyPart.guide.GetChara);
+                        bodyPart.guide.Attach(bodyPart.guide.GetTrackTransform);
                     }
                     ReleaseBodyParts(heldBodyParts);
                     StopGrasp();
@@ -331,7 +331,7 @@ namespace KK_VR.Grasp
                 {
                     foreach (var bodyPart in bodyParts)
                     {
-                        AttachBodyPart(bodyPart, bodyPart.guide.GetTrackTransform, bodyPart.guide.GetChara);
+                        bodyPart.guide.Attach(bodyPart.guide.GetTrackTransform);
                     }
                     ReleaseBodyParts(bodyParts);
                     StopGrasp();
@@ -701,19 +701,6 @@ namespace KK_VR.Grasp
             }
             bodyPart.chain.bendConstraint.weight = KoikSettings.IKDefaultBendConstraint.Value;
             bodyPart.goal.Sleep();
-        }
-
-        // We attach bodyPart to a static object or to ik driven chara.
-        // Later has 4 different states during single frame, so we can't parent but follow manually instead.
-        private void AttachBodyPart(BodyPart bodyPart, Transform attachPoint, ChaControl chara)
-        {
-            if (bodyPart.chain != null)
-            {
-                bodyPart.chain.bendConstraint.weight = bodyPart.goal.IsBusy ? 1f : KoikSettings.IKDefaultBendConstraint.Value;
-            }
-            bodyPart.guide.Attach(attachPoint);
-            
-            //_hand.Handler.RemoveGuideObjects();
         }
 
         private void GraspBodyPart(BodyPart bodyPart, Transform attachPoint)

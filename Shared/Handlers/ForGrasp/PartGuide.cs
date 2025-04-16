@@ -1,5 +1,6 @@
 ﻿using KK_VR.Holders;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using VRGIN.Helpers;
 using BodyPart = KK_VR.Grasp.BodyPart;
@@ -159,7 +160,7 @@ namespace KK_VR.Handlers
         //    }
         //}
 
-
+        internal abstract void AutoAttach(List<Tracker.Body> blackList, ChaControl chara);
 
         protected override void OnTriggerEnter(Collider other)
         {

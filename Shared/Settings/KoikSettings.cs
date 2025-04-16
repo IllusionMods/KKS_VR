@@ -294,7 +294,7 @@ namespace KK_VR.Settings
 
 
             // This one can be a bit annoying currently as characters can overreact if unintentionally bullied by the controller in pov mode during animations.
-            AutomaticTouching = config.Bind(SectionH, "Automatic touching",Genders.Both,
+            AutomaticTouching = config.Bind(SectionH, "Automatic touching",Genders.Girls,
                 "Touching body with controller triggers a reaction"
                 );
 

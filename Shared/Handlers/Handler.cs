@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace KK_VR.Handlers
 {
@@ -48,6 +49,13 @@ namespace KK_VR.Handlers
         internal void UpdateTrackerNoBlacks()
         {
             Tracker.SetSuggestedInfoNoBlacks();
+        }
+        /// <summary>
+        /// Option to use provided blackList instead of setup blackDic
+        /// </summary>
+        protected void UpdateTrackerNoBlacks(List<Tracker.Body> blackList, ChaControl tryToAvoid = null, bool skipChara = false)
+        {
+            Tracker.SetSuggestedInfoNoBlacks(blackList, tryToAvoid, skipChara);
         }
         /// <summary>
         /// Pick the most interesting bodyPart from the current track.

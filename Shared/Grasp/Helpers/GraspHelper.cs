@@ -29,8 +29,19 @@ namespace KK_VR.Grasp
         //private readonly List<OffsetPlay> _transitionList = [];
         private readonly Dictionary<ChaControl, string> _animChangeDic = [];
         private static Dictionary<ChaControl, List<BodyPart>> _bodyPartsDic;
-        private static Dictionary<ChaControl, IKStuff> _auxDic = [];
+        private static readonly Dictionary<ChaControl, IKStuff> _auxDic = [];
         private readonly List<HandScroll> _handScrollList = [];
+        private readonly List<Tracker.Body> _autoAttachBlackList = 
+            [ 
+            Tracker.Body.HandL, 
+            Tracker.Body.HandR, 
+            Tracker.Body.ArmL,
+            Tracker.Body.ArmR,
+            Tracker.Body.ForearmL,
+            Tracker.Body.ForearmR,
+            Tracker.Body.MuneL, 
+            Tracker.Body.MuneR
+            ];
         internal BaseHold baseHold;
 
         private class IKStuff
@@ -341,8 +352,7 @@ namespace KK_VR.Grasp
                         }
                     }
                 }
-    
-                    _auxDic[chara].oldFbik.enabled = false;
+                _auxDic[chara].oldFbik.enabled = false;
                 AnimLoaderHelper.FixExtraAnim(chara, _bodyPartsDic[chara]);
             }
         }
@@ -463,6 +473,7 @@ namespace KK_VR.Grasp
             _animChangeDic.Remove(chara);
             _animChange = _animChangeDic.Count != 0;
         }
+
         internal void FindAttachmentPoints()
         {
             foreach (var entry in _bodyPartsDic)
@@ -474,24 +485,15 @@ namespace KK_VR.Grasp
             }
         }
 
+
+        
         private void FindAttachmentPoint(BodyPart bodyPart, ChaControl chara)
         {
             if (!KoikSettings.IKAutoHandAttachment.Value) return;
 #if DEBUG
-            VRPlugin.Logger.LogDebug($"FindAttachmentPoint:{chara}:{bodyPart.name}");
+            VRPlugin.Logger.LogDebug($"FindAttachmentPoint:{chara}:{bodyPart.name}:guideBusy = {bodyPart.guide.IsBusy}");
 #endif
-            var colliders = Physics.OverlapSphere(bodyPart.origTarget.position, 0.05f);
-            foreach (var collider in colliders)
-            {
-                if (Tracker.IsColliderPresent(collider, out var targetChara) && targetChara != chara)
-                {
-                    bodyPart.guide.Attach(collider.transform);
-#if DEBUG
-                    VRPlugin.Logger.LogDebug($"*Found:{collider.name}, dist = {Vector3.Distance(bodyPart.origTarget.position, collider.transform.position)}");
-#endif
-                    break;
-                }
-            }
+            bodyPart.guide.AutoAttach(_autoAttachBlackList, chara);
         }
 
         internal void ScrollHand(PartName partName, ChaControl chara, bool increase)

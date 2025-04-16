@@ -7,6 +7,7 @@ using System.Linq;
 using UniRx;
 using UnityEngine;
 using static HandCtrl;
+using static KK_VR.Handlers.Tracker;
 
 namespace KK_VR.Handlers
 {
@@ -134,7 +135,7 @@ namespace KK_VR.Handlers
                 //}
                 infoList = infoList
                     .Where(info => !_blacklistDic.ContainsKey(info.chara) || (!_blacklistDic[info.chara].Contains(Body.None) && !_blacklistDic[info.chara].Contains(info.behavior.part)));
-                if (infoList.Count() == 0)
+                if (!infoList.Any())
                 {
                     colliderInfo = null;
                     return;
@@ -143,6 +144,47 @@ namespace KK_VR.Handlers
             colliderInfo = infoList
                 .OrderBy(info => info.behavior.part)
                 .First();
+        }
+        internal void SetSuggestedInfoNoBlacks(List<Tracker.Body> blackList, ChaControl tryToAvoid = null, bool skipChara = false)
+        {
+            var infoList = GetCollidersInfo();
+
+            if (blackList.Count != 0)
+            {
+                // Don't look at all for particular character if skipChara = true.
+                if (skipChara && tryToAvoid != null)
+                {
+                    infoList = infoList
+                        .Where(info => info.chara != tryToAvoid && !blackList.Contains(info.behavior.part));
+                }
+                // Look for colliders of bodyParts that aren't present in blackList.
+                else
+                {
+                    infoList = infoList
+                        .Where(info => !blackList.Contains(info.behavior.part));
+                }
+            }
+
+            if (infoList.Any())
+            {
+                if (tryToAvoid != null && skipChara == false)
+                {
+                    colliderInfo = infoList
+                        .OrderBy(info => info.chara == tryToAvoid)
+                        .ThenBy(info => info.behavior.part)
+                        .First();
+                }
+                else
+                {
+                    colliderInfo = infoList
+                        .OrderBy(info => info.behavior.part)
+                        .First();
+                }
+            }
+            else
+            {
+                colliderInfo = null;
+            }
         }
 
         /// <summary>

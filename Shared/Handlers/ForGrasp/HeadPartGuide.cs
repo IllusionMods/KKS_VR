@@ -3,6 +3,7 @@ using static KK_VR.Grasp.GraspController;
 using KK_VR.Holders;
 using KK_VR.Grasp;
 using KK_VR.Settings;
+using System.Collections.Generic;
 
 namespace KK_VR.Handlers
 {
@@ -79,6 +80,10 @@ namespace KK_VR.Handlers
             {
                 _bodyPart.headEffector.enabled = false;
             }
+        }
+        internal override void AutoAttach(List<Tracker.Body> blackList, ChaControl chara)
+        {
+            throw new System.NotImplementedException();
         }
 
         private void Update()
