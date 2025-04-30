@@ -62,8 +62,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Libs\KK_FinalIK.dll</HintPath>
     </Reference>
-    <Reference Include="Obi">
-      <HintPath>..\Libs\Obi.dll</HintPath>
+    <Reference Include="Obi, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\IllusionLibs.KoikatsuSunshine.Obi.2021.9.17\lib\net46\Obi.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Sirenix.Serialization, Version=2.1.13.0, Culture=neutral, processorArchitecture=MSIL">
@@ -158,8 +158,9 @@
       <HintPath>..\packages\IllusionLibs.KoikatsuSunshine.UnityEngine.UIModule.2019.4.9\lib\net46\UnityEngine.UIModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="UnityEngine.UnityWebRequestAudioModule">
-      <HintPath>..\Libs\UnityEngine.UnityWebRequestAudioModule.dll</HintPath>
+    <Reference Include="UnityEngine.UnityWebRequestAudioModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\IllusionLibs.KoikatsuSunshine.UnityEngine.UnityWebRequestAudioModule.2019.4.9\lib\net46\UnityEngine.UnityWebRequestAudioModule.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UnityWebRequestModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\IllusionLibs.KoikatsuSunshine.UnityEngine.UnityWebRequestModule.2019.4.9\lib\net46\UnityEngine.UnityWebRequestModule.dll</HintPath>
@@ -293,6 +294,8 @@
     <Error Condition="!Exists('..\packages\IllusionLibs.KoikatsuSunshine.Unity.ResourceManager.2019.4.9\build\IllusionLibs.KoikatsuSunshine.Unity.ResourceManager.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\IllusionLibs.KoikatsuSunshine.Unity.ResourceManager.2019.4.9\build\IllusionLibs.KoikatsuSunshine.Unity.ResourceManager.targets'))" />
     <Error Condition="!Exists('..\packages\IllusionLibs.KoikatsuSunshine.UnityEngine.AssetBundleModule.2019.4.9\build\IllusionLibs.KoikatsuSunshine.UnityEngine.AssetBundleModule.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\IllusionLibs.KoikatsuSunshine.UnityEngine.AssetBundleModule.2019.4.9\build\IllusionLibs.KoikatsuSunshine.UnityEngine.AssetBundleModule.targets'))" />
     <Error Condition="!Exists('..\packages\Microsoft.NETFramework.ReferenceAssemblies.net472.1.0.3\build\Microsoft.NETFramework.ReferenceAssemblies.net472.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.NETFramework.ReferenceAssemblies.net472.1.0.3\build\Microsoft.NETFramework.ReferenceAssemblies.net472.targets'))" />
+    <Error Condition="!Exists('..\packages\IllusionLibs.KoikatsuSunshine.Obi.2021.9.17\build\IllusionLibs.KoikatsuSunshine.Obi.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\IllusionLibs.KoikatsuSunshine.Obi.2021.9.17\build\IllusionLibs.KoikatsuSunshine.Obi.targets'))" />
+    <Error Condition="!Exists('..\packages\IllusionLibs.KoikatsuSunshine.UnityEngine.UnityWebRequestAudioModule.2019.4.9\build\IllusionLibs.KoikatsuSunshine.UnityEngine.UnityWebRequestAudioModule.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\IllusionLibs.KoikatsuSunshine.UnityEngine.UnityWebRequestAudioModule.2019.4.9\build\IllusionLibs.KoikatsuSunshine.UnityEngine.UnityWebRequestAudioModule.targets'))" />
   </Target>
   <Import Project="..\packages\IllusionLibs.KoikatsuSunshine.Assembly-CSharp-firstpass.2021.9.17\build\IllusionLibs.KoikatsuSunshine.Assembly-CSharp-firstpass.targets" Condition="Exists('..\packages\IllusionLibs.KoikatsuSunshine.Assembly-CSharp-firstpass.2021.9.17\build\IllusionLibs.KoikatsuSunshine.Assembly-CSharp-firstpass.targets')" />
   <Import Project="..\packages\IllusionLibs.KoikatsuSunshine.UniRx.2021.9.17\build\IllusionLibs.KoikatsuSunshine.UniRx.targets" Condition="Exists('..\packages\IllusionLibs.KoikatsuSunshine.UniRx.2021.9.17\build\IllusionLibs.KoikatsuSunshine.UniRx.targets')" />
@@ -311,4 +314,6 @@
   <Import Project="..\packages\IllusionLibs.KoikatsuSunshine.Unity.ResourceManager.2019.4.9\build\IllusionLibs.KoikatsuSunshine.Unity.ResourceManager.targets" Condition="Exists('..\packages\IllusionLibs.KoikatsuSunshine.Unity.ResourceManager.2019.4.9\build\IllusionLibs.KoikatsuSunshine.Unity.ResourceManager.targets')" />
   <Import Project="..\packages\IllusionLibs.KoikatsuSunshine.UnityEngine.AssetBundleModule.2019.4.9\build\IllusionLibs.KoikatsuSunshine.UnityEngine.AssetBundleModule.targets" Condition="Exists('..\packages\IllusionLibs.KoikatsuSunshine.UnityEngine.AssetBundleModule.2019.4.9\build\IllusionLibs.KoikatsuSunshine.UnityEngine.AssetBundleModule.targets')" />
   <Import Project="..\packages\Microsoft.NETFramework.ReferenceAssemblies.net472.1.0.3\build\Microsoft.NETFramework.ReferenceAssemblies.net472.targets" Condition="Exists('..\packages\Microsoft.NETFramework.ReferenceAssemblies.net472.1.0.3\build\Microsoft.NETFramework.ReferenceAssemblies.net472.targets')" />
+  <Import Project="..\packages\IllusionLibs.KoikatsuSunshine.Obi.2021.9.17\build\IllusionLibs.KoikatsuSunshine.Obi.targets" Condition="Exists('..\packages\IllusionLibs.KoikatsuSunshine.Obi.2021.9.17\build\IllusionLibs.KoikatsuSunshine.Obi.targets')" />
+  <Import Project="..\packages\IllusionLibs.KoikatsuSunshine.UnityEngine.UnityWebRequestAudioModule.2019.4.9\build\IllusionLibs.KoikatsuSunshine.UnityEngine.UnityWebRequestAudioModule.targets" Condition="Exists('..\packages\IllusionLibs.KoikatsuSunshine.UnityEngine.UnityWebRequestAudioModule.2019.4.9\build\IllusionLibs.KoikatsuSunshine.UnityEngine.UnityWebRequestAudioModule.targets')" />
 </Project>
