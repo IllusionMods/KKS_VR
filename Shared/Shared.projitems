@@ -23,7 +23,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Features\CrossFader.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Voice\LoadGameVoice.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Obsolete\OldVRFade.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Camera\PoV.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Camera\Pov.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\PrivacyScreen.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Features\Voice\VoiceBundles.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Holders\VRBoop.cs" />

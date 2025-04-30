@@ -42,3 +42,6 @@ PatcherLoader/Libs
 /PostBuild.bat
 /_ReSharper.Caches
 /.editorconfig
+
+# rider
+.idea/
