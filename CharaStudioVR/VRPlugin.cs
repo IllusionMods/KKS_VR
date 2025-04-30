@@ -9,6 +9,7 @@ using KK_VR.Controls;
 using KK_VR.Fixes;
 using KK_VR.Interpreters;
 using KK_VR.Settings;
+using KK_VR.Util;
 using Unity.XR.OpenVR;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -27,7 +28,7 @@ namespace KK_VR
     {
         public const string GUID = "KKS_CharaStudioVR";
         public const string Name = "KKS Chara Studio VR";
-        public const string Version = Constants.Version;
+        public const string Version = "1.5";
 
         internal static new ManualLogSource Logger;
 

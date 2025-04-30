@@ -208,6 +208,7 @@
     <Compile Include="Controls\IKTool.cs" />
     <Compile Include="Interpreters\KKSCharaStudioActor.cs" />
     <Compile Include="Interpreters\KKSCharaStudioInterpreter.cs" />
+    <Compile Include="Util\BepInExVrLogBackend.cs" />
     <Compile Include="VRPlugin.cs" />
     <Compile Include="Fixes\LoadFixHook.cs" />
     <Compile Include="Util\MaterialHelper.cs" />
@@ -236,7 +237,6 @@
       <Name>VRGIN_OpenXR</Name>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="..\Shared\Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(SolutionDir)\bin\KKS" ContinueOnError="true" />

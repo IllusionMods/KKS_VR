@@ -24,7 +24,7 @@ namespace KK_VR.Features
         public static void Initialize(Controller controller, EyeSide controllerSide)
         {
             // Hooks in here don't get patched by the whole assembly PatchAll since the class has no HarmonyPatch attribute
-            Harmony.CreateAndPatchAll(typeof(VRBoop), typeof(VRBoop).FullName);
+            Harmony.CreateAndPatchAll(typeof(VRBoopStudio), typeof(VRBoopStudio).FullName);
 
             switch (controllerSide)
             {
