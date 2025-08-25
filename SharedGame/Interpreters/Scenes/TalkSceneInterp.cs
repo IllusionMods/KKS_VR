@@ -71,7 +71,7 @@ namespace KK_VR.Interpreters
 #if KK
             if (behaviour != null)
             {
-               //VRPlugin.Logger.LogDebug($"TalkScene:Start:Talk");
+                //VRPlugin.Logger.LogDebug($"TalkScene:Start:Talk");
                 talkScene = (TalkScene)behaviour;
                 _talkSceneStart = true;
             }
@@ -133,7 +133,7 @@ namespace KK_VR.Interpreters
             {
                 KoikGameInterp.EndScene(KoikGameInterp.SceneType.TalkScene);
             }
-            
+
 
 
 
@@ -253,7 +253,7 @@ namespace KK_VR.Interpreters
         }
         public static void HitReactionPlay(AibuColliderKind aibuKind, ChaControl chara)
         {
-           //VRPlugin.Logger.LogDebug($"TalkScene:Reaction:{aibuKind}:{chara}");
+            //VRPlugin.Logger.LogDebug($"TalkScene:Reaction:{aibuKind}:{chara}");
             var ik = chara.objAnim.GetComponent<FullBodyBipedIK>();
             if (_hitReaction.ik != ik)
             {
@@ -363,8 +363,12 @@ namespace KK_VR.Interpreters
             PlacePlayer(headPos, heroine.transform.rotation);
             AddHColliders(charas);
             HitReactionInitialize(charas);
-            GraspController.Init(charas);
-            
+            if (KoikSettings.IKEnable.Value == KoikSettings.IKManipulationState.TalkScene
+                || KoikSettings.IKEnable.Value == KoikSettings.IKManipulationState.Both)
+            {
+                GraspController.Init(charas);
+            }
+
             // KKS has fixed dir light during Talk/ADV by default.
             // Reported that KKS has poor default orientation. 
             RepositionDirLight(chara);
@@ -404,7 +408,7 @@ namespace KK_VR.Interpreters
             headPos.y = floor.y + (eyePos.y - player.position.y) + GameSettings.PositionOffsetY.Value;
 
 
-            VR.Camera.Origin.position +=  headPos - head.position;
+            VR.Camera.Origin.position += headPos - head.position;
             var vec = player.position - eyePos;
             player.position = head.position + vec;
 

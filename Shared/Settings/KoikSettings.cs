@@ -62,6 +62,13 @@ namespace KK_VR.Settings
             Average,
             Auto
         }
+        public enum IKManipulationState
+        {
+            Disable,
+            TalkScene,
+            HScene,
+            Both
+        }
         #region General
 
         public static ConfigEntry<float> RotationAngle { get; private set; }
@@ -122,6 +129,7 @@ namespace KK_VR.Settings
 
         #region IK
 
+        public static ConfigEntry<IKManipulationState> IKEnable { get; private set; }
         public static ConfigEntry<bool> IKMaintainRelativePosition { get; private set; }
         public static ConfigEntry<float> IKPushParent { get; private set; }
 
@@ -296,7 +304,7 @@ namespace KK_VR.Settings
 
 
             // This one can be a bit annoying currently as characters can overreact if unintentionally bullied by the controller in pov mode during animations.
-            AutomaticTouching = config.Bind(SectionH, "Automatic touching",Genders.Girls,
+            AutomaticTouching = config.Bind(SectionH, "Automatic touching", Genders.Girls,
                 "Touching body with controller triggers a reaction"
                 );
 
@@ -384,6 +392,12 @@ namespace KK_VR.Settings
 
             #region SectionIK
 
+            IKEnable = config.Bind(SectionIK, "Enable", IKManipulationState.HScene,
+                new ConfigDescription(
+                    "Choose which scene has active ik manipulation.",
+                    null,
+                    new ConfigurationManagerAttributes { Order = 100 }
+                    ));
 
             IKShowGuideObjects = config.Bind(SectionIK, "Visual cue", false,
                 new ConfigDescription(

@@ -74,8 +74,8 @@ namespace KK_VR.Handlers
             {
                 _familiarity = (0.55f + (0.15f * (int)heroine.HExperience));
                 //*
-                  //  (HSceneInterp.hFlag != null && HSceneInterp.hFlag.isFreeH ?
-                    //1f : (0.5f + heroine.intimacy * 0.005f));
+                //  (HSceneInterp.hFlag != null && HSceneInterp.hFlag.isFreeH ?
+                //1f : (0.5f + heroine.intimacy * 0.005f));
             }
             else
             {
@@ -180,21 +180,23 @@ namespace KK_VR.Handlers
         //    }
         //    SetState();
         //}
-        /// <param name="preferredSex">0 - male, 1 - female, -1 ignore</param>
-        internal Body GetGraspBodyPart(ChaControl tryToAvoidChara = null, int preferredSex = -1)
-        {
-            return GetCollidersInfo()
-                .OrderBy(info => info.chara.sex != preferredSex)
-                .ThenBy(info => info.chara != tryToAvoidChara)
-                .ThenBy(info => info.behavior.part)
-                .First().behavior.part;
-        }
-        internal Body GetGraspBodyPart()
-        {
-            return GetCollidersInfo()
-                .OrderBy(info => info.behavior.part)
-                .First().behavior.part;
-        }
+
+        //Simplified and moved to Tracker.cs
+        ///// <param name="preferredSex">0 - male, 1 - female, -1 ignore</param>
+        //internal Body GetGraspBodyPart(ChaControl tryToAvoidChara = null, int preferredSex = -1)
+        //{
+        //    return GetCollidersInfo()
+        //        .OrderBy(info => info.chara.sex != preferredSex)
+        //        .ThenBy(info => info.chara != tryToAvoidChara)
+        //        .ThenBy(info => info.behavior.part)
+        //        .First().behavior.part;
+        //}
+        //internal Body GetGraspBodyPart()
+        //{
+        //    return GetCollidersInfo()
+        //        .OrderBy(info => info.behavior.part)
+        //        .First().behavior.part;
+        //}
 
     }
 }

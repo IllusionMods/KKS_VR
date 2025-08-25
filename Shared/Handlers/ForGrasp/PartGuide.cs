@@ -49,6 +49,20 @@ namespace KK_VR.Handlers
             }
         }
 
+        // Body parts we don't want auto attach to.
+        protected readonly List<Tracker.Body> _autoAttachBlackList =
+            [
+            Tracker.Body.HandL,
+            Tracker.Body.HandR,
+            Tracker.Body.ArmL,
+            Tracker.Body.ArmR,
+            Tracker.Body.ForearmL,
+            Tracker.Body.ForearmR,
+            Tracker.Body.MuneL,
+            Tracker.Body.MuneR,
+            Tracker.Body.Head
+            ];
+
         protected HandHolder _hand;
         protected virtual BodyPart BodyPart { get; set; }
 
@@ -132,7 +146,7 @@ namespace KK_VR.Handlers
             if (BodyPart.goal != null)
             {
                 BodyPart.goal.Sleep(instant);
-            }    
+            }
         }
         protected virtual void Disable()
         {
@@ -160,7 +174,10 @@ namespace KK_VR.Handlers
         //    }
         //}
 
-        internal abstract void AutoAttach(List<Tracker.Body> blackList, ChaControl chara);
+        internal virtual void AutoAttach(ChaControl chara)
+        {
+
+        }
 
         protected override void OnTriggerEnter(Collider other)
         {

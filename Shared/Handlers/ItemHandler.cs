@@ -148,10 +148,12 @@ namespace KK_VR.Handlers
                 }
             }
         }
-
-        internal Tracker.Body GetTrackPartName(ChaControl tryToAvoidChara = null, int preferredSex = -1)
+        internal Tracker.Body GetTrackPartName()
+        //internal Tracker.Body GetTrackPartName(ChaControl tryToAvoidChara = null, int preferredSex = -1)
         {
-            return tryToAvoidChara == null && preferredSex == -1 ? _tracker.GetGraspBodyPart() : _tracker.GetGraspBodyPart(tryToAvoidChara, preferredSex);
+            // Should be fine without extra sorting and such as the caller usually does it with 'UpdateTracker()'
+            //return tryToAvoidChara == null && preferredSex == -1 ? _tracker.GetTrackedBodyPart() : _tracker.GetTrackedBodyPart(tryToAvoidChara, preferredSex);
+            return _tracker.GetTrackedBodyPart();
         }
         internal void RemoveCollider(Collider other)
         {
