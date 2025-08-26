@@ -122,7 +122,7 @@ namespace KK_VR.Interpreters
             SceneExtras.EnableDynamicBones(distinctCharas);
             SceneExtras.AddTalkColliders(distinctCharas);
             SceneExtras.AddHColliders(distinctCharas);
-            if ((KoikSettings.IKEnable.Value & KoikSettings.IKManipulationState.HScene) != 0)
+            if ((KoikSettings.IKEnable.Value & KoikSettings.IKManipulationState.HScene) != 0 && hFlag != null && hFlag.mode != EMode.masturbation && hFlag.mode != EMode.peeping)
             {
                 GraspController.Init(distinctCharas);
             }
