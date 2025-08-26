@@ -394,7 +394,7 @@ namespace KK_VR.Settings
 
             IKEnable = config.Bind(SectionIK, "Enable", IKManipulationState.HScene,
                 new ConfigDescription(
-                    "Choose which scene has active ik manipulation.",
+                    "Choose which scene has active IK manipulation.",
                     null,
                     new ConfigurationManagerAttributes { Order = 100 }
                     ));
