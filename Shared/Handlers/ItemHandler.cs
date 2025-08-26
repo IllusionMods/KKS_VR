@@ -125,13 +125,12 @@ namespace KK_VR.Handlers
         protected bool IsReactionEligible(ChaControl chara)
         {
             var config = KoikSettings.AutomaticTouching.Value;
-            if (config == KoikSettings.Genders.Disable
-                || (config == KoikSettings.Genders.Boys && chara.sex == 1)
-                || (config == KoikSettings.Genders.Girls && chara.sex == 0))
+            if ((chara.sex == 0 && (config & KoikSettings.Genders.Boys) != 0)
+                || (chara.sex == 1 && (config & KoikSettings.Genders.Girls) != 0))
             {
-                return false;
+                return true;
             }
-            return true;
+            return false;
         }
         protected override void OnTriggerExit(Collider other)
         {

@@ -42,12 +42,12 @@ namespace KK_VR.Settings
             OnDemand,
             Always
         }
+        [Flags]
         public enum Genders
         {
-            Disable,
-            Boys,
-            Girls,
-            Both
+            Disable = 0,
+            Boys = 1,
+            Girls = 2,
         }
         public enum GripMoveStabilization
         {
@@ -62,12 +62,12 @@ namespace KK_VR.Settings
             Average,
             Auto
         }
+        [Flags]
         public enum IKManipulationState
         {
-            Disable,
-            TalkScene,
-            HScene,
-            Both
+            Disable = 0,
+            TalkScene = 1,
+            HScene = 2,
         }
         #region General
 

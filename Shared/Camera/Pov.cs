@@ -392,9 +392,11 @@ namespace KK_VR.Features
         private void NextChara(bool keepChara = false)
         {
             // As some may add extra characters with kPlug, we look them all up.
+
             var charas = FindObjectsOfType<ChaControl>()
                     .Where(c => c.objTop.activeSelf && c.visibleAll
-                    && c.sex != (KoikSettings.Pov.Value == KoikSettings.Genders.Girls ? 0 : KoikSettings.Pov.Value == KoikSettings.Genders.Boys ? 1 : 2))
+                    // Genders to avoid, boys(0), girls(1), none(2).
+                    && c.sex != ((KoikSettings.Pov.Value & KoikSettings.Genders.Girls) != 0 ? (KoikSettings.Pov.Value & KoikSettings.Genders.Boys) != 0 ? 2 : 0 : 1))
                     .ToList();
 
             if (charas.Count == 0)
@@ -645,7 +647,7 @@ namespace KK_VR.Features
 
         internal void TryEnable()
         {
-            if (KoikSettings.Pov.Value != KoikSettings.Genders.Disable)
+            if ((KoikSettings.Pov.Value & KoikSettings.Genders.Boys) != 0 || (KoikSettings.Pov.Value & KoikSettings.Genders.Girls) != 0)
             {
                 if (_newAttachPoint)
                 {

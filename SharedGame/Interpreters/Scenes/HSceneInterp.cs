@@ -122,8 +122,7 @@ namespace KK_VR.Interpreters
             SceneExtras.EnableDynamicBones(distinctCharas);
             SceneExtras.AddTalkColliders(distinctCharas);
             SceneExtras.AddHColliders(distinctCharas);
-            if (KoikSettings.IKEnable.Value == KoikSettings.IKManipulationState.HScene
-                || KoikSettings.IKEnable.Value == KoikSettings.IKManipulationState.Both)
+            if ((KoikSettings.IKEnable.Value & KoikSettings.IKManipulationState.HScene) != 0)
             {
                 GraspController.Init(distinctCharas);
             }

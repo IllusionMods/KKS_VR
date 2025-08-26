@@ -363,8 +363,9 @@ namespace KK_VR.Interpreters
             PlacePlayer(headPos, heroine.transform.rotation);
             AddHColliders(charas);
             HitReactionInitialize(charas);
-            if (KoikSettings.IKEnable.Value == KoikSettings.IKManipulationState.TalkScene
-                || KoikSettings.IKEnable.Value == KoikSettings.IKManipulationState.Both)
+
+            // NetFramework 3.5 doesn't have HasFlag() method, flag enums are still neatly represented in BepInEx though.
+            if ((KoikSettings.IKEnable.Value & KoikSettings.IKManipulationState.TalkScene) != 0)
             {
                 GraspController.Init(charas);
             }
