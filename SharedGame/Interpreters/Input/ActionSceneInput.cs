@@ -31,7 +31,7 @@ namespace KK_VR.Interpreters
             {
                 _eyes = actionScene.Player.chaCtrl.objHeadBone.transform.Find("cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/cf_J_FaceUp_tz/cf_J_Eye_tz");
             }
-            return _eyes.TransformPoint(0f, GameSettings.PositionOffsetY.Value, GameSettings.PositionOffsetZ.Value);
+            return _eyes.TransformPoint(GameSettings.PositionOffset.Value);
         }
 
         enum Pressed

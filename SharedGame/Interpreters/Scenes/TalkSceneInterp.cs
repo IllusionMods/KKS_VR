@@ -64,7 +64,7 @@ namespace KK_VR.Interpreters
             {
                 _eyes = GetPlayer().chaCtrl.objHeadBone.transform.Find("cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/cf_J_FaceUp_tz/cf_J_Eye_tz");
             }
-            return _eyes.TransformPoint(0f, GameSettings.PositionOffsetY.Value, GameSettings.PositionOffsetZ.Value);
+            return _eyes.TransformPoint(GameSettings.PositionOffset.Value);
         }
         public TalkSceneInterp(MonoBehaviour behaviour)
         {
@@ -401,7 +401,7 @@ namespace KK_VR.Interpreters
             player.rotation = rotation * Quaternion.Euler(0f, 180f, 0f);
             var eyePos = GetEyesPosition();
             var headPos = head.position;
-            headPos.y = floor.y + (eyePos.y - player.position.y) + GameSettings.PositionOffsetY.Value;
+            headPos.y = floor.y + (eyePos.y - player.position.y) + GameSettings.PositionOffset.Value.y;
 
 
             VR.Camera.Origin.position +=  headPos - head.position;

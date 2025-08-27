@@ -243,7 +243,7 @@ namespace KK_VR.Camera
 
                 var eyes = chara.objHeadBone.transform
                     .Find("cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/cf_J_FaceUp_tz/cf_J_Eye_tz");
-                var position = eyes.TransformPoint(0f, GameSettings.PositionOffsetY.Value, GameSettings.PositionOffsetZ.Value);
+                var position = eyes.TransformPoint(GameSettings.PositionOffset.Value);
                 MoveTo(position, eyes.rotation);
             }
         }

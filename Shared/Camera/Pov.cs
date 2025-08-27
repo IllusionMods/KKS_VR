@@ -68,6 +68,9 @@ namespace KK_VR.Features
         // cf_J_FaceUp_tz
         private Transform _targetEyes;
 
+        // Can be eyes (cf_J_FaceUp_tz) or neck (cf_j_neck) depending on setting.
+        private Transform _targetBone;
+
         // Assuming position of the head / following the head / disengaging from the head.
         private Mode _mode;
 
@@ -116,7 +119,7 @@ namespace KK_VR.Features
         public event UnityAction<bool> CameraBusy;
         public event UnityAction<bool, ChaControl> Impersonation;
 
-        private Vector3 GetEyesPosition => _targetEyes.TransformPoint(_offsetVecEyes);
+        private Vector3 GetEyesPosition => _targetBone.TransformPoint(_offsetVecEyes);
         private bool IsClimax => HSceneInterp.hFlag.nowAnimStateName.EndsWith("_Loop", System.StringComparison.Ordinal);
 
         internal static PoV Create()
@@ -141,7 +144,22 @@ namespace KK_VR.Features
             _degPerSec = 30f * (KoikSettings.RotationAngle.Value / 45f);
             _rotDeviationThreshold = KoikSettings.PovDeviationThreshold.Value;
             _rotDeviationHalf = (int)(_rotDeviationThreshold * 0.4f);
-            _offsetVecEyes = new Vector3(0f, KoikSettings.PositionOffsetY.Value, KoikSettings.PositionOffsetZ.Value);
+
+
+            if (KoikSettings.PovAttachment.Value == KoikSettings.PovAttachmentBones.Eyes)
+            {
+                _offsetVecEyes = KoikSettings.PositionOffset.Value;
+            }
+            // Neck
+            else
+            {
+                _offsetVecEyes = _targetBone.InverseTransformVector(_targetEyes.TransformPoint(KoikSettings.PositionOffset.Value) - _targetBone.position);
+            }
+        }
+        private void OnDestroy()
+        {
+            SetVisibility(_target);
+            SetVisibility(_prevTarget);
         }
 
         private void SetVisibility(ChaControl chara)
@@ -157,7 +175,7 @@ namespace KK_VR.Features
                 if (!IsClimax)
                 {
                     //origin.rotation = _offsetRotNewAttach;
-                    origin.position += _targetEyes.position + _offsetVecNewAttach - VR.Camera.Head.position;
+                    origin.position += _targetBone.position + _offsetVecNewAttach - VR.Camera.Head.position;
                 }
             }
             else
@@ -173,7 +191,7 @@ namespace KK_VR.Features
                 }
                 else
                 {
-                    var angle = Quaternion.Angle(origin.rotation, _targetEyes.rotation);
+                    var angle = Quaternion.Angle(origin.rotation, _targetBone.rotation);
                     if (!_rotationRequired)
                     {
                         if (angle > _rotDeviationThreshold)
@@ -194,7 +212,7 @@ namespace KK_VR.Features
                             {
                                 if (_syncTimestamp == 0f)
                                 {
-                                    if (Quaternion.Angle(VR.Camera.Head.rotation, _targetEyes.rotation) < 30f)
+                                    if (Quaternion.Angle(VR.Camera.Head.rotation, _targetBone.rotation) < 30f)
                                     {
                                         _syncTimestamp = Time.time + 2f;
                                     }
@@ -203,7 +221,7 @@ namespace KK_VR.Features
                                 {
                                     if (_syncTimestamp < Time.time)
                                     {
-                                        if (Quaternion.Angle(VR.Camera.Head.rotation, _targetEyes.rotation) < 30f)
+                                        if (Quaternion.Angle(VR.Camera.Head.rotation, _targetBone.rotation) < 30f)
                                         {
                                             _sync = true;
                                             _syncTimestamp = 0f;
@@ -224,7 +242,7 @@ namespace KK_VR.Features
                             sDamp = _smoothDamp.Increase();
                         }
                         var moveTowards = Vector3.MoveTowards(VR.Camera.Head.position, GetEyesPosition, 0.05f);
-                        origin.rotation = Quaternion.RotateTowards(origin.rotation, _targetEyes.rotation, Time.deltaTime * _degPerSec * sDamp);
+                        origin.rotation = Quaternion.RotateTowards(origin.rotation, _targetBone.rotation, Time.deltaTime * _degPerSec * sDamp);
                         origin.position += moveTowards - VR.Camera.Head.position;
                         return;
                     }
@@ -249,7 +267,7 @@ namespace KK_VR.Features
 
             if (_newAttachPoint)
             {
-                VR.Camera.Origin.position += _targetEyes.position + _offsetVecNewAttach - VR.Camera.Head.position;
+                VR.Camera.Origin.position += _targetBone.position + _offsetVecNewAttach - VR.Camera.Head.position;
                 
             }
             else
@@ -283,10 +301,6 @@ namespace KK_VR.Features
         {
             CameraIsFar();
             CameraBusy?.Invoke(true);
-            //if (MouthGuide.Instance != null)
-            //{
-            //    MouthGuide.Instance.PauseInteractions = true;
-            //}
         }
         public void CameraIsNear()
         {
@@ -302,19 +316,17 @@ namespace KK_VR.Features
             // Update position for no rotation mode.
             _prevFramePos = VR.Camera.Head.position;
 
-            // Hide previous target
+            // Show previous target
             SetVisibility(_prevTarget);
             _prevTarget = null;
 
+            var isGirl = _target.sex == 1;
             // Hook for SensibleH, as it does something with this.
-            if (_target.sex == 1)
-            {
-                GirlPoV = true;
-            }
-            else
-            {
-                GirlPoV = false;
-            }
+            GirlPoV = isGirl;
+            CameraBusy?.Invoke(isGirl);
+            //MouthGuide.SetBusy(isGirl);
+
+            _forceHideHead = KoikSettings.PovHideHead.Value == KoikSettings.PovHideHeadType.ForceHide;
 
             // Invoke delegates.
             Impersonation?.Invoke(true, _target);
@@ -334,7 +346,7 @@ namespace KK_VR.Features
             {
                 // Only one mode is currently operational.
 
-                var targetRot = KoikSettings.PovNoRotation.Value ? Quaternion.Euler(0f, _targetEyes.eulerAngles.y, 0f) : _targetEyes.rotation;
+                var targetRot = KoikSettings.PovNoRotation.Value ? Quaternion.Euler(0f, _targetBone.eulerAngles.y, 0f) : _targetBone.rotation;
 
                 _trip = new OneWayTrip(Mathf.Min(
                     KoikSettings.FlightSpeed.Value * speed / Vector3.Distance(VR.Camera.Head.position, GetEyesPosition),
@@ -391,6 +403,7 @@ namespace KK_VR.Features
 
         private void NextChara(bool keepChara = false)
         {
+            _forceHideHead = false;
             // As some may add extra characters with kPlug, we look them all up.
             var charas = FindObjectsOfType<ChaControl>()
                     .Where(c => c.objTop.activeSelf && c.visibleAll
@@ -430,6 +443,9 @@ namespace KK_VR.Features
             //    MouthGuide.Instance.OnImpersonation(_target);
             //}
             _targetEyes = _target.objHeadBone.transform.Find("cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/cf_J_FaceUp_tz");
+
+            _targetBone = KoikSettings.PovAttachment.Value == KoikSettings.PovAttachmentBones.Eyes ? _targetEyes : _target.neckLookCtrl.transform;
+
             CameraIsFarAndBusy();
             UpdateSettings();
         }
@@ -438,7 +454,7 @@ namespace KK_VR.Features
         {
             // Most likely a bad idea to kiss/lick when detached from the head but still inheriting all movements.
             CameraIsNear();
-            _offsetVecNewAttach = VR.Camera.Head.position - _targetEyes.position;
+            _offsetVecNewAttach = VR.Camera.Head.position - _targetBone.position;
         }
 
         internal void OnGripMove(bool press)
@@ -446,6 +462,7 @@ namespace KK_VR.Features
             //_gripMove = press;
             if (_active)
             {
+                _forceHideHead = false;
                 if (press)
                 {
                     CameraIsFar();
@@ -465,7 +482,7 @@ namespace KK_VR.Features
                 if (_active && !_newAttachPoint)
                 {
                     _newAttachPoint = true;
-                    Impersonation?.Invoke(false, _target);
+                    //Impersonation?.Invoke(false, _target);
                     //if (IntegrationMaleBreath.IsActive)
                     //{
                     //    IntegrationMaleBreath.OnPov(false, _target);
@@ -486,13 +503,11 @@ namespace KK_VR.Features
             _moveTo = null;
 
             Impersonation?.Invoke(false, _target);
+            CameraBusy?.Invoke(false);
+            //MouthGuide.SetBusy(false);
             //if (IntegrationMaleBreath.IsActive)
             //{
             //    IntegrationMaleBreath.OnPov(false, _target);
-            //}
-            //if (MouthGuide.Instance != null)
-            //{
-            //    MouthGuide.Instance.OnUnImpersonation();
             //}
         }
 
@@ -590,7 +605,7 @@ namespace KK_VR.Features
 
         private void LateUpdate()
         {
-            if (_active && KoikSettings.HideHeadInPov.Value && _target != null)
+            if (_active && _target != null && KoikSettings.PovHideHead.Value != KoikSettings.PovHideHeadType.Show)
             {
                 HideHeadEx(_target);
                 if (_prevTarget != null)

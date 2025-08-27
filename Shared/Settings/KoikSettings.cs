@@ -36,6 +36,12 @@ namespace KK_VR.Settings
             Straight,
             Upright
         }
+        public enum PovHideHeadType
+        {
+            Show,
+            Hide,
+            ForceHide
+        }
         public enum HeadEffector
         {
             Disabled,
@@ -62,13 +68,17 @@ namespace KK_VR.Settings
             Average,
             Auto
         }
+        public enum PovAttachmentBones
+        {
+            Eyes,
+            Neck
+        }
         #region General
 
         public static ConfigEntry<float> RotationAngle { get; private set; }
         public static ConfigEntry<bool> PrivacyScreen { get; private set; }
         public static ConfigEntry<float> NearClipPlane { get; private set; }
-        public static ConfigEntry<float> PositionOffsetY { get; private set; }
-        public static ConfigEntry<float> PositionOffsetZ { get; private set; }
+        public static ConfigEntry<Vector3> PositionOffset { get; private set; }
         public static ConfigEntry<Handedness> MainHand { get; private set; }
         public static ConfigEntry<bool> EnableBoop { get; private set; }
         public static ConfigEntry<float> ShortPress { get; private set; }
@@ -91,11 +101,12 @@ namespace KK_VR.Settings
 
         public static ConfigEntry<Genders> Pov { get; private set; }
         public static ConfigEntry<PovMovementType> FlyInPov { get; private set; }
-        public static ConfigEntry<bool> HideHeadInPov { get; private set; }
+        public static ConfigEntry<PovHideHeadType> PovHideHead { get; private set; }
         public static ConfigEntry<float> FlightSpeed { get; private set; }
         public static ConfigEntry<int> PovDeviationThreshold { get; private set; }
         public static ConfigEntry<bool> PovAutoEnter { get; private set; }
         public static ConfigEntry<bool> PovNoRotation { get; private set; }
+        public static ConfigEntry<PovAttachmentBones> PovAttachment { get; private set; }
 
 
         #endregion
@@ -210,17 +221,9 @@ namespace KK_VR.Settings
                 "Add dynamic bone colliders to items that represent vr controllers.\nRequires game restart.");
 
 
-            PositionOffsetY = config.Bind(SectionGeneral, "Camera offset-Y", 0.05f,
+            PositionOffset = config.Bind(SectionGeneral, "Camera offset", new Vector3(0f, 0.05f, 0.05f),
                 new ConfigDescription(
-                    "Camera offset from an attachment point. Applies whenever the camera assumes head orientation of a character.",
-                    new AcceptableValueRange<float>(-1f, 1f)
-                    ));
-
-
-            PositionOffsetZ = config.Bind(SectionGeneral, "Camera offset-Z", 0.05f,
-                new ConfigDescription(
-                    "Camera offset from an attachment point. Applies whenever the camera assumes head orientation of a character.",
-                    new AcceptableValueRange<float>(-1f, 1f)
+                    "Camera offset from an attachment point. Applies whenever the camera assumes head orientation of a character."
                     ));
 
 
@@ -365,12 +368,20 @@ namespace KK_VR.Settings
                     ));
 
 
-            HideHeadInPov = config.Bind(SectionPov, "Hide head", true,
+            PovHideHead = config.Bind(SectionPov, "Hide head", PovHideHeadType.Hide,
                 new ConfigDescription(
-                    "Hide the corresponding head when the camera is in it. " +
-                    "Can be used in combination with camera offset to have simultaneously visible head and PoV mode.(~0.11 Z-offset for that)",
+                    "Hide - proactive behaviour based on camera's position\n" +
+                    "Force Hide - simple behaviour, proactive in GripMove\n" +
+                    "Show - add camera offset to have simultaneously visible head and PoV mode.(~0.11 Z-offset for that)",
                     null,
                     new ConfigurationManagerAttributes { Order = 40 }
+                    ));
+
+            PovAttachment = config.Bind(SectionPov, "Attachment point", PovAttachmentBones.Eyes,
+                new ConfigDescription(
+                    "The bone that camera follows.",
+                    null,
+                    new ConfigurationManagerAttributes { Order = 30 }
                     ));
 
 
