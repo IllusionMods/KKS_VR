@@ -138,7 +138,7 @@ namespace KK_VR.Handlers
                 //}
                 infoList = infoList
                     .Where(info => !_blacklistDic.ContainsKey(info.chara) || (!_blacklistDic[info.chara].Contains(Body.None) && !_blacklistDic[info.chara].Contains(info.behavior.part)));
-                if (infoList.Count() == 0)
+                if (!infoList.Any())
                 {
                     colliderInfo = null;
                     return;
