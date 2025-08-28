@@ -95,6 +95,7 @@ namespace KK_VR.Grasp
             {
                 goal = BendGoal.Create(this);
             }
+            ResetState(toDefault: true);
         }
         internal string GetLowerCaseName()
         {

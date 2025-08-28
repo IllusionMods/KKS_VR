@@ -65,6 +65,9 @@ namespace KK_VR.Grasp
         internal bool IsBusy => _blackListDic.Count > 0 || _heldBendGoal != null || (_helper != null && _helper.baseHold != null);
         internal Dictionary<ChaControl, List<Tracker.Body>> GetBlacklistDic => _blackListDic;
         internal List<BodyPart> GetFullBodyPartList(ChaControl chara) => _bodyPartsDic[chara];
+
+        // Should have been without 'Default' state but with Active = 1, and check not for default state but for not-active. 
+        // But oh well as long as it werks.
         internal enum State
         {
             Default = 1,      // Not influenced by player.
