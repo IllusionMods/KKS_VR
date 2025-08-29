@@ -5,6 +5,7 @@ using BepInEx.Configuration;
 using KK_VR.Features;
 using KK_VR.Grasp;
 using KK_VR.Holders;
+using KK_VR.Interpreters;
 using KKAPI.Utilities;
 using UnityEngine;
 using VRGIN.Core;
@@ -530,6 +531,7 @@ namespace KK_VR.Settings
             PrivacyScreen.SettingChanged += (sender, e) => Features.PrivacyScreen.UpdatePrivacyScreen();
             ModelPosition.SettingChanged += (sender, e) => HandHolder.UpdateOffsets();
             ModelRotation.SettingChanged += (sender, e) => HandHolder.UpdateOffsets();
+            IKEnable.SettingChanged += (sender, e) => UpdateIKEnable();
 
             UpdateIPD();
             UpdateNearClipPlane();
@@ -597,6 +599,38 @@ namespace KK_VR.Settings
                     QualitySettings.shadowCascade4Split = new Vector3(0.06666667f, 0.2f, 0.4666667f);
                     QualitySettings.shadowDistance = 100;
                 }
+            }
+        }
+        public static void UpdateIKEnable()
+        {
+            switch (KoikGameInterp.CurrentScene)
+            {
+                case KoikGameInterp.SceneType.TalkScene:
+                    // Selected in config.
+                    if ((IKEnable.Value & IKManipulationState.TalkScene) != 0)
+                    {
+                        if (GraspHelper.Instance == null)
+                            TalkSceneInterp.GraspReInit();
+                    }
+                    // Deselected in config
+                    else
+                    {
+                        if (GraspHelper.Instance != null)
+                            UnityEngine.Object.Destroy(GraspHelper.Instance);
+                    }
+                    break;
+                case KoikGameInterp.SceneType.HScene:
+                    if ((IKEnable.Value & IKManipulationState.HScene) != 0)
+                    {
+                        if (GraspHelper.Instance == null)
+                            HSceneInterp.GraspReInit();
+                    }
+                    else
+                    {
+                        if (GraspHelper.Instance != null)
+                            UnityEngine.Object.Destroy(GraspHelper.Instance);
+                    }
+                    break;
             }
         }
     }

@@ -167,7 +167,15 @@ namespace KK_VR.Interpreters
 #endif
             }
         }
+        internal static void GraspReInit()
+        {
+            if (GraspHelper.Instance != null || male == null || lstFemale == null) return;
 
+            List<ChaControl> charas = [male];
+            charas.AddRange(lstFemale);
+
+            GraspController.Init(charas.Distinct());
+        }
 
         internal override void OnDisable()
         {

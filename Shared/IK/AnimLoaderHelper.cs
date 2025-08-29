@@ -60,6 +60,7 @@ namespace KK_VR.IK
                 if (baseData.bone == null)
                 {
                     VRPlugin.Logger.LogWarning($"Failed to find bendGoal bone at {cf_pv_bones_bendGoals[i - 5]}");
+                    continue;
                 }
                 baseData.enabled = true;
                 ikBeforeProcessBendGoal.enabled = true;

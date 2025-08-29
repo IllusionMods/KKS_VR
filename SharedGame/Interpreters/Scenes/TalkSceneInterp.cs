@@ -375,6 +375,32 @@ namespace KK_VR.Interpreters
             RepositionDirLight(chara);
         }
 
+        internal static void GraspReInit()
+        {
+            if (GraspHelper.Instance != null || talkScene == null || talkScene.targetHeroine == null || talkScene.targetHeroine.chaCtrl == null ||
+#if KK
+                Game.Instance == null || Game.Instance.actScene == null || Game.Instance.actScene.Player == null || Game.Instance.actScene.Player.chaCtrl == null
+#elif KKS
+                ActionScene.instance == null || ActionScene.instance.Player == null || ActionScene.instance.Player.chaCtrl == null
+#endif
+                )
+            {
+                return;
+            }
+
+            IEnumerable<ChaControl> charas =
+            [
+                talkScene.targetHeroine.chaCtrl,
+#if KK
+                Game.Instance.actScene.Player.chaCtrl
+#elif KKS
+                ActionScene.instance.Player.chaCtrl
+#endif
+            ];
+
+            GraspController.Init(charas.Distinct());
+        }
+
         private void PlacePlayer(Vector3 floor, Quaternion rotation)
         {
 
