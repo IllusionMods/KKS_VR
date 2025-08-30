@@ -370,9 +370,9 @@ namespace KK_VR.Settings
 
             PovHideHead = config.Bind(SectionPov, "Hide head", PovHideHeadType.Hide,
                 new ConfigDescription(
-                    "Hide - proactive behaviour based on camera's position\n" +
-                    "Force Hide - simple behaviour, proactive in GripMove\n" +
-                    "Show - add camera offset to have simultaneously visible head and PoV mode.(~0.11 Z-offset for that)",
+                    "Hide - hides character's head when the PoV camera is in it\n" +
+                    "Force Hide - always hides character's head. Behaves like 'Hide' option during GripMove\n" +
+                    "Show - character's head stays visible",
                     null,
                     new ConfigurationManagerAttributes { Order = 40 }
                     ));
