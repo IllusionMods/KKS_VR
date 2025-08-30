@@ -31,17 +31,6 @@ namespace KK_VR.Grasp
         private static Dictionary<ChaControl, List<BodyPart>> _bodyPartsDic;
         private static readonly Dictionary<ChaControl, IKStuff> _auxDic = [];
         private readonly List<HandScroll> _handScrollList = [];
-        private readonly List<Tracker.Body> _autoAttachBlackList = 
-            [ 
-            Tracker.Body.HandL, 
-            Tracker.Body.HandR, 
-            Tracker.Body.ArmL,
-            Tracker.Body.ArmR,
-            Tracker.Body.ForearmL,
-            Tracker.Body.ForearmR,
-            Tracker.Body.MuneL, 
-            Tracker.Body.MuneR
-            ];
         internal BaseHold baseHold;
 
         private class IKStuff
@@ -66,7 +55,7 @@ namespace KK_VR.Grasp
                 // Another one fully controlled by VRIK with custom advanced locomotion animController.
                 // Hopefully AgiShark has all the proper animations for advanced locomotion, otherwise I've no clue how to retarget animation for our rig.
                 // He doesn't. Gotta find someone who'd retarget them for us, otherwise working on VRIK is hardly worth it.
-                
+
                 AddChara(chara);
             }
 
@@ -391,7 +380,7 @@ namespace KK_VR.Grasp
         {
             for (var i = 5; i < 7; i++)
             {
-                var bodyPart = _bodyPartsDic[chara][i]; 
+                var bodyPart = _bodyPartsDic[chara][i];
 
                 if (!_animChangeDic.ContainsKey(chara))
                 {
@@ -441,11 +430,11 @@ namespace KK_VR.Grasp
 
         private void DoAnimChange()
         {
-#if DEBUG
-            VRPlugin.Logger.LogDebug($"Grasp:DoAnimChange");
-#endif
             foreach (var kv in _animChangeDic)
             {
+#if DEBUG
+                VRPlugin.Logger.LogDebug($"AnimChangeWait:{kv.Key}:{kv.Value}");
+#endif
                 if (kv.Key.animBody.GetCurrentAnimatorStateInfo(0).IsName(kv.Value))
                 {
                     OnAnimChangeEnd(kv.Key);
@@ -458,6 +447,7 @@ namespace KK_VR.Grasp
 #if DEBUG
             VRPlugin.Logger.LogInfo($"Grasp:OnAnimChangeEnd:{chara}");
 #endif
+            // Try to attach hands to something.
             for (var i = 5; i < 7; i++)
             {
                 var bodyPart = _bodyPartsDic[chara][i];
@@ -465,35 +455,36 @@ namespace KK_VR.Grasp
                 {
                     bodyPart.guide.Stay();
                 }
-                else
+                // Will screw up talk scene.
+                else if (KoikGameInterp.CurrentScene != KoikGameInterp.SceneType.TalkScene)
                 {
-                    FindAttachmentPoint(bodyPart, chara);
+                    FindAttachmentSingle(bodyPart, chara);
                 }
             }
             _animChangeDic.Remove(chara);
             _animChange = _animChangeDic.Count != 0;
         }
 
-        internal void FindAttachmentPoints()
+        internal void FindAttachmentMany()
         {
             foreach (var entry in _bodyPartsDic)
             {
                 for (var i = 5; i < 7; i++)
                 {
-                    FindAttachmentPoint(entry.Value[i], entry.Key);
+                    FindAttachmentSingle(entry.Value[i], entry.Key);
                 }
             }
         }
 
 
-        
-        private void FindAttachmentPoint(BodyPart bodyPart, ChaControl chara)
+
+        private void FindAttachmentSingle(BodyPart bodyPart, ChaControl chara)
         {
             if (!KoikSettings.IKAutoHandAttachment.Value) return;
 #if DEBUG
             VRPlugin.Logger.LogDebug($"FindAttachmentPoint:{chara}:{bodyPart.name}:guideBusy = {bodyPart.guide.IsBusy}");
 #endif
-            bodyPart.guide.AutoAttach(_autoAttachBlackList, chara);
+            bodyPart.guide.AutoAttach(chara);
         }
 
         internal void ScrollHand(PartName partName, ChaControl chara, bool increase)
@@ -520,7 +511,7 @@ namespace KK_VR.Grasp
             foreach (var kv in _bodyPartsDic)
             {
                 // Disable IK if animation is sloppy.                
-                if (kv.Key.animBody.runtimeAnimatorController == null 
+                if (kv.Key.animBody.runtimeAnimatorController == null
                     || _animationsNoIK.Contains(kv.Key.animBody.runtimeAnimatorController.name))
                 {
                     _auxDic[kv.Key].newFbik.enabled = false;
@@ -566,7 +557,12 @@ namespace KK_VR.Grasp
             }
             // Works at 2 - 3 ticks for female like a clock, for male even 5 is barely stable.
             // No clue why.
-            KoikGameInterp.RunAfterUpdate(FindAttachmentPoints, true, 5);
+            // Pointless/breaks a lot in talk scene with current implementation.
+
+            if (KoikGameInterp.CurrentScene != KoikGameInterp.SceneType.TalkScene)
+            {
+                KoikGameInterp.RunAfterUpdate(FindAttachmentMany, true, 5);
+            }
         }
         //internal void RetargetEffectors()
         //{
@@ -632,7 +628,7 @@ namespace KK_VR.Grasp
             {
                 Tracker.Body.LowerBody => 0,
                 Tracker.Body.ArmL or Tracker.Body.MuneL => 1,
-                Tracker.Body.ArmR  or Tracker.Body.MuneR => 2,
+                Tracker.Body.ArmR or Tracker.Body.MuneR => 2,
                 Tracker.Body.ThighL => 3,
                 Tracker.Body.ThighR => 4,
                 Tracker.Body.HandL or Tracker.Body.ForearmL => 5,
@@ -667,7 +663,7 @@ namespace KK_VR.Grasp
                     ((BodyPartGuide)bodyPart.guide).StopRelativeRotation();
                 }
             }
-            
+
         }
         private Transform GetClosestBone(ChaControl chara, int index)
         {
@@ -691,7 +687,7 @@ namespace KK_VR.Grasp
             if (_animChange) DoAnimChange();
             if (_handChange) DoHandChange();
         }
-        
+
         internal void StartBaseHold(BodyPart spine, Transform objAnim, Transform attachPoint)
         {
             baseHold = new BaseHold(spine, objAnim, attachPoint);
@@ -750,6 +746,6 @@ namespace KK_VR.Grasp
                 }
             }
         };
-        
+
     }
 }

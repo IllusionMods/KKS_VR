@@ -48,14 +48,14 @@ namespace KK_VR.Handlers
         }
         internal void UpdateTrackerNoBlacks()
         {
-            Tracker.SetSuggestedInfoNoBlacks();
+            Tracker.SetInfoBlackListByID();
         }
         /// <summary>
         /// Option to use provided blackList instead of setup blackDic
         /// </summary>
-        protected void UpdateTrackerNoBlacks(List<Tracker.Body> blackList, ChaControl tryToAvoid = null, bool skipChara = false)
+        internal void UpdateTrackerNoBlacks(List<Tracker.Body> blackList)
         {
-            Tracker.SetSuggestedInfoNoBlacks(blackList, tryToAvoid, skipChara);
+            Tracker.SetInfoBlackListByType(blackList);
         }
         /// <summary>
         /// Pick the most interesting bodyPart from the current track.

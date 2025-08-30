@@ -25,7 +25,7 @@ namespace KK_VR.IK
             for (var i = 5; i < 9; i++)
             {
                 var bodyPart = bodyPartList[i];
-                if (bodyPart.baseData.bone != null) return;
+                if (bodyPart.baseData.bone != null) continue;
 
                 var ikBeforeProcess = bodyPart.baseData.gameObject.GetComponent<IKBeforeProcess>();
                 if (ikBeforeProcess != null)
@@ -36,15 +36,35 @@ namespace KK_VR.IK
                     ikBeforeProcess.type = BaseProcess.Type.Sync;
                 }
                 var bendGoal = bodyPart.chain.bendConstraint.bendGoal;
-                var baseData = bendGoal.GetComponent<BaseData>();
-                ikBeforeProcess = bendGoal.GetComponent<IKBeforeProcess>();
-                if (baseData != null && ikBeforeProcess != null)
+                if (bendGoal == null)
                 {
-                    baseData.bone = chara.objAnim.transform.Find(cf_pv_bones_bendGoals[i - 5]);
-                    baseData.enabled = true;
-                    ikBeforeProcess.enabled = true;
-                    ikBeforeProcess.type = BaseProcess.Type.Sync;
+                    VRPlugin.Logger.LogWarning($"FBBIK(native) - {chara.name} - {bodyPart.name} doesn't have bendGoal");
+                    continue;
                 }
+
+                var baseData = bendGoal.GetComponent<BaseData>();
+                if (baseData == null)
+                {
+                    VRPlugin.Logger.LogWarning($"FBBIK(native) - {chara.name} - {bodyPart.name} doesn't have BaseData");
+                    continue;
+                }
+
+                var ikBeforeProcessBendGoal = bendGoal.GetComponent<IKBeforeProcess>();
+                if (ikBeforeProcessBendGoal == null)
+                {
+                    VRPlugin.Logger.LogWarning($"FBBIK(native) - {chara.name} - {bodyPart.name} doesn't have IKBeforeProcess (bendGoal)");
+                    continue;
+                }
+
+                baseData.bone = chara.objAnim.transform.Find(cf_pv_bones_bendGoals[i - 5]);
+                if (baseData.bone == null)
+                {
+                    VRPlugin.Logger.LogWarning($"Failed to find bendGoal bone at {cf_pv_bones_bendGoals[i - 5]}");
+                    continue;
+                }
+                baseData.enabled = true;
+                ikBeforeProcessBendGoal.enabled = true;
+                ikBeforeProcessBendGoal.type = BaseProcess.Type.Sync;
             }
         }
 

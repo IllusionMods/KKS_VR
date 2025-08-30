@@ -23,7 +23,7 @@ namespace KK_VR.Interpreters
 {
     internal class HSceneInterp : SceneInterpreter
     {
-        
+
         private readonly PoV _pov;
         private HPointMove _hPointMove;
 
@@ -122,7 +122,10 @@ namespace KK_VR.Interpreters
             SceneExtras.EnableDynamicBones(distinctCharas);
             SceneExtras.AddTalkColliders(distinctCharas);
             SceneExtras.AddHColliders(distinctCharas);
-            GraspController.Init(distinctCharas);
+            if ((KoikSettings.IKEnable.Value & KoikSettings.IKManipulationState.HScene) != 0 && hFlag != null && hFlag.mode != EMode.masturbation && hFlag.mode != EMode.peeping)
+            {
+                GraspController.Init(distinctCharas);
+            }
 
             _mouth = MouthGuide.Create();
             _pov = PoV.Create();
@@ -164,7 +167,15 @@ namespace KK_VR.Interpreters
 #endif
             }
         }
+        internal static void GraspReInit()
+        {
+            if (GraspHelper.Instance != null || male == null || lstFemale == null) return;
 
+            List<ChaControl> charas = [male];
+            charas.AddRange(lstFemale);
+
+            GraspController.Init(charas.Distinct());
+        }
 
         internal override void OnDisable()
         {
@@ -207,7 +218,7 @@ namespace KK_VR.Interpreters
                 adjustDirLight = false;
             }
         }
-               
+
         internal static void EnableNip(AibuColliderKind colliderKind)
         {
             if (colliderKind == AibuColliderKind.muneL || colliderKind == AibuColliderKind.muneR)
@@ -423,7 +434,7 @@ namespace KK_VR.Interpreters
             // OLoop
             return increase ? 2 : 1;
         }
-        
+
         internal static void OnPoseChange(HSceneProc.AnimationListInfo anim)
         {
             //mode = anim.mode switch
@@ -472,7 +483,7 @@ namespace KK_VR.Interpreters
 
             // TODO voice is a placeHolder, in h we have a good dic lying around with the proper ones.
 
-           //VRPlugin.Logger.LogDebug($"HScene:Reaction:{aibuKind}:{chara}");
+            //VRPlugin.Logger.LogDebug($"HScene:Reaction:{aibuKind}:{chara}");
             _hitReaction.ik = chara.objAnim.GetComponent<FullBodyBipedIK>();
 
             var dic = handCtrl.dicNowReaction;

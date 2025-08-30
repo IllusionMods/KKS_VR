@@ -7,7 +7,6 @@ using System.Linq;
 using UniRx;
 using UnityEngine;
 using static HandCtrl;
-using static KK_VR.Handlers.Tracker;
 
 namespace KK_VR.Handlers
 {
@@ -34,7 +33,7 @@ namespace KK_VR.Handlers
             }
             chara = null;
             return false;
-        }       
+        }
 
 
         internal void SetBlacklistDic(Dictionary<ChaControl, List<Body>> dic)
@@ -124,7 +123,11 @@ namespace KK_VR.Handlers
                 .Where(kv => _trackList.Any(collider => collider.Equals(kv.Key)))
                 .Select(kv => kv.Value);
         }
-        internal void SetSuggestedInfoNoBlacks()
+
+        /// <summary>
+        /// Sets the most interesting currently tracking body part in the field 'colliderInfo', while avoiding whatever is in the black dic.
+        /// </summary>
+        internal void SetInfoBlackListByID()
         {
             var infoList = GetCollidersInfo();
             if (_blacklistDic.Count != 0)
@@ -145,48 +148,24 @@ namespace KK_VR.Handlers
                 .OrderBy(info => info.behavior.part)
                 .First();
         }
-        internal void SetSuggestedInfoNoBlacks(List<Tracker.Body> blackList, ChaControl tryToAvoid = null, bool skipChara = false)
+
+        /// <summary>
+        /// Sets the most interesting currently tracking body part in the field 'colliderInfo', while avoiding body parts that were provided as arg.
+        /// </summary>
+        internal void SetInfoBlackListByType(List<Body> blackList)
         {
             var infoList = GetCollidersInfo();
-
-            if (blackList.Count != 0)
+            foreach (var info in infoList)
             {
-                // Don't look at all for particular character if skipChara = true.
-                if (skipChara && tryToAvoid != null)
-                {
-                    infoList = infoList
-                        .Where(info => info.chara != tryToAvoid && !blackList.Contains(info.behavior.part));
-                }
-                // Look for colliders of bodyParts that aren't present in blackList.
-                else
-                {
-                    infoList = infoList
-                        .Where(info => !blackList.Contains(info.behavior.part));
-                }
+                if (blackList.Contains(info.behavior.part)) continue;
+
+                colliderInfo = info;
+                return;
             }
 
-            if (infoList.Any())
-            {
-                if (tryToAvoid != null && skipChara == false)
-                {
-                    colliderInfo = infoList
-                        .OrderBy(info => info.chara == tryToAvoid)
-                        .ThenBy(info => info.behavior.part)
-                        .First();
-                }
-                else
-                {
-                    colliderInfo = infoList
-                        .OrderBy(info => info.behavior.part)
-                        .First();
-                }
-            }
-            else
-            {
-                colliderInfo = null;
-            }
+            // Everything in the tracker appeared in the blackList, set black status.
+            colliderInfo = null;
         }
-
         /// <summary>
         /// Sets the most interesting currently tracking body part in the field 'colliderInfo'.
         /// </summary>
@@ -246,6 +225,8 @@ namespace KK_VR.Handlers
             }
             return false;
         }
+
+        internal Body GetTrackedBodyPart() => colliderInfo.behavior.part;
 
         internal class BodyBehavior
         {

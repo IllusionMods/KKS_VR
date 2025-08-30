@@ -125,13 +125,12 @@ namespace KK_VR.Handlers
         protected bool IsReactionEligible(ChaControl chara)
         {
             var config = KoikSettings.AutomaticTouching.Value;
-            if (config == KoikSettings.Genders.Disable
-                || (config == KoikSettings.Genders.Boys && chara.sex == 1)
-                || (config == KoikSettings.Genders.Girls && chara.sex == 0))
+            if ((chara.sex == 0 && (config & KoikSettings.Genders.Boys) != 0)
+                || (chara.sex == 1 && (config & KoikSettings.Genders.Girls) != 0))
             {
-                return false;
+                return true;
             }
-            return true;
+            return false;
         }
         protected override void OnTriggerExit(Collider other)
         {
@@ -148,10 +147,12 @@ namespace KK_VR.Handlers
                 }
             }
         }
-
-        internal Tracker.Body GetTrackPartName(ChaControl tryToAvoidChara = null, int preferredSex = -1)
+        internal Tracker.Body GetTrackPartName()
+        //internal Tracker.Body GetTrackPartName(ChaControl tryToAvoidChara = null, int preferredSex = -1)
         {
-            return tryToAvoidChara == null && preferredSex == -1 ? _tracker.GetGraspBodyPart() : _tracker.GetGraspBodyPart(tryToAvoidChara, preferredSex);
+            // Should be fine without extra sorting and such as the caller usually does it with 'UpdateTracker()'
+            //return tryToAvoidChara == null && preferredSex == -1 ? _tracker.GetTrackedBodyPart() : _tracker.GetTrackedBodyPart(tryToAvoidChara, preferredSex);
+            return _tracker.GetTrackedBodyPart();
         }
         internal void RemoveCollider(Collider other)
         {

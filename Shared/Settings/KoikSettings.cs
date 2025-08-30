@@ -5,6 +5,7 @@ using BepInEx.Configuration;
 using KK_VR.Features;
 using KK_VR.Grasp;
 using KK_VR.Holders;
+using KK_VR.Interpreters;
 using KKAPI.Utilities;
 using UnityEngine;
 using VRGIN.Core;
@@ -48,12 +49,12 @@ namespace KK_VR.Settings
             OnDemand,
             Always
         }
+        [Flags]
         public enum Genders
         {
-            Disable,
-            Boys,
-            Girls,
-            Both
+            Disable = 0,
+            Boys = 1,
+            Girls = 2,
         }
         public enum GripMoveStabilization
         {
@@ -68,10 +69,19 @@ namespace KK_VR.Settings
             Average,
             Auto
         }
+
         public enum PovAttachmentBones
         {
             Eyes,
             Neck
+        }  
+        [Flags]
+        public enum IKManipulationState
+        {
+            Disable = 0,
+            TalkScene = 1,
+            HScene = 2,
+
         }
         #region General
 
@@ -133,6 +143,7 @@ namespace KK_VR.Settings
 
         #region IK
 
+        public static ConfigEntry<IKManipulationState> IKEnable { get; private set; }
         public static ConfigEntry<bool> IKMaintainRelativePosition { get; private set; }
         public static ConfigEntry<float> IKPushParent { get; private set; }
 
@@ -299,7 +310,7 @@ namespace KK_VR.Settings
 
 
             // This one can be a bit annoying currently as characters can overreact if unintentionally bullied by the controller in pov mode during animations.
-            AutomaticTouching = config.Bind(SectionH, "Automatic touching",Genders.Girls,
+            AutomaticTouching = config.Bind(SectionH, "Automatic touching", Genders.Girls,
                 "Touching body with controller triggers a reaction"
                 );
 
@@ -395,6 +406,12 @@ namespace KK_VR.Settings
 
             #region SectionIK
 
+            IKEnable = config.Bind(SectionIK, "Enable", IKManipulationState.HScene,
+                new ConfigDescription(
+                    "Choose which scene has active IK manipulation.",
+                    null,
+                    new ConfigurationManagerAttributes { Order = 100 }
+                    ));
 
             IKShowGuideObjects = config.Bind(SectionIK, "Visual cue", false,
                 new ConfigDescription(
@@ -527,6 +544,7 @@ namespace KK_VR.Settings
             PrivacyScreen.SettingChanged += (sender, e) => Features.PrivacyScreen.UpdatePrivacyScreen();
             ModelPosition.SettingChanged += (sender, e) => HandHolder.UpdateOffsets();
             ModelRotation.SettingChanged += (sender, e) => HandHolder.UpdateOffsets();
+            IKEnable.SettingChanged += (sender, e) => UpdateIKEnable();
 
             UpdateIPD();
             UpdateNearClipPlane();
@@ -594,6 +612,38 @@ namespace KK_VR.Settings
                     QualitySettings.shadowCascade4Split = new Vector3(0.06666667f, 0.2f, 0.4666667f);
                     QualitySettings.shadowDistance = 100;
                 }
+            }
+        }
+        public static void UpdateIKEnable()
+        {
+            switch (KoikGameInterp.CurrentScene)
+            {
+                case KoikGameInterp.SceneType.TalkScene:
+                    // Selected in config.
+                    if ((IKEnable.Value & IKManipulationState.TalkScene) != 0)
+                    {
+                        if (GraspHelper.Instance == null)
+                            TalkSceneInterp.GraspReInit();
+                    }
+                    // Deselected in config
+                    else
+                    {
+                        if (GraspHelper.Instance != null)
+                            UnityEngine.Object.Destroy(GraspHelper.Instance);
+                    }
+                    break;
+                case KoikGameInterp.SceneType.HScene:
+                    if ((IKEnable.Value & IKManipulationState.HScene) != 0)
+                    {
+                        if (GraspHelper.Instance == null)
+                            HSceneInterp.GraspReInit();
+                    }
+                    else
+                    {
+                        if (GraspHelper.Instance != null)
+                            UnityEngine.Object.Destroy(GraspHelper.Instance);
+                    }
+                    break;
             }
         }
     }

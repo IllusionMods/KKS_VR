@@ -71,7 +71,7 @@ namespace KK_VR.Interpreters
 #if KK
             if (behaviour != null)
             {
-               //VRPlugin.Logger.LogDebug($"TalkScene:Start:Talk");
+                //VRPlugin.Logger.LogDebug($"TalkScene:Start:Talk");
                 talkScene = (TalkScene)behaviour;
                 _talkSceneStart = true;
             }
@@ -133,7 +133,7 @@ namespace KK_VR.Interpreters
             {
                 KoikGameInterp.EndScene(KoikGameInterp.SceneType.TalkScene);
             }
-            
+
 
 
 
@@ -253,7 +253,7 @@ namespace KK_VR.Interpreters
         }
         public static void HitReactionPlay(AibuColliderKind aibuKind, ChaControl chara)
         {
-           //VRPlugin.Logger.LogDebug($"TalkScene:Reaction:{aibuKind}:{chara}");
+            //VRPlugin.Logger.LogDebug($"TalkScene:Reaction:{aibuKind}:{chara}");
             var ik = chara.objAnim.GetComponent<FullBodyBipedIK>();
             if (_hitReaction.ik != ik)
             {
@@ -363,11 +363,42 @@ namespace KK_VR.Interpreters
             PlacePlayer(headPos, heroine.transform.rotation);
             AddHColliders(charas);
             HitReactionInitialize(charas);
-            GraspController.Init(charas);
-            
+
+            // NetFramework 3.5 doesn't have HasFlag() method, flag enums are still neatly represented in BepInEx though.
+            if ((KoikSettings.IKEnable.Value & KoikSettings.IKManipulationState.TalkScene) != 0)
+            {
+                GraspController.Init(charas);
+            }
+
             // KKS has fixed dir light during Talk/ADV by default.
             // Reported that KKS has poor default orientation. 
             RepositionDirLight(chara);
+        }
+
+        internal static void GraspReInit()
+        {
+            if (GraspHelper.Instance != null || talkScene == null || talkScene.targetHeroine == null || talkScene.targetHeroine.chaCtrl == null ||
+#if KK
+                Game.Instance == null || Game.Instance.actScene == null || Game.Instance.actScene.Player == null || Game.Instance.actScene.Player.chaCtrl == null
+#elif KKS
+                ActionScene.instance == null || ActionScene.instance.Player == null || ActionScene.instance.Player.chaCtrl == null
+#endif
+                )
+            {
+                return;
+            }
+
+            IEnumerable<ChaControl> charas =
+            [
+                talkScene.targetHeroine.chaCtrl,
+#if KK
+                Game.Instance.actScene.Player.chaCtrl
+#elif KKS
+                ActionScene.instance.Player.chaCtrl
+#endif
+            ];
+
+            GraspController.Init(charas.Distinct());
         }
 
         private void PlacePlayer(Vector3 floor, Quaternion rotation)
@@ -404,7 +435,7 @@ namespace KK_VR.Interpreters
             headPos.y = floor.y + (eyePos.y - player.position.y) + GameSettings.PositionOffset.Value.y;
 
 
-            VR.Camera.Origin.position +=  headPos - head.position;
+            VR.Camera.Origin.position += headPos - head.position;
             var vec = player.position - eyePos;
             player.position = head.position + vec;
 
