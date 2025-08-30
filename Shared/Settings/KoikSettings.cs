@@ -379,7 +379,7 @@ namespace KK_VR.Settings
 
             PovAttachment = config.Bind(SectionPov, "Attachment point", PovAttachmentBones.Eyes,
                 new ConfigDescription(
-                    "The bone that camera follows.",
+                    "The bone that the POV camera follows.",
                     null,
                     new ConfigurationManagerAttributes { Order = 30 }
                     ));
