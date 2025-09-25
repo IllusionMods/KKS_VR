@@ -181,7 +181,13 @@ namespace KK_VR.Features
 
             var hair = chara.objHeadBone.transform.Find("ct_head/N_tonn_face/N_cf_haed");
 
-            if (hair != null)
+            if (hair != null
+#if KK
+                && !hair.gameObject.active)
+#else
+                && !hair.gameObject.activeSelf)
+#endif
+
                 hair.gameObject.SetActive(true);
         }
 
@@ -569,7 +575,9 @@ namespace KK_VR.Features
             _hideHead = false;
             _moveTo = null;
 
-            Impersonation?.Invoke(false, _target);
+            if (_target != null)
+                Impersonation?.Invoke(false, _target);
+
             CameraBusy?.Invoke(false);
             //MouthGuide.SetBusy(false);
             //if (IntegrationMaleBreath.IsActive)
@@ -634,6 +642,12 @@ namespace KK_VR.Features
         {
             if (_active)
             {
+                // Chara destroyed, emergency halt
+                if (_target == null)
+                {
+                    Sleep();
+                    return;
+                }
                 if (KoikGameInterp.SceneInput.IsBusy// || _mouth.IsActive
 #if KK
                     || !Scene.Instance.AddSceneName.Equals("HProc"))
@@ -668,7 +682,7 @@ namespace KK_VR.Features
 
         private void LateUpdate()
         {
-            if (_hideHead && _target != null)
+            if (_hideHead)
             {
                 //if (_hideHeadSetting == KoikSettings.PovHideHeadType.ShowHair)
                 //{
@@ -686,7 +700,7 @@ namespace KK_VR.Features
                         // Hide only face
                         HideFace(_target, _targetFaceRenderers);
 
-                        if (_prevTarget != null)
+                        if (_prevTarget != null && _prevTargetFaceRenderers != null)
                             HideFace(_prevTarget, _prevTargetFaceRenderers);
                         break;
                     default:
@@ -717,21 +731,21 @@ namespace KK_VR.Features
                 }
             }
         }
-        private void HideFace(ChaControl chara, GameObject headRenderers)
+        private void HideFace(ChaControl chara, GameObject faceRenderers)
         {
             var headClose = IsHeadClose(chara.objHead.transform);
             // Doubt that it's a good idea to spam GameObject.SetActive() each frame in old Unity
 #if KK
-            if (headRenderers.active)
+            if (faceRenderers.active)
 #else
-            if (headRenderers.activeSelf)
+            if (faceRenderers.activeSelf)
 #endif
             {
-                if (headClose) headRenderers.SetActive(false);
+                if (headClose) faceRenderers.SetActive(false);
             }
             else
             {
-                if (!headClose) headRenderers.SetActive(true);
+                if (!headClose) faceRenderers.SetActive(true);
             }
         }
 
