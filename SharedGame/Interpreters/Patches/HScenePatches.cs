@@ -161,5 +161,13 @@ namespace KK_VR.Patches
                 GraspHelper.Instance.CatchHitReaction(solver, __instance.current, (int)__instance.effector);
             }
         }
+
+        // Hook for the monitoring of animator's state during H
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(HActionBase), nameof(HActionBase.SetPlay))]
+        public static void SetPlayPostfix(string _nextAnimation)
+        {
+            if (PoV.Instance != null) PoV.Instance.OnSetPlay(_nextAnimation);
+        }
     }
 }

@@ -146,7 +146,7 @@ namespace KK_VR.Interpreters
             {
                 GameSettings.UpdateShadowSetting(GameSettings.ShadowType.Close);
             }
-            if (GameSettings.PovAutoEnter.Value)
+            if ((GameSettings.Pov.Value & KoikSettings.PovGenders.Auto) != 0)
             {
                 SmoothMover.Instance.MoveToPoV();
             }

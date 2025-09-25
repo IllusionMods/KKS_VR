@@ -29,7 +29,7 @@ namespace KK_VR.Camera
         internal void MoveToPoV()
         {
             var mode = HSceneInterp.mode;
-            if (PoV.Active || (KoikSettings.PovAutoEnter.Value && (mode == HFlag.EMode.houshi || mode == HFlag.EMode.sonyu)))
+            if (PoV.Active || ((KoikSettings.Pov.Value & KoikSettings.PovGenders.Auto) != 0 && (mode == HFlag.EMode.houshi || mode == HFlag.EMode.sonyu)))
             {
                 PoV.Instance.TryDisable(moveTo: false);
                 StartCoroutine(WaitForLag(PoV.Instance.StartPov, null));
@@ -40,7 +40,7 @@ namespace KK_VR.Camera
             //VRPlugin.Logger.LogDebug("VRMoverH:MoveToInH");
             StopAllCoroutines();
             var mode = HSceneInterp.mode;
-            if (PoV.Active || (KoikSettings.PovAutoEnter.Value && (mode == HFlag.EMode.houshi || mode == HFlag.EMode.sonyu)))
+            if (PoV.Active || ((KoikSettings.Pov.Value & KoikSettings.PovGenders.Auto) != 0 && (mode == HFlag.EMode.houshi || mode == HFlag.EMode.sonyu)))
             {
                 PoV.Instance.TryDisable(moveTo: false);
                 if (spotChange)

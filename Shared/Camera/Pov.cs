@@ -68,7 +68,7 @@ namespace KK_VR.Features
         // cf_J_FaceUp_tz
         private Transform _targetEyes;
 
-        // Can be eyes (cf_J_FaceUp_tz) or neck (cf_j_neck) depending on setting.
+        // Can be eyes (cf_J_FaceUp_tz) or neck (cf_j_neck) depending on the setting.
         private Transform _targetBone;
 
         // Assuming position of the head / following the head / disengaging from the head.
@@ -112,15 +112,26 @@ namespace KK_VR.Features
 
         // For delta position to follow in relaxed mode.
         private Vector3 _prevFramePos;
-        private bool _forceHideHead;
+        // Cached pov rotation setting
+        private bool _rotationSetting;
+        // Indicates whether the head(or face) should be hid proactively on the LateUpdate()
+        private bool _hideHead;
 
+        // Object with renderers of the face 
+        private GameObject _targetFaceRenderers;
+        private GameObject _prevTargetFaceRenderers;
+
+        // Cached setting to access on each frame
+        private KoikSettings.PovHideHeadType _hideHeadSetting;
+
+        // Indicates whether to stop for climax or not
+        private bool _climax;
 
         // EventHandler with custom generic arguments gives a hard time, thus the unity implementation.
         public event UnityAction<bool> CameraBusy;
         public event UnityAction<bool, ChaControl> Impersonation;
 
         private Vector3 GetEyesPosition => _targetBone.TransformPoint(_offsetVecEyes);
-        private bool IsClimax => HSceneInterp.hFlag.nowAnimStateName.EndsWith("_Loop", System.StringComparison.Ordinal);
 
         internal static PoV Create()
         {
@@ -144,8 +155,8 @@ namespace KK_VR.Features
             _degPerSec = 30f * (KoikSettings.RotationAngle.Value / 45f);
             _rotDeviationThreshold = KoikSettings.PovDeviationThreshold.Value;
             _rotDeviationHalf = (int)(_rotDeviationThreshold * 0.4f);
-
-
+            _hideHeadSetting = KoikSettings.PovHideHead.Value;
+            _rotationSetting = (KoikSettings.Pov.Value & KoikSettings.PovGenders.Rotation) != 0;
             if (KoikSettings.PovAttachment.Value == KoikSettings.PovAttachmentBones.Eyes)
             {
                 _offsetVecEyes = KoikSettings.PositionOffset.Value;
@@ -164,7 +175,27 @@ namespace KK_VR.Features
 
         private void SetVisibility(ChaControl chara)
         {
-            if (chara != null) chara.fileStatus.visibleHeadAlways = true;
+            if (chara == null) return;
+            
+            chara.fileStatus.visibleHeadAlways = true;
+
+            var hair = chara.objHeadBone.transform.Find("ct_head/N_tonn_face/N_cf_haed");
+
+            if (hair != null)
+                hair.gameObject.SetActive(true);
+        }
+
+        // Hook for the postfix of HActionBase.SetPlay that changes animator state.
+        internal void OnSetPlay(string nextAnim)
+        {
+            // Setting says to run pov during climax
+            if ((KoikSettings.Pov.Value & KoikSettings.PovGenders.Climax) != 0)
+            {
+                _climax = false;
+            }
+            // Setting says not to, look for climax animations
+            else
+                _climax = nextAnim.EndsWith("_Loop", StringComparison.Ordinal);
         }
 
         private void MoveToPos()
@@ -172,7 +203,7 @@ namespace KK_VR.Features
             var origin = VR.Camera.Origin;
             if (_newAttachPoint)
             {
-                if (!IsClimax)
+                if (!_climax)
                 {
                     //origin.rotation = _offsetRotNewAttach;
                     origin.position += _targetBone.position + _offsetVecNewAttach - VR.Camera.Head.position;
@@ -180,7 +211,7 @@ namespace KK_VR.Features
             }
             else
             {
-                if (IsClimax)
+                if (_climax)
                 {
                     if (_rotationRequired)
                     {
@@ -263,7 +294,7 @@ namespace KK_VR.Features
 
         private void MoveToPosNoRot()
         {
-            if (IsClimax) return;
+            if (_climax) return;
 
             if (_newAttachPoint)
             {
@@ -326,7 +357,28 @@ namespace KK_VR.Features
             CameraBusy?.Invoke(isGirl);
             //MouthGuide.SetBusy(isGirl);
 
-            _forceHideHead = KoikSettings.PovHideHead.Value == KoikSettings.PovHideHeadType.ForceHide;
+            var hideHeadSetting = KoikSettings.PovHideHead.Value;
+            // Only Hide mode is always proactive, the rest are proactive only when the camera is on the move
+            var hideHeadProactive = hideHeadSetting == KoikSettings.PovHideHeadType.HideHead;
+
+            // Hide properly non proactive types
+            if (!hideHeadProactive)
+            {
+                switch (hideHeadSetting)
+                {
+                    case KoikSettings.PovHideHeadType.HideHeadAlways:
+                        SetHeadActive(_target, false);
+                        break;
+                    case KoikSettings.PovHideHeadType.HideFace:
+                        HideFace(_target, _targetFaceRenderers);
+                        break;
+                }
+            }
+
+            // Store settings in instance variables
+            _hideHead = hideHeadProactive;
+            _hideHeadSetting = hideHeadSetting;
+
 
             // Invoke delegates.
             Impersonation?.Invoke(true, _target);
@@ -344,10 +396,10 @@ namespace KK_VR.Features
             }
             else
             {
-                // Only one mode is currently operational.
-
-                var targetRot = KoikSettings.PovNoRotation.Value ? Quaternion.Euler(0f, _targetBone.eulerAngles.y, 0f) : _targetBone.rotation;
-
+                // Strip rotation if no setting
+                var targetRot = _rotationSetting ? _targetBone.rotation : Quaternion.Euler(0f, _targetBone.eulerAngles.y, 0f);
+                // Set predetermined destination as SLerp for dynamic
+                // destination will be very chaotic more often then not.
                 _trip = new OneWayTrip(Mathf.Min(
                     KoikSettings.FlightSpeed.Value * speed / Vector3.Distance(VR.Camera.Head.position, GetEyesPosition),
                     KoikSettings.FlightSpeed.Value * 60f / Quaternion.Angle(VR.Camera.Origin.rotation, targetRot)),
@@ -357,15 +409,21 @@ namespace KK_VR.Features
 
         private void MoveToHeadEx()
         {
+            // Start of the movement
             if (_trip == null)
             {
                 StartMoveToHead();
             }
-            else if (_trip.Move(GetEyesPosition) >= 1f)
+            // Movement phase
+            else 
             {
-                CameraIsNear();
-                _newAttachPoint = false;
-                _trip = null;
+                if (_trip.Move(GetEyesPosition) >= 1f)
+                {
+                    // When arrived at position
+                    CameraIsNear();
+                    _newAttachPoint = false;
+                    _trip = null;
+                }
             }
         }
 
@@ -403,13 +461,15 @@ namespace KK_VR.Features
 
         private void NextChara(bool keepChara = false)
         {
-            _forceHideHead = false;
-            // As some may add extra characters with kPlug, we look them all up.
+            // Camera is about to move, proactive head hiding unless 'Setting == Show'
+            // Cached instance field with the setting hasn't been updated yet, use actual settings
+            _hideHead = KoikSettings.PovHideHead.Value != KoikSettings.PovHideHeadType.ShowHead;
 
+            // As some may add extra characters with kPlug, we look them all up.
             var charas = FindObjectsOfType<ChaControl>()
                     .Where(c => c.objTop.activeSelf && c.visibleAll
                     // Genders to avoid, boys(0), girls(1), none(2).
-                    && c.sex != ((KoikSettings.Pov.Value & KoikSettings.Genders.Girls) != 0 ? (KoikSettings.Pov.Value & KoikSettings.Genders.Boys) != 0 ? 2 : 0 : 1))
+                    && c.sex != ((KoikSettings.Pov.Value & KoikSettings.PovGenders.Girls) != 0 ? (KoikSettings.Pov.Value & KoikSettings.PovGenders.Boys) != 0 ? 2 : 0 : 1))
                     .ToList();
 
             if (charas.Count == 0)
@@ -429,6 +489,7 @@ namespace KK_VR.Features
                 // No point in switching with only one active character, disable instead.
 
                 _prevTarget = _target;
+                _prevTargetFaceRenderers = _targetFaceRenderers;
                 _target = charas[0];
 
                 _mode = Mode.Disable;
@@ -437,19 +498,21 @@ namespace KK_VR.Features
             else
             {
                 _prevTarget = _target;
+                _prevTargetFaceRenderers = _targetFaceRenderers;
                 _target = charas[currentCharaIndex + 1];
             }
             Impersonation?.Invoke(true, _target);
-            //if (MouthGuide.Instance != null)
-            //{
-            //    MouthGuide.Instance.OnImpersonation(_target);
-            //}
+
+            // Get eyes as all position calculations are relative to the eyes regardless of the chosen bone
             _targetEyes = _target.objHeadBone.transform.Find("cf_J_N_FaceRoot/cf_J_FaceRoot/cf_J_FaceBase/cf_J_FaceUp_ty/cf_J_FaceUp_tz");
-
+            // Get eyes (move with the head), or neck (doesn't move with the head)
             _targetBone = KoikSettings.PovAttachment.Value == KoikSettings.PovAttachmentBones.Eyes ? _targetEyes : _target.neckLookCtrl.transform;
+            // Find parent for face renderers
+            _targetFaceRenderers = _target.objHeadBone.transform.Find("ct_head/N_tonn_face/N_cf_haed").gameObject;
 
-            CameraIsFarAndBusy();
+            // Reset states, store frequently used settings in instance fields
             UpdateSettings();
+            CameraIsFarAndBusy();
         }
 
         private void NewPosition()
@@ -464,7 +527,8 @@ namespace KK_VR.Features
             //_gripMove = press;
             if (_active)
             {
-                _forceHideHead = false;
+                // Use the proactive head hiding unless 'Setting == Show'
+                _hideHead = _hideHeadSetting != KoikSettings.PovHideHeadType.ShowHead;
                 if (press)
                 {
                     CameraIsFar();
@@ -499,9 +563,10 @@ namespace KK_VR.Features
         {
             _active = false;
             SetVisibility(_target);
+            SetVisibility(_prevTarget);
             _mode = Mode.Disable;
             _newAttachPoint = false;
-            _forceHideHead = false;
+            _hideHead = false;
             _moveTo = null;
 
             Impersonation?.Invoke(false, _target);
@@ -588,14 +653,10 @@ namespace KK_VR.Features
                             HandleDisable();
                             break;
                         case Mode.Follow:
-                            if (KoikSettings.PovNoRotation.Value)
-                            {
-                                MoveToPosNoRot();
-                            }
-                            else
-                            {
+                            if (_rotationSetting)
                                 MoveToPos();
-                            }
+                            else
+                                MoveToPosNoRot();
                             break;
                         case Mode.Move:
                             MoveToHeadEx();
@@ -607,25 +668,35 @@ namespace KK_VR.Features
 
         private void LateUpdate()
         {
-            if (_active && _target != null && KoikSettings.PovHideHead.Value != KoikSettings.PovHideHeadType.Show)
+            if (_hideHead && _target != null)
             {
-                HideHeadEx(_target);
-                if (_prevTarget != null)
+                //if (_hideHeadSetting == KoikSettings.PovHideHeadType.ShowHair)
+                //{
+                //    HideHair(_target, _targetHeadRenderers);
+                //    if (_prevTarget != null)
+                //    {
+                //        HideHair(_prevTarget, _prevTargetHeadRenderers);
+                //    }
+                //}
+                //else
+                //{
+                switch (_hideHeadSetting)
                 {
-                    HideHead(_prevTarget);
-                }
-            }
-        }
+                    case KoikSettings.PovHideHeadType.HideFace:
+                        // Hide only face
+                        HideFace(_target, _targetFaceRenderers);
 
-        private void HideHeadEx(ChaControl chara)
-        {
-            if (_forceHideHead)
-            {
-                chara.fileStatus.visibleHeadAlways = false;
-            }
-            else
-            {
-                HideHead(chara);
+                        if (_prevTarget != null)
+                            HideFace(_prevTarget, _prevTargetFaceRenderers);
+                        break;
+                    default:
+                        // Hide full head
+                        HideHead(_target);
+
+                        if (_prevTarget != null)
+                            HideHead(_prevTarget);
+                        break;
+                }
             }
         }
 
@@ -646,6 +717,23 @@ namespace KK_VR.Features
                 }
             }
         }
+        private void HideFace(ChaControl chara, GameObject headRenderers)
+        {
+            var headClose = IsHeadClose(chara.objHead.transform);
+            // Doubt that it's a good idea to spam GameObject.SetActive() each frame in old Unity
+#if KK
+            if (headRenderers.active)
+#else
+            if (headRenderers.activeSelf)
+#endif
+            {
+                if (headClose) headRenderers.SetActive(false);
+            }
+            else
+            {
+                if (!headClose) headRenderers.SetActive(true);
+            }
+        }
 
         private void SetHeadActive(ChaControl chara, bool active)
         {
@@ -662,7 +750,7 @@ namespace KK_VR.Features
 
         internal void TryEnable()
         {
-            if ((KoikSettings.Pov.Value & KoikSettings.Genders.Boys) != 0 || (KoikSettings.Pov.Value & KoikSettings.Genders.Girls) != 0)
+            if ((KoikSettings.Pov.Value & KoikSettings.PovGenders.Boys) != 0 || (KoikSettings.Pov.Value & KoikSettings.PovGenders.Girls) != 0)
             {
                 if (_newAttachPoint)
                 {
@@ -678,7 +766,7 @@ namespace KK_VR.Features
 
         internal void OnLimbSync(bool start)
         {
-            _forceHideHead = start;
+            _hideHead = start;
         }
     }
 }
