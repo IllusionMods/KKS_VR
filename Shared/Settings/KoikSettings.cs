@@ -39,9 +39,10 @@ namespace KK_VR.Settings
         }
         public enum PovHideHeadType
         {
-            Show,
-            Hide,
-            ForceHide
+            ShowHead,
+            HideHead,
+            HideHeadAlways,
+            HideFace,
         }
         public enum HeadEffector
         {
@@ -109,13 +110,11 @@ namespace KK_VR.Settings
 
         #region Pov
 
-        public static ConfigEntry<Genders> Pov { get; private set; }
+        public static ConfigEntry<PovGenders> Pov { get; private set; }
         public static ConfigEntry<PovMovementType> FlyInPov { get; private set; }
         public static ConfigEntry<PovHideHeadType> PovHideHead { get; private set; }
         public static ConfigEntry<float> FlightSpeed { get; private set; }
         public static ConfigEntry<int> PovDeviationThreshold { get; private set; }
-        public static ConfigEntry<bool> PovAutoEnter { get; private set; }
-        public static ConfigEntry<bool> PovNoRotation { get; private set; }
         public static ConfigEntry<PovAttachmentBones> PovAttachment { get; private set; }
 
 
@@ -328,28 +327,32 @@ namespace KK_VR.Settings
             #region SectionPov
 
 
-            Pov = config.Bind(SectionPov, "Enable", Genders.Boys,
+            Pov = config.Bind(SectionPov, "Enable", PovGenders.Boys | PovGenders.Auto | PovGenders.Rotation,
                 new ConfigDescription(
-                    "The range of targets for impersonations.",
+                    "Boys – target males for impersonation\n" +
+                    "Girls – target females for impersonation\n" +
+                    "Auto – automatically initiate PoV mode when appropriate\n" +
+                    "Rotation – follow rotation during PoV mode (might be dangerous for the first-day-vr-crew)\n" +
+                    "Climax – continue following during climax (causes violent trembles of the camera)",
                     null,
                     new ConfigurationManagerAttributes { Order = 100 }
                     ));
 
 
-            PovAutoEnter = config.Bind(SectionPov, "Auto impersonation", true,
-                new ConfigDescription(
-                    "Automatically impersonate on position change if appropriate according to the setting.",
-                    null,
-                    new ConfigurationManagerAttributes { Order = 90 }
-                    ));
+            //PovAutoEnter = config.Bind(SectionPov, "Auto impersonation", true,
+            //    new ConfigDescription(
+            //        "Automatically impersonate on position change if appropriate according to the setting.",
+            //        null,
+            //        new ConfigurationManagerAttributes { Order = 90 }
+            //        ));
 
 
-            PovNoRotation = config.Bind(SectionPov, "No rotation", false,
-                new ConfigDescription(
-                    "Disable rotation adjustment.",
-                    null,
-                    new ConfigurationManagerAttributes { Order = 80 }
-                    ));
+            //PovNoRotation = config.Bind(SectionPov, "No rotation", false,
+            //    new ConfigDescription(
+            //        "Disable rotation adjustment.",
+            //        null,
+            //        new ConfigurationManagerAttributes { Order = 80 }
+            //        ));
 
 
             PovDeviationThreshold = config.Bind(SectionPov, "Lazy", 15,
@@ -379,11 +382,12 @@ namespace KK_VR.Settings
                     ));
 
 
-            PovHideHead = config.Bind(SectionPov, "Hide head", PovHideHeadType.Hide,
+            PovHideHead = config.Bind(SectionPov, "Hide head", PovHideHeadType.HideHead,
                 new ConfigDescription(
-                    "Hide - hides character's head when the PoV camera is in it\n" +
-                    "Force Hide - always hides character's head. Behaves like 'Hide' option during GripMove\n" +
-                    "Show - character's head stays visible",
+                    "Show Head – never hide the head nor the face\n" +
+                    "Hide Head – hide the head when the camera is close to it\n" +
+                    "Hide Head Always – always hide the head\n" +
+                    "Hide Face – hide the face when the camera is close to it, leaves the hair and accessories visible",
                     null,
                     new ConfigurationManagerAttributes { Order = 40 }
                     ));
@@ -394,6 +398,13 @@ namespace KK_VR.Settings
                     null,
                     new ConfigurationManagerAttributes { Order = 30 }
                     ));
+
+            //PovStopForClimax = config.Bind(SectionPov, "Stop for climax", true,
+            //    new ConfigDescription(
+            //        "Halt position and rotation adjustment during climax to avoid violent trembling.",
+            //        null,
+            //        new ConfigurationManagerAttributes { Order = 20 }
+            //        ));
 
 
             // Didn't meet the expectations.
@@ -645,6 +656,17 @@ namespace KK_VR.Settings
                     }
                     break;
             }
+        }
+
+        [Flags]
+        public enum PovGenders
+        {
+            Disable = 0,
+            Boys = 1,
+            Girls = 2,
+            Auto = 4,
+            Rotation = 8,
+            Climax = 16,
         }
     }
 }
