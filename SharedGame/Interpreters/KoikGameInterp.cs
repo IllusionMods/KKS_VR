@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using VRGIN.Core;
 using System.Collections;
 using UnityEngine.SceneManagement;
@@ -138,7 +138,7 @@ namespace KK_VR.Interpreters
         // PR was merged long time ago in KK_Subtitles.
         ///// <summary>
         ///// Fix up scaling of subtitles added by KK_Subtitles. See
-        ///// https://github.com/IllusionMods/KK_Plugins/pull/91 for details.
+        ///// https://gitgoon.dev/IllusionMods/KK_Plugins/pull/91 for details.
         ///// </summary>
         //private void FixupKkSubtitles()
         //{

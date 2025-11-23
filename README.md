@@ -21,18 +21,18 @@ The studio part is a fork of the [KKS_CharaStudioVR](https://vr-erogamer.com/arc
 ## Installation
 
 1. Make sure BepInEx, KKAPI / KKSAPI and all their dependencies have been installed.
-2. Download the latest [release](https://github.com/IllusionMods/KKS_VR/releases) for the corresponding game. Make sure you get the right version or the plugin won't work and might even break your game.
+2. Download the latest [release](https://gitgoon.dev/IllusionMods/KKS_VR/releases) for the corresponding game. Make sure you get the right version or the plugin won't work and might even break your game.
    - KK_VR is for Koikatu (the Japanese release)
    - KKParty_VR is for Koikatsu Party (the Steam/international release)
    - KKS_VR is for Koikatsu Sunshine (the sequel)
 3. Extract the zip into the game folder (where the abdata and BepInEx folders are).
-4. Create a shortcut to Koikatu.exe and/or KoikatsuSunshine.exe and/or CharaStudio.exe, and add `--vr` to the command line. If you use a custom launcher from [IllusionLaunchers](https://github.com/IllusionMods/IllusionLaunchers) you may be able to start from within it, depending on the version.
+4. Create a shortcut to Koikatu.exe and/or KoikatsuSunshine.exe and/or CharaStudio.exe, and add `--vr` to the command line. If you use a custom launcher from [IllusionLaunchers](https://gitgoon.dev/IllusionMods/IllusionLaunchers) you may be able to start from within it, depending on the version.
 
 The game (not the studio) also can be launched without any added arguments if SteamVR is running.
 
 ## Incompatibilities
  * A plugin *CrossFader.dll*, this plugin won't launch.
- * A plugin [Stiletto](https://github.com/IllusionMods/Stiletto), IK Manipulator won't work.
+ * A plugin [Stiletto](https://gitgoon.dev/IllusionMods/Stiletto), IK Manipulator won't work.
 
 ## Tips
  * Be advised to set InterPupillary Distance (IPD) in the settings to change the scale of the world according to own taste and used hardware.
