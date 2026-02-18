@@ -44,6 +44,7 @@ namespace KK_VR.Handlers
                     && h.chaCtrl.fileParam.fullname == _colliderInfo.chara.fileParam.fullname
                     && h.chaCtrl.fileParam.personality == _colliderInfo.chara.fileParam.personality))
                     .FirstOrDefault();
+
                 if (heroine != null)
                 {
                     // Uncapped from 0..1 for easier reach of ceiling for actions (1)
@@ -54,7 +55,8 @@ namespace KK_VR.Handlers
                         // Caps at 0.75
                         0.25f * (int)heroine.HExperience +
                         // Caps at 0.5
-                        0.5f * Mathf.Clamp(flag.gaugeFemale, 0f, 100f);
+                         
+                        0.5f * Mathf.Clamp(flag == null ? heroine.favor : flag.gaugeFemale, 0f, 100f);
 
                     if (heroine.isGirlfriend)
                         familiarity += 0.25f;
