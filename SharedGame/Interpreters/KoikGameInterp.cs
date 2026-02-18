@@ -1,15 +1,17 @@
-using UnityEngine;
-using VRGIN.Core;
-using System.Collections;
-using UnityEngine.SceneManagement;
-using KK_VR.Features;
-using KK_VR.Camera;
-using KK_VR.Settings;
-using KK_VR.Holders;
-using System;
-using KK_VR.Controls;
 using BepInEx;
+using KK_VR.Camera;
+using KK_VR.Controls;
+using KK_VR.Features;
+using KK_VR.Holders;
+using KK_VR.Settings;
 using KKAPI.Utilities;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Threading;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using VRGIN.Core;
 
 namespace KK_VR.Interpreters
 {
@@ -29,11 +31,16 @@ namespace KK_VR.Interpreters
         internal static SceneInterpreter SceneInterpreter => _sceneInterpreter;
 
         internal static SceneInput SceneInput => _sceneInput;
+        // Semi-centralized fps number, so that it's not done multiple times per frame in different places.
+        // As unity doesn't have built-in property for this, nor does KoikAPI.
+        internal static float GetCurrentFPS => _instance._currentFPS;
+
         
         private static SceneType _currentScene;
         private static SceneInterpreter _sceneInterpreter;
         private static SceneInput _sceneInput;
         private static KoikGameInterp _instance;
+        private float _currentFPS;
 #if KK
         internal static bool IsParty => _party;
         private static bool _party;
@@ -65,6 +72,7 @@ namespace KK_VR.Interpreters
         }
         protected override void OnUpdate()
         {
+            _currentFPS = 1f / Time.deltaTime;
             UpdateScene();
             _sceneInterpreter.OnUpdate();
             _sceneInput.HandleInput();
@@ -354,12 +362,21 @@ namespace KK_VR.Interpreters
         //public override bool ApplicationIsQuitting => Manager.Scene.isGameEnd;
 
 
+        // Kinda too late to fiddle with this number without breaking all tailored for frames values.
+        // Should be irrelevant and work properly anyway.
         private const float _targetFps = 1f / 45f;
-        // As my potater can't into 90fps, I limit it to half and use frame interpolation to compensate.
-        // Thus all frame based calculations are done with 45fps in mind, feel free to supersede.
         internal static int ScaleWithFps(int number)
         {
             return Mathf.CeilToInt(_targetFps / Time.deltaTime * number);
+        }
+
+        internal static void RunAfterTimer(Action action, bool onEndFrame = false, float timer = 1f)
+        {
+            _instance.StartCoroutine(RunAfterTimerCo(action, onEndFrame, timer));
+        }
+        internal static void RunAfterTimer(bool onEndFrame = false, float timer = 1f, params Action[] actions)
+        {
+            _instance.StartCoroutine(RunAfterTimerCo(onEndFrame, timer, actions));
         }
 
         internal static void RunAfterUpdate(Action action, bool onEndFrame = false, int numberOfUpdates = 1)
@@ -374,7 +391,26 @@ namespace KK_VR.Interpreters
             {
                 yield return ret;
             }
-            action.Invoke();
+            action?.Invoke();
+        }
+        private static IEnumerator RunAfterTimerCo(Action action, bool onEndFrame, float timer)
+        {
+            yield return new WaitForSeconds(timer);
+            
+            if (onEndFrame) yield return CoroutineUtils.WaitForEndOfFrame;
+
+            action?.Invoke();
+        }
+        private static IEnumerator RunAfterTimerCo(bool onEndFrame, float timer, params Action[] actions)
+        {
+            yield return new WaitForSeconds(timer);
+
+            if (onEndFrame) yield return CoroutineUtils.WaitForEndOfFrame;
+
+            foreach (var action in  actions)
+            {
+                action?.Invoke();
+            }
         }
     }
 }
