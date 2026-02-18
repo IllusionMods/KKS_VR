@@ -43,7 +43,7 @@ namespace KK_VR.Settings
         public static ConfigEntry<bool> AssistedKissing { get; private set; }
         public static ConfigEntry<bool> AssistedLicking { get; private set; }
         public static ConfigEntry<float> ProximityDuringKiss { get; private set; }
-        public static ConfigEntry<bool> FollowRotationDuringKiss { get; private set; }
+        public static ConfigEntry<bool> AssistedActionRotation { get; private set; }
 
         public static ConfigEntry<HandType> HideHandOnUserInput { get; private set; }
         public static ConfigEntry<bool> SmoothTransition { get; private set; }
@@ -116,7 +116,7 @@ namespace KK_VR.Settings
                     ));
 
 
-            FollowRotationDuringKiss = config.Bind(SectionH, "Assisted action rotation", true,
+            AssistedActionRotation = config.Bind(SectionH, "Assisted action rotation", true,
                 new ConfigDescription(
                     "Apply rotation to the camera during the assisted kiss/lick.",
                     null,
