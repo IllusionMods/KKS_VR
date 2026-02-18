@@ -50,11 +50,11 @@ namespace KK_VR.Handlers
                     // and even bigger possible window for "FirstTouch" reaction.
                     var familiarity =
                         // Caps at 0.5
-                        0.3f * Mathf.Clamp(heroine.lewdness, 0, 100) +
+                        0.5f * Mathf.Clamp(heroine.lewdness, 0, 100) +
                         // Caps at 0.75
                         0.25f * (int)heroine.HExperience +
                         // Caps at 0.5
-                        0.3f * Mathf.Clamp(flag.gaugeFemale, 0f, 100f);
+                        0.5f * Mathf.Clamp(flag.gaugeFemale, 0f, 100f);
 
                     if (heroine.isGirlfriend)
                         familiarity += 0.25f;
