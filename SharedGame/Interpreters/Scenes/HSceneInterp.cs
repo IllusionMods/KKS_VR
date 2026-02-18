@@ -432,7 +432,8 @@ namespace KK_VR.Interpreters
                 return increase ? 2 : 0;
             }
             // OLoop
-            return increase ? 2 : 1;
+            // On attempt to increase loop intensity beyond OrgasmLoop jump to WeakLoop instead.
+            return increase ? 0 : 1;
         }
 
         internal static void OnPoseChange(HSceneProc.AnimationListInfo anim)
