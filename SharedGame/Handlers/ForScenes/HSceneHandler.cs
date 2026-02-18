@@ -215,7 +215,7 @@ namespace KK_VR.Handlers
 
             if (!IsReactionEligible(chara)) return;
 
-            if (velocity > 1.5f || (reactionType == ReactionType.HitReaction && !IsAibuItemPresent(out _)))
+            if (velocity > 1.5f || (reactionType == ReactionType.Reaction && !IsAibuItemPresent(out _)))
             {
                 var touchReaction = GameSettings.AutoTouchAltReaction.Value;
                 // Try to play alternative Touch Reaction implemented via fancy IK tweaks.

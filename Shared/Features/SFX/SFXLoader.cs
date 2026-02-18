@@ -8,6 +8,7 @@ using UnityEngine;
 using VRGIN.Core;
 using System.Reflection;
 using KK_VR.Settings;
+using ADV.Commands.Base;
 
 namespace KK_VR.Features
 {
@@ -32,62 +33,76 @@ namespace KK_VR.Features
             InitDic();
             LoadEmbeddedResources();
         }
-        internal void PlaySfx(float volume, Sfx sfx, Surface surface, Intensity intensity, bool overwrite)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>The length of an audio clip or 0 if none were found.</returns>
+        internal float PlaySfx(float volume, Sfx sfx, Surface surface, Intensity intensity, bool overwrite)
         {
-            if (!KoikSettings.EnableSFX.Value) return;
+            if (!KoikSettings.SfxEnable.Value) return 0f;
+
             if (_audioSource.isPlaying)
             {
-                if (!overwrite) return;
+                if (!overwrite) return 0f;
                 _audioSource.Stop();
             }
-
-            //VRPlugin.Logger.LogInfo($"AttemptToPlay:{sfx}:{surface}:{intensity}:{volume}");
-            AdjustInput(sfx, ref surface, ref intensity);
+            AdjustInput(ref sfx, ref surface, ref intensity);
             var audioClipList = sfxDic[sfx][(int)surface][(int)intensity];
             var count = audioClipList.Count;
+#if DEBUG
+            VRPlugin.Logger.LogInfo($"{GetType().Name}.{MethodInfo.GetCurrentMethod().Name}:" +
+                $"sfx[{sfx}] surface[{surface}] intensity[{intensity}] volume[{volume}] count[{count}]");
+#endif
             if (count != 0)
             {
-                _audioSource.volume = Mathf.Clamp01(volume);
+                _audioSource.volume = Mathf.Clamp01(volume * KoikSettings.SfxVolume.Value);
                 _audioSource.pitch = 0.9f + UnityEngine.Random.value * 0.2f;
                 _audioSource.clip = audioClipList[UnityEngine.Random.Range(0, count)];
                 _audioSource.Play();
+                return _audioSource.clip.length;
             }
-
+            return 0f;
         }
-        private void AdjustInput(Sfx sfx, ref Surface surface, ref Intensity intensity)
+
+        private void AdjustInput(ref Sfx sfx, ref Surface surface, ref Intensity intensity)
         {
-            // Because currently we have far from every category covered.
-            if (intensity == Intensity.Wet)
-            {
-                surface = Surface.Skin;
-            }
-            else if (sfx == Sfx.Slap)
-            {
-                surface = Surface.Skin;
-            }
-            else if (sfx == Sfx.Traverse)
-            {
-                if (surface == Surface.Hair)
-                {
-                    intensity = Intensity.Soft;
-                }
-                else if (surface == Surface.Skin)
-                {
-                    intensity = Intensity.Soft;
-                }
-            }
-            else if (sfx == Sfx.Undress)
-            {
+            // Substitute Traverse Skin [Hollow –> Soft]
+            // Substitute Traverse [Cloth Wet –> Skin Wet and/or Skin Soft]
+            // Substitute Traverse Cloth [Hollow –> Hard]
+            // Substitute [Dress Cloth Hard –> Undress Cloth Hard]
 
+            if (sfx == Sfx.Traverse)
+            {
+                if (surface == Surface.Cloth)
+                {
+                    if (intensity == Intensity.Wet)
+                    {
+                        surface = Surface.Skin;
+                        intensity = UnityEngine.Random.value < 0.5f ? Intensity.Wet : Intensity.Soft;
+                    }
+                    else if (intensity == Intensity.Hollow)
+                    {
+                        intensity = Intensity.Hard;
+                    }
+                }
+                else if (surface == Surface.Skin && intensity == Intensity.Hollow)
+                {
+                    intensity = Intensity.Soft;
+                }
+            }
+            else if (sfx == Sfx.Dress && surface == Surface.Cloth && intensity == Intensity.Hard)
+            {
+                sfx = Sfx.Undress;
             }
         }
 
-        // As of now categories are highly inconsistent, perhaps revamp of sorts?
+
         internal enum Sfx
         {
             Tap,
             Slap,
             Traverse,
+            Dress,
             Undress,
         }
 
@@ -101,11 +116,13 @@ namespace KK_VR.Features
         internal enum Intensity
         {
             // Think about:
-            //     Soft as something smallish and soft and on slower side of things, like boobs or ass.
-            //     Rough as something flattish and big and at times intense, like tummy or thighs.
-            //     Wet as.. yet to mix something proper for it. WIP.
-            Soft,
-            Rough,
+            //     Soft as something smallish and soft and on slower side of things. Skin[boobs, pelvis area], Cloth[Underwear, socks], Hair[medium, long]
+            //     Hard as something flattish and big and at times intense. Skin[Limbs, rib cage, head], Cloth[Top, bottom], Hair[Short]
+            //     Hollow. Skin[Tummy], Cloth[Shoes]
+            //     Wet as something that makes squelch sounds. Skin[Vagina], Cloth[conditional panties?]
+            Soft, 
+            Hard,
+            Hollow,
             Wet
         }
 
@@ -164,7 +181,8 @@ namespace KK_VR.Features
 #if DEBUG
                 VRPlugin.Logger.LogDebug($"LoadEmbeddedResources:{resource}");
 #endif
-                if (!resource.EndsWith(".ogg", StringComparison.OrdinalIgnoreCase)) continue;
+                if (!resource.EndsWith(".ogg", StringComparison.OrdinalIgnoreCase) 
+                    && !resource.EndsWith(".wav", StringComparison.OrdinalIgnoreCase)) continue;
 
                 // KKS_VR.SFX.Slap.Skin.Rough.sv_se_h_44.ogg -> Slap.Skin.Rough.sv_se_h_44.ogg
                 var folders = resource.Remove(0, resource.IndexOf("SFX") + 4).Trim().Split('.');
@@ -219,14 +237,25 @@ namespace KK_VR.Features
 
         private static IEnumerator LoadAudioFile(string path, string name, List<AudioClip> destination)
         {
+            var audioType = path switch
+            {
+                var p when p.EndsWith(".ogg", StringComparison.OrdinalIgnoreCase) => AudioType.OGGVORBIS,
+                var p when p.EndsWith(".wav", StringComparison.OrdinalIgnoreCase) => AudioType.WAV,
+                _ => AudioType.UNKNOWN,
+            };
+            if (audioType == AudioType.UNKNOWN)
+            {
+                VRPlugin.Logger.LogWarning($"Attempt to load an audio file with unsupported format. path[{path}] name[{name}]");
+                yield break;
+            }
 
 #if KK
-            var audioFile = UnityWebRequest.GetAudioClip(path, AudioType.OGGVORBIS);
+            var audioFile = UnityWebRequest.GetAudioClip(path, audioType);
             
             yield return audioFile.Send();
             if (audioFile.isError)
 #else
-            var audioFile = UnityWebRequestMultimedia.GetAudioClip(path, AudioType.OGGVORBIS);
+            var audioFile = UnityWebRequestMultimedia.GetAudioClip(path, audioType);
 
             yield return audioFile.SendWebRequest();
             if (audioFile.isHttpError || audioFile.isNetworkError)
