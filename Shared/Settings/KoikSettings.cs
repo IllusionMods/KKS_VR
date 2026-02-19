@@ -94,7 +94,9 @@ namespace KK_VR.Settings
         public static ConfigEntry<bool> EnableBoop { get; private set; }
         public static ConfigEntry<float> ShortPress { get; private set; }
         public static ConfigEntry<float> LongPress { get; private set; }
-        public static ConfigEntry<bool> EnableSFX { get; private set; }
+        public static ConfigEntry<bool> SfxEnable { get; private set; }
+        public static ConfigEntry<bool> SfxDelay { get; private set; }
+        public static ConfigEntry<float> SfxVolume { get; private set; }
         public static ConfigEntry<ShadowType> ShadowSetting { get; private set; }
         public static ConfigEntry<Vector3> ModelRotation { get; private set; }
         public static ConfigEntry<Vector3> ModelPosition { get; private set; }
@@ -123,8 +125,10 @@ namespace KK_VR.Settings
 
         #region H
 
-        public static ConfigEntry<Genders> AutomaticTouching { get; private set; }
-        public static ConfigEntry<float> TouchReaction { get; private set; }
+        public static ConfigEntry<Genders> AutoTouch { get; private set; }
+        public static ConfigEntry<float> AutoTouchReaction { get; private set; }
+        public static ConfigEntry<float> AutoTouchAltReaction { get; private set; }
+        public static ConfigEntry<float> AutoTouchVoice { get; private set; }
 
         #endregion
 
@@ -253,11 +257,27 @@ namespace KK_VR.Settings
                     ));
 
 
-            EnableSFX = config.Bind(SectionGeneral, "Enable sfx", true,
+            SfxEnable = config.Bind(SectionGeneral, "SFX Enable", true,
                 new ConfigDescription(
-                    "SFX for controller touch",
+                    "SFX for controller touch, such as tap, slap and traverse across skin and clothes.",
                     null,
                     new ConfigurationManagerAttributes { Order = -15 }
+                    ));
+
+
+            SfxVolume = config.Bind(SectionGeneral, "SFX Volume", 1f,
+                new ConfigDescription(
+                    "Affect general volume of all SFX.",
+                     new AcceptableValueRange<float>(0f, 1f),
+                    new ConfigurationManagerAttributes { ShowRangeAsPercent = false, Order = -16 }
+                    ));
+
+
+            SfxDelay = config.Bind(SectionGeneral, "SFX Delay", true,
+                new ConfigDescription(
+                    "Delay some SFX related actions so that they are performed amidst of SFX rather than in the beginning.",
+                    null,
+                    new ConfigurationManagerAttributes { Order = -17 }
                     ));
 
 
@@ -309,14 +329,33 @@ namespace KK_VR.Settings
 
 
             // This one can be a bit annoying currently as characters can overreact if unintentionally bullied by the controller in pov mode during animations.
-            AutomaticTouching = config.Bind(SectionH, "Automatic touching", Genders.Girls,
+            AutoTouch = config.Bind(SectionH, "AutoTouch", Genders.Girls,
                 "Touching body with controller triggers a reaction"
                 );
 
 
-            TouchReaction = config.Bind(SectionH, "Touch reaction", 0.2f,
+            AutoTouchReaction = config.Bind(SectionH, "AutoTouch Reaction", 1f,
                 new ConfigDescription(
-                    "Set probability of an alternative reaction to the touch.",
+                    "Influence probability of playing Reaction.\n" +
+                    "1f – standard logic applies.\n" +
+                    "0f – completely removed in favor of NoReaction.",
+                    new AcceptableValueRange<float>(0f, 1f),
+                    new ConfigurationManagerAttributes { Order = -10, ShowRangeAsPercent = false }
+                    ));
+
+            AutoTouchAltReaction = config.Bind(SectionH, "AutoTouch AltReaction", 0.2f,
+                new ConfigDescription(
+                    "Set probability of playing AltReaction in place of Reaction.",
+                    new AcceptableValueRange<float>(0f, 1f),
+                    new ConfigurationManagerAttributes { Order = -10, ShowRangeAsPercent = false }
+                    ));
+
+            // Aka "Short" in game code.
+            AutoTouchVoice = config.Bind(SectionH, "AutoTouch Voice", 1f,
+                new ConfigDescription(
+                    "Influence probability of playing a ShortGasp or Laugh.\n" +
+                    "1f – standard logic applies.\n" +
+                    "0f – completely removed in favor of NoReaction.",
                     new AcceptableValueRange<float>(0f, 1f),
                     new ConfigurationManagerAttributes { Order = -10, ShowRangeAsPercent = false }
                     ));

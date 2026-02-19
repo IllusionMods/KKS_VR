@@ -1,4 +1,6 @@
-﻿using KK_VR.Interpreters;
+﻿using ADV.Commands.Base;
+using KK_VR.Interpreters;
+using KK_VR.Settings;
 using Manager;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,11 +13,67 @@ namespace KK_VR.Handlers
     // Supposed to be at disposal of component directly under controller's control.
     class ControllerTracker : Tracker
     {
-        private readonly List<Body> _reactOncePerTrack = [];
-        private float _familiarity;
-        private float _lastTrack;
         internal bool firstTrack;
         internal ReactionType reactionType;
+
+        private readonly List<Body> _reactOncePerTrack = [];
+        private float _lastTrack;
+
+        // The more familiar the less frequent are reactions.
+        private float GetFamiliarity
+        {
+            get
+            {
+                // Add exp/weak point influence?
+                SaveData.Heroine heroine = null;
+                var flag = HSceneInterp.hFlag;
+
+                if (flag != null)
+                {
+                    heroine = flag.lstHeroine
+                        .Where(h => h.chaCtrl == _colliderInfo.chara)
+                        .FirstOrDefault();
+                }
+#if KK
+            heroine??= Game.Instance.HeroineList
+#else
+                heroine ??= Game.HeroineList
+#endif
+                    .Where(h => h.chaCtrl == _colliderInfo.chara ||
+                    (h.chaCtrl != null
+                    && h.chaCtrl.fileParam.fullname == _colliderInfo.chara.fileParam.fullname
+                    && h.chaCtrl.fileParam.personality == _colliderInfo.chara.fileParam.personality))
+                    .FirstOrDefault();
+
+                if (heroine != null)
+                {
+                    // Uncapped from 0..1 for easier reach of ceiling for actions (1)
+                    // and even bigger possible window for "FirstTouch" reaction.
+                    var familiarity =
+                        // Caps at 0.5
+                        0.5f * Mathf.Clamp(heroine.lewdness, 0, 100) +
+                        // Caps at 0.75
+                        0.25f * (int)heroine.HExperience +
+                        // Caps at 0.5
+                         
+                        0.5f * Mathf.Clamp(flag == null ? heroine.favor : flag.gaugeFemale, 0f, 100f);
+
+                    if (heroine.isGirlfriend)
+                        familiarity += 0.25f;
+
+                    return familiarity;
+
+                    //*
+                    //  (HSceneInterp.hFlag != null && HSceneInterp.hFlag.isFreeH ?
+                    //1f : (0.5f + heroine.intimacy * 0.005f));
+                }
+                else
+                {
+                    // Extra characters/player.
+                    return 0.75f;
+                }
+            }
+        }
 
         internal override bool AddCollider(Collider other)
         {
@@ -25,7 +83,7 @@ namespace KK_VR.Handlers
                 // KKS doesn't update chara.visibleAll.
                 if (info.chara != null && info.chara.rendBody.isVisible && !IsInBlacklist(info.chara, info.behavior.part))
                 {
-                    colliderInfo = info;
+                    _colliderInfo = info;
                     SetReaction();
                     _trackList.Add(other);
                     return true;
@@ -33,6 +91,7 @@ namespace KK_VR.Handlers
             }
             return false;
         }
+
         internal override bool RemoveCollider(Collider other)
         {
             if (_trackList.Remove(other))
@@ -41,75 +100,16 @@ namespace KK_VR.Handlers
                 {
                     _lastTrack = Time.time;
                     _reactOncePerTrack.Clear();
-                    colliderInfo = null;
+                    _colliderInfo = null;
                 }
                 else
-                    colliderInfo = _referenceTrackDic[_trackList.Last()];
+                    _colliderInfo = _referenceTrackDic[_trackList.Last()];
 
                 return true;
             }
             return false;
         }
-        private void GetFamiliarity()
-        {
-            // Add exp/weak point influence?
-            SaveData.Heroine heroine = null;
-            if (HSceneInterp.hFlag != null)
-            {
-                heroine = HSceneInterp.hFlag.lstHeroine
-                    .Where(h => h.chaCtrl == colliderInfo.chara)
-                    .FirstOrDefault();
-            }
-#if KK
-            heroine??= Game.Instance.HeroineList
-#else
-            heroine??= Game.HeroineList
-#endif
-                .Where(h => h.chaCtrl == colliderInfo.chara ||
-                (h.chaCtrl != null
-                && h.chaCtrl.fileParam.fullname == colliderInfo.chara.fileParam.fullname
-                && h.chaCtrl.fileParam.personality == colliderInfo.chara.fileParam.personality))
-                .FirstOrDefault();
-            if (heroine != null)
-            {
-                _familiarity = (0.55f + (0.15f * (int)heroine.HExperience));
-                //*
-                //  (HSceneInterp.hFlag != null && HSceneInterp.hFlag.isFreeH ?
-                //1f : (0.5f + heroine.intimacy * 0.005f));
-            }
-            else
-            {
-                // Extra characters/player.
-                _familiarity = 0.75f;
-            }
-        }
-        // Add mouth tracking? for starters head parts tracking at all.
-        //internal bool IsTrackingWetPart(out Body part)
-        //{
-        //    foreach (var collider in _trackList)
-        //    {
-        //        if (_referenceTrackDic[collider].behavior.part == Body.Asoko)
-        //        {
-        //            part = _referenceTrackDic[collider].behavior.part;
-        //            return true;
-        //        }
-        //    }
-        //    part = Body.None;
-        //    return false;
-        //}
-        //internal bool IsTrackingSoftPart(out Body part)
-        //{
-        //    foreach (var collider in _trackList)
-        //    {
-        //        if (IsSoftPart(_referenceTrackDic[collider].behavior.part))
-        //        {
-        //            part = _referenceTrackDic[collider].behavior.part;
-        //            return true;
-        //        }
-        //    }
-        //    part = Body.None;
-        //    return false;
-        //}
+
         private bool IsSoftPart(Body part)
         {
             return part switch
@@ -118,37 +118,73 @@ namespace KK_VR.Handlers
                 _ => false
             };
         }
+
         private void SetReaction()
         {
+            // The idea is:
+            // On FirstTouch at low familiarity play HitReaction,
+            // at high familiarity Laugh or Short.
+            // On 
+            var settingVoice = KoikSettings.AutoTouchVoice.Value;
+            var settingReact = KoikSettings.AutoTouchReaction.Value;
+
+            var familiarity = GetFamiliarity;
+            // 0..1
+            var familiarityHalf = familiarity * 0.5f;
+
             if (!IsBusy)
             {
-                GetFamiliarity();
                 firstTrack = true;
-                // A windows after last touch during which we go for "soft reaction".
-                if (_lastTrack + (3f * _familiarity) > Time.time)
+                // ConsecutiveTouch
+                if (_lastTrack + (5f + 10f * familiarity) > Time.time)
                 {
-                    // Consecutive touch within up to 2 seconds from the last touch.
-                    reactionType = Random.value < _familiarity - 0.5f ? (Random.value < 0.5f ? ReactionType.Laugh : ReactionType.None) : ReactionType.Short;
+                    var randomValue = Random.value;
+                    reactionType =
+                        randomValue < settingVoice ?
+                        // Setting allowed voice.
+                        // Check familiarity (0..2).
+                        randomValue < familiarity ?
+                        // Success, higher the familiarity the more chances for None.
+                        Random.value < familiarityHalf ? ReactionType.None : ReactionType.Laugh :
+                        // Fail, play Short.
+                        ReactionType.Short :
+                        // Setting didn't allow voice.
+                        ReactionType.None;
                 }
-                else
+                // FirstTouch
+                else 
                 {
-                    reactionType = ReactionType.HitReaction;
+                    reactionType = GetImportantPlaceReaction();
                 }
             }
             else
             {
+                // Continuous groping
                 firstTrack = false;
-                if (ReactOncePerTrack(colliderInfo.behavior.part))
+                if (ReactOncePerTrack(_colliderInfo.behavior.part))
                 {
-                    // Important part touch, once per track.
-                    reactionType = Random.value < _familiarity - 0.5f ? (Random.value < 0.5f ? ReactionType.Laugh : ReactionType.Short) : ReactionType.HitReaction;
+                    // Important place touch, once per track.
+                    reactionType = GetImportantPlaceReaction();
                 }
                 else
                 {
                     reactionType = ReactionType.None;
                 }
             }
+
+            ReactionType GetImportantPlaceReaction()
+            {
+                var randomValue = Random.value;
+                return
+                        // Check Familiarity (0..2) and settingVoice
+                        randomValue < familiarity && randomValue < settingVoice ?
+                        // Success Familiarity and settingVoice check, play Laugh or None for higher Familiarity and Short for lower.
+                        randomValue < familiarityHalf ? Random.value < familiarityHalf ? ReactionType.None : ReactionType.Laugh : ReactionType.Short :
+                        // Fail Familiarity or settingVoice check, check settingReaction and play Reaction or None. 
+                        randomValue < settingReact ? ReactionType.Reaction : ReactionType.None;
+            }
         }
+
         private bool ReactOncePerTrack(Body part)
         {
             if (part < Body.HandL && !_reactOncePerTrack.Contains(part))
@@ -166,37 +202,5 @@ namespace KK_VR.Handlers
             }
             return false;
         }
-        //internal void RemoveGuideObjects()
-        //{
-        //    // This one is obsolete most likely.
-        //    for (var i = 0; i < _trackList.Count; i++)
-        //    {
-        //        if (_trackList[i].name.EndsWith("Guide", StringComparison.Ordinal))
-        //        {
-        //            _trackList.RemoveAt(i);
-        //            i--;
-        //        }
-
-        //    }
-        //    SetState();
-        //}
-
-        //Simplified and moved to Tracker.cs
-        ///// <param name="preferredSex">0 - male, 1 - female, -1 ignore</param>
-        //internal Body GetGraspBodyPart(ChaControl tryToAvoidChara = null, int preferredSex = -1)
-        //{
-        //    return GetCollidersInfo()
-        //        .OrderBy(info => info.chara.sex != preferredSex)
-        //        .ThenBy(info => info.chara != tryToAvoidChara)
-        //        .ThenBy(info => info.behavior.part)
-        //        .First().behavior.part;
-        //}
-        //internal Body GetGraspBodyPart()
-        //{
-        //    return GetCollidersInfo()
-        //        .OrderBy(info => info.behavior.part)
-        //        .First().behavior.part;
-        //}
-
     }
 }

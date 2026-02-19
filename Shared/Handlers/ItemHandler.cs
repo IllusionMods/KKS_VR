@@ -1,10 +1,12 @@
-﻿using VRGIN.Controls;
-using UnityEngine;
-using KK_VR.Interpreters;
-using KK_VR.Features;
-using static HandCtrl;
+﻿using KK_VR.Features;
 using KK_VR.Holders;
+using KK_VR.Interpreters;
 using KK_VR.Settings;
+using System.Reflection;
+using UnityEngine;
+using VRGIN.Controls;
+using static HandCtrl;
+using static KK.RootMotion.Demos.Turret;
 
 namespace KK_VR.Handlers
 {
@@ -19,20 +21,30 @@ namespace KK_VR.Handlers
             get => _tracker;
             set => _tracker = value is ControllerTracker t ? t : null;
         }
+
         protected HandHolder _hand;
         protected Controller _controller;
-        //protected ModelHandler.ItemType _item;
         private bool _unwind;
         private float _timer;
         private Rigidbody _rigidBody;
-        internal override bool IsBusy => _tracker.colliderInfo != null && _tracker.colliderInfo.chara != null;
+        internal override bool IsBusy
+        {
+            get
+            {
+                var info = _tracker.GetColliderInfo;
+                return info != null && info.chara != null;
+            }
+        }
 
-        // Default velocity is in local space of a controller or camera origin.
+
+        // Default velocity is in the local space of a controller or camera origin.
 #if KK
         protected Vector3 GetVelocity => _controller.Input.velocity;
 #else
         protected Vector3 GetVelocity => _controller.Tracking.GetVelocity();
 #endif
+        protected virtual bool IsInteractionEligible => true;
+
         internal void Init(HandHolder hand)
         {
             _rigidBody = GetComponent<Rigidbody>();
@@ -42,6 +54,7 @@ namespace KK_VR.Handlers
 
             _controller = _hand.Controller;
         }
+
         protected virtual void Update()
         {
             if (_unwind)
@@ -59,72 +72,112 @@ namespace KK_VR.Handlers
         {
             if (_tracker.AddCollider(other))
             {
-                if (_tracker.colliderInfo.behavior.touch > AibuColliderKind.mouth
-                    && _tracker.colliderInfo.behavior.touch < AibuColliderKind.reac_head)
+                var info = _tracker.GetColliderInfo;
+                if (info.behavior.touch > AibuColliderKind.mouth
+                    && info.behavior.touch < AibuColliderKind.reac_head)
                 {
                     _hand.SetCollisionState(false);
                 }
+
+                if (!IsInteractionEligible)
+                {
+#if DEBUG
+                    VRPlugin.Logger.LogDebug($"{GetType().Name}.{MethodInfo.GetCurrentMethod().Name}:Collider[{other.name}] But interaction isn't eligible.");
+#endif
+                    return;
+                }
+                else
+                {
+#if DEBUG
+                    VRPlugin.Logger.LogDebug($"{GetType().Name}.{MethodInfo.GetCurrentMethod().Name}:Collider[{other.name}] And interaction is eligible.");
+#endif
+                }
+
                 var velocity = GetVelocity.sqrMagnitude;
+                // Velocity > 1.5f is basically a guaranteed slap reaction.
                 if (velocity > 1.5f || _tracker.reactionType != Tracker.ReactionType.None)
                 {
                     DoReaction(velocity);
                 }
                 if (_tracker.firstTrack)
                 {
-                    DoStartSfx(velocity);
+                    DoTapSlapSfx(velocity);
                 }
                 else if (!_hand.SFX.IsPlaying)
                 {
-                    DoSfx(velocity);
+                    DoTapTraverseSfx(velocity);
                 }
             }
         }
 
-        protected void DoStartSfx(float velocity)
+        protected void DoTapSlapSfx(float velocity)
         {
+            var part = _tracker.GetColliderInfo.behavior.part;
+
             var fast = velocity > 1.5f;
             _hand.SFX.PlaySfx(
                 fast ? 0.5f + velocity * 0.2f : 1f,
                 fast ? SFXLoader.Sfx.Slap : SFXLoader.Sfx.Tap,
-                GetSurfaceType(_tracker.colliderInfo.behavior.part),
-                GetIntensityType(_tracker.colliderInfo.behavior.part),
+                GetSurfaceType(_tracker.GetColliderInfo.chara, part),
+                GetIntensityType(part),
                 overwrite: true
                 );
         }
 
-        protected void DoSfx(float velocity)
+        /// <summary>
+        /// Play Tap or Traverse SFX based on velocity for currently tracked chara's BodyPart.
+        /// </summary>
+        protected void DoTapTraverseSfx(float velocity)
         {
             _tracker.SetSuggestedInfo();
+
+            var part = _tracker.GetColliderInfo.behavior.part;
+            InvokeTapTraverseSfx(_tracker.GetColliderInfo.chara, part, velocity);
+        }
+
+        /// <summary>
+        /// Play Tap or Traverse SFX based on velocity for provided chara's BodyPart.
+        /// </summary>
+        protected void DoTapTraverseSfx(ChaControl chara, Tracker.Body part, float velocity)
+        {
+            InvokeTapTraverseSfx(chara, part, velocity);
+        }
+
+        protected void InvokeTapTraverseSfx(ChaControl chara, Tracker.Body part, float velocity)
+        {
+            var fast = velocity > 1.5f;
             _hand.SFX.PlaySfx(
-                velocity > 1.5f ? 0.5f + velocity * 0.2f : 1f,
-                velocity > 0.5f ? SFXLoader.Sfx.Tap : SFXLoader.Sfx.Traverse,
-                GetSurfaceType(_tracker.colliderInfo.behavior.part),
-                GetIntensityType(_tracker.colliderInfo.behavior.part),
+                fast ? 0.5f + velocity * 0.2f : 1f,
+                fast ? SFXLoader.Sfx.Tap : SFXLoader.Sfx.Traverse,
+                GetSurfaceType(chara, part),
+                GetIntensityType(part),
                 overwrite: false
                 );
         }
 
-        protected SFXLoader.Surface GetSurfaceType(Tracker.Body part)
+        protected SFXLoader.Surface GetSurfaceType(ChaControl chara, Tracker.Body part)
         {
             return part switch
             {
                 Tracker.Body.Head => SFXLoader.Surface.Hair,
-                _ => Undresser.IsBodyPartClothed(_tracker.colliderInfo.chara, part) ? SFXLoader.Surface.Cloth : SFXLoader.Surface.Skin
+                _ => Undresser.IsBodyPartClothed(chara, part) ? SFXLoader.Surface.Cloth : SFXLoader.Surface.Skin
             };
         }
+
         protected SFXLoader.Intensity GetIntensityType(Tracker.Body part)
         {
             return part switch
             {
                 Tracker.Body.Asoko => SFXLoader.Intensity.Wet,
+                Tracker.Body.LowerBody => SFXLoader.Intensity.Hollow,
                 Tracker.Body.MuneL or Tracker.Body.MuneR or Tracker.Body.ThighL or Tracker.Body.ThighR or Tracker.Body.Groin => SFXLoader.Intensity.Soft,
-                _ => SFXLoader.Intensity.Rough
+                _ => SFXLoader.Intensity.Hard
             };
         }
 
         protected bool IsReactionEligible(ChaControl chara)
         {
-            var config = KoikSettings.AutomaticTouching.Value;
+            var config = KoikSettings.AutoTouch.Value;
             if ((chara.sex == 0 && (config & KoikSettings.Genders.Boys) != 0)
                 || (chara.sex == 1 && (config & KoikSettings.Genders.Girls) != 0))
             {
@@ -132,6 +185,7 @@ namespace KK_VR.Handlers
             }
             return false;
         }
+
         protected override void OnTriggerExit(Collider other)
         {
             if (_tracker.RemoveCollider(other))
@@ -147,6 +201,7 @@ namespace KK_VR.Handlers
                 }
             }
         }
+
         internal Tracker.Body GetTrackPartName()
         //internal Tracker.Body GetTrackPartName(ChaControl tryToAvoidChara = null, int preferredSex = -1)
         {
@@ -154,17 +209,20 @@ namespace KK_VR.Handlers
             //return tryToAvoidChara == null && preferredSex == -1 ? _tracker.GetTrackedBodyPart() : _tracker.GetTrackedBodyPart(tryToAvoidChara, preferredSex);
             return _tracker.GetTrackedBodyPart();
         }
+
         internal void RemoveCollider(Collider other)
         {
             _tracker.RemoveCollider(other);
         }
+
         internal void DebugShowActive()
         {
             _tracker.DebugShowActive();
         }
+
         protected virtual void DoReaction(float velocity)
         {
-            var chara = _tracker.colliderInfo.chara;
+            var chara = _tracker.GetColliderInfo.chara;
             if (!IsReactionEligible(chara)) return;
         }
     }

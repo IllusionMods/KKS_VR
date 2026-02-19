@@ -12,21 +12,55 @@ namespace KK_VR.Handlers
     {
         internal bool DoUndress(bool decrease, out ChaControl chara)
         {
-            if (Undresser.Undress(_tracker.colliderInfo.behavior.part, chara = _tracker.colliderInfo.chara, decrease))
+            var info = _tracker.GetColliderInfo;
+            var setting = KoikSettings.SfxDelay.Value;
+            chara = info.chara;
+
+            // The idea is simple.
+            // If we can undress current body part - play sfx and wait for it to finish to actually perform an (un)dress action(s).
+            if (setting && Undresser.DelayedUndress(info.behavior.part, chara, decrease, out var changedSlot, out var proposedAction))
             {
-                //HandNoises.PlaySfx(_index, 1f, HandNoises.Sfx.Undress, HandNoises.Surface.Cloth);
-                _controller.StartRumble(new RumbleImpulse(1000));
-                return true;
+                var clipLength = PlaySfx(changedSlot);
+                KoikGameInterp.RunAfterTimer(proposedAction, false, clipLength);
             }
-            return false;
+            // Or to (un)dress and play sfx at once.
+            else if (!setting && Undresser.Undress(info.behavior.part, chara, decrease, out changedSlot))
+            {
+                PlaySfx(changedSlot);
+            }
+            else
+            {
+                return false;
+            }
+            _controller.StartRumble(new RumbleImpulse(1000));
+            return true;
+
+            // Local function for readability.
+            float PlaySfx(int changedSlot)
+            {
+                return _hand.SFX.PlaySfx(1f, decrease ? SFXLoader.Sfx.Undress : SFXLoader.Sfx.Dress, SFXLoader.Surface.Cloth,
+                   changedSlot switch
+                   {
+                       // TODO Come up with a condition to stuff in wet for panties.
+                       // Top or Bottom
+                       0 or 1 => SFXLoader.Intensity.Hard,
+                       // Panties, Gloves, Pantyhose or Stockings
+                       2 or 3 or 4 or 5 or 6 => SFXLoader.Intensity.Soft,
+                       // Either type of Shoes
+                       7 or 8 => SFXLoader.Intensity.Hollow,
+                       _ => 0
+                   },
+                   true);
+            }
         }
 
         protected override void DoReaction(float velocity)
         {
-            var chara = _tracker.colliderInfo.chara;
+            var info = _tracker.GetColliderInfo;
+            var chara = info.chara;
             if (!IsReactionEligible(chara)) return;
 
-            var touch = _tracker.colliderInfo.behavior.touch;
+            var touch = info.behavior.touch;
             if (TalkSceneInterp.talkScene != null
                 && touch != AibuColliderKind.none
                 && chara == TalkSceneInterp.talkScene.targetHeroine.chaCtrl
@@ -37,15 +71,15 @@ namespace KK_VR.Handlers
             {
                 TalkSceneInterp.talkScene.TouchFunc(TouchReaction(touch), Vector3.zero);
             }
-            else if (velocity > 1f || _tracker.reactionType == Tracker.ReactionType.HitReaction)
+            else if (velocity > 1f || _tracker.reactionType == Tracker.ReactionType.Reaction)
             {
-                if (GraspHelper.Instance != null && !GraspHelper.Instance.IsGraspActive(chara) && UnityEngine.Random.value < GameSettings.TouchReaction.Value)
+                if (GraspHelper.Instance != null && !GraspHelper.Instance.IsGraspActive(chara) && UnityEngine.Random.value < GameSettings.AutoTouchAltReaction.Value)
                 {
-                    GraspHelper.Instance.TouchReaction(chara, _hand.Anchor.position, _tracker.colliderInfo.behavior.part);
+                    GraspHelper.Instance.TouchReaction(chara, _hand.Anchor.position, info.behavior.part);
                 }
                 else
                 {
-                    TalkSceneInterp.HitReactionPlay(_tracker.colliderInfo.behavior.react, chara);
+                    TalkSceneInterp.HitReactionPlay(info.behavior.react, chara);
                 }
             }
             else if (_tracker.reactionType == Tracker.ReactionType.Short)
@@ -59,13 +93,15 @@ namespace KK_VR.Handlers
             _controller.StartRumble(new RumbleImpulse(1000));
             
         }
+
         public bool TriggerPress()
         {
-            var chara = _tracker.colliderInfo.chara;
-            var touch = _tracker.colliderInfo.behavior.touch;
+            var info = _tracker.GetColliderInfo;
+            var touch = info.behavior.touch;
+
             if (TalkSceneInterp.talkScene != null
                 && touch != AibuColliderKind.none
-                && chara == TalkSceneInterp.talkScene.targetHeroine.chaCtrl
+                && info.chara == TalkSceneInterp.talkScene.targetHeroine.chaCtrl
                 && !CrossFader.AdvHooks.Reaction)
             {
                 TalkSceneInterp.talkScene.TouchFunc(TouchReaction(touch), Vector3.zero);
@@ -73,10 +109,12 @@ namespace KK_VR.Handlers
             }
             return false;
         }
+
         public void TriggerRelease()
         {
 
         }
+
         private string TouchReaction(AibuColliderKind colliderKind)
         {
             return colliderKind switch

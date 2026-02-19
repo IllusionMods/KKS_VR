@@ -12,6 +12,8 @@ namespace KK_VR.Handlers
 {
     class Tracker
     {
+        internal ColliderInfo GetColliderInfo => _colliderInfo;
+        internal ColliderInfo GetPrevColliderInfo => _prevColliderInfo;
         internal bool IsBusy => _trackList.Count > 0;
         /// <summary>
         /// Stores info about allowed and present colliders from all the charas. Initiated once per scene.
@@ -19,7 +21,9 @@ namespace KK_VR.Handlers
         protected static readonly Dictionary<Collider, ColliderInfo> _referenceTrackDic = [];
         protected Dictionary<ChaControl, List<Body>> _blacklistDic;
         protected readonly List<Collider> _trackList = [];
-        internal ColliderInfo colliderInfo;
+
+        protected ColliderInfo _colliderInfo;
+        protected ColliderInfo _prevColliderInfo;
 
         /// <summary>
         /// Checks if the collider is in use.
@@ -90,7 +94,7 @@ namespace KK_VR.Handlers
                 && (info.chara == null || (info.chara.visibleAll
                 && !IsInBlacklist(info.chara, info.behavior.part))))
             {
-                colliderInfo = info;
+                _colliderInfo = info;
                 _trackList.Add(other);
                 return true;
             }
@@ -100,11 +104,11 @@ namespace KK_VR.Handlers
         {
             if (!IsBusy)
             {
-                colliderInfo = null;
+                ClearColliderInfo();
             }
             else
             {
-                colliderInfo = _referenceTrackDic[_trackList.Last()];
+                _colliderInfo = _referenceTrackDic[_trackList.Last()];
             }
 
         }
@@ -140,11 +144,11 @@ namespace KK_VR.Handlers
                     .Where(info => !_blacklistDic.ContainsKey(info.chara) || (!_blacklistDic[info.chara].Contains(Body.None) && !_blacklistDic[info.chara].Contains(info.behavior.part)));
                 if (!infoList.Any())
                 {
-                    colliderInfo = null;
+                    ClearColliderInfo();
                     return;
                 }
             }
-            colliderInfo = infoList
+            _colliderInfo = infoList
                 .OrderBy(info => info.behavior.part)
                 .First();
         }
@@ -159,12 +163,12 @@ namespace KK_VR.Handlers
             {
                 if (blackList.Contains(info.behavior.part)) continue;
 
-                colliderInfo = info;
+                _colliderInfo = info;
                 return;
             }
 
             // Everything in the tracker appeared in the blackList, set black status.
-            colliderInfo = null;
+            ClearColliderInfo();
         }
         /// <summary>
         /// Sets the most interesting currently tracking body part in the field 'colliderInfo'.
@@ -185,12 +189,18 @@ namespace KK_VR.Handlers
                     .OrderBy(info => info.behavior.part);
             }
 
-            colliderInfo = infoList.FirstOrDefault(info => info.behavior.touch != AibuColliderKind.none) ?? infoList.First();
+            _colliderInfo = infoList.FirstOrDefault(info => info.behavior.touch != AibuColliderKind.none) ?? infoList.First();
         }
         internal void ClearTracker()
         {
-            colliderInfo = null;
+            ClearColliderInfo();
             _trackList.Clear();
+        }
+
+        private void ClearColliderInfo()
+        {
+            _prevColliderInfo = _colliderInfo;
+            _colliderInfo = null;
         }
         internal void RemoveBlacks()
         {
@@ -226,7 +236,7 @@ namespace KK_VR.Handlers
             return false;
         }
 
-        internal Body GetTrackedBodyPart() => colliderInfo.behavior.part;
+        internal Body GetTrackedBodyPart() => _colliderInfo.behavior.part;
 
         internal class BodyBehavior
         {
@@ -304,7 +314,7 @@ namespace KK_VR.Handlers
             None,
             Laugh,
             Short,
-            HitReaction
+            Reaction
             // Slap Reaction? after new hitReaction maybe.
         }
         internal enum Body

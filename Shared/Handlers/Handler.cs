@@ -16,9 +16,9 @@ namespace KK_VR.Handlers
         /// <summary>
         /// Can be true only after 'UpdateNoBlacks()' if every item in track is blacklisted.
         /// </summary>
-        internal bool InBlack => Tracker.colliderInfo == null;
-        internal Transform GetTrackTransform => Tracker.colliderInfo.collider.transform;
-        internal ChaControl GetChara => Tracker.colliderInfo.chara;
+        internal bool InBlack => Tracker.GetColliderInfo == null;
+        internal Transform GetTrackTransform => Tracker.GetColliderInfo.collider.transform;
+        internal ChaControl GetChara => Tracker.GetColliderInfo.chara;
 
 
         protected virtual void OnDisable()

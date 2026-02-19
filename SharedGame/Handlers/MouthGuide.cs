@@ -59,8 +59,6 @@ namespace KK_VR.Handlers
         private float _kissDistance;
         private bool _mousePress;
 
-        private bool _followRotation;
-
         private Transform _followAfter;
         private Vector3 _followOffsetPos;
         private Quaternion _followOffsetRot;
@@ -171,7 +169,7 @@ namespace KK_VR.Handlers
         {
             if (Tracker.AddCollider(other))
             {
-                var touch = Tracker.colliderInfo.behavior.touch;
+                var touch = Tracker.GetColliderInfo.behavior.touch;
                 if (touch != AibuColliderKind.none && !PauseInteractions && (_aibu || KoikGameInterp.SceneInput.IsGripMove))
                 {
                     if (touch == AibuColliderKind.mouth && GameSettings.AssistedKissing.Value)
@@ -273,7 +271,7 @@ namespace KK_VR.Handlers
                 oldEyesPos = _eyes.position;
                 yield return CoroutineUtils.WaitForEndOfFrame;
             }
-            _followRotation = GameSettings.FollowRotationDuringKiss.Value;
+            var followRotation = GameSettings.AssistedActionRotation.Value;
             _followOffsetRot = Quaternion.Inverse(_followAfter.rotation) * VR.Camera.Origin.rotation;
 
             while (true)
@@ -288,7 +286,7 @@ namespace KK_VR.Handlers
                 else
                 {
                     var moveTowards = Vector3.MoveTowards(head.position, _eyes.TransformPoint(_followOffsetPos), Time.deltaTime * 0.05f);
-                    if (_followRotation)
+                    if (followRotation)
                     {
                         origin.rotation = _eyes.rotation * _followOffsetRot;
                     }
@@ -309,7 +307,6 @@ namespace KK_VR.Handlers
         internal void UpdateOrientationOffsets()
         {
             var head = VR.Camera.Head;
-            _followRotation = GameSettings.FollowRotationDuringKiss.Value;
             _followOffsetRot = Quaternion.Inverse(_followAfter.rotation) * VR.Camera.Origin.rotation;
             _followOffsetPos = _followAfter.InverseTransformPoint(head.position);
             if (_lookAt != null)
@@ -500,6 +497,7 @@ namespace KK_VR.Handlers
             //var lookAtOffset = new Vector3(0f, dic.poiOffsetUp, 0f);
             var smoothDamp = new SmoothDamp(1f);
             var oldTonguePos = tongue.position;
+            var followRotation = GameSettings.AssistedActionRotation.Value;
             while (true)
             {
                 // Engage phase.
@@ -507,7 +505,10 @@ namespace KK_VR.Handlers
                 var step = Time.deltaTime * smoothDamp.Increase();
                 var adjTongue = tongue.TransformPoint(_followOffsetPos);
                 var moveTo = Vector3.MoveTowards(head.position, adjTongue, step * 0.2f);
-                origin.rotation = Quaternion.RotateTowards(origin.rotation, Quaternion.LookRotation(lookAt.TransformPoint(_lookOffsetPos) - moveTo), step * 30f);
+                if (followRotation)
+                {
+                    origin.rotation = Quaternion.RotateTowards(origin.rotation, Quaternion.LookRotation(lookAt.TransformPoint(_lookOffsetPos) - moveTo), step * 30f);
+                }
                 origin.position += (moveTo - head.position) + (tongue.position - oldTonguePos);
                 if (_gripMove || (!HSceneInterp.IsTouch && Vector3.Distance(adjTongue, head.position) < 0.002f))
                 {
@@ -527,7 +528,10 @@ namespace KK_VR.Handlers
                     var targetPos = tongue.TransformPoint(_followOffsetPos);
                     var moveTo = Vector3.MoveTowards(head.position, targetPos, Time.deltaTime * 0.05f);
 
-                    origin.rotation = Quaternion.RotateTowards(origin.rotation, Quaternion.LookRotation(lookAt.TransformPoint(_lookOffsetPos) - moveTo), Time.deltaTime * 15f);
+                    if (followRotation)
+                    {
+                        origin.rotation = Quaternion.RotateTowards(origin.rotation, Quaternion.LookRotation(lookAt.TransformPoint(_lookOffsetPos) - moveTo), Time.deltaTime * 15f);
+                    }
                     origin.position += (moveTo - head.position);
                 }
                 yield return CoroutineUtils.WaitForEndOfFrame;
@@ -626,7 +630,6 @@ namespace KK_VR.Handlers
                 }
                 ActiveCo = false;
                 _disengage = false;
-                _followRotation = false;
                 HSceneInterp.handCtrl.DetachItemByUseItem(2);
                 HSceneInterp.handCtrl.selectKindTouch = AibuColliderKind.none;
                 UnlazyGripMove();

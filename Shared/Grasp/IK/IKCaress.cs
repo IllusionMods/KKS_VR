@@ -1,4 +1,5 @@
 ﻿using KK_VR.Handlers;
+using KK_VR.Holders;
 using KK_VR.IK;
 using KK_VR.Interpreters;
 using System;
@@ -15,20 +16,29 @@ namespace KK_VR.Grasp
     /// </summary>
     internal class IKCaress : OffsetManipulator
     {
-        private bool _end;
-        private float _startDistance;
         private Transform _poi;
         private Transform _anchor;
-        private Vector3 _lastPos;
-
         private Transform _item;
-        private int _itemId;
+        private Vector3 _lastPos;
+        private Vector2 _midVec = new(0.5f, 0.5f);
 
-        internal void Init(KK.RootMotion.FinalIK.FullBodyBipedIK ik, AibuColliderKind colliderKind, List<BodyPart> bodyPartList, ChaControl chara, Transform anchor)
+        private bool _end;
+        private int _itemId;
+        private float _lerp;
+        private float _velocity;
+        private float _startDistance;
+
+        /// <summary>
+        /// Velocity between frames of tracked anchor.
+        /// </summary>
+        internal float GetVelocity => _velocity;
+
+        internal void Init(
+            KK.RootMotion.FinalIK.FullBodyBipedIK ik, AibuColliderKind colliderKind, List<BodyPart> bodyPartList, ChaControl chara, Transform anchor)
         {
             base.OnInit(ik);
             _itemId = (int)colliderKind - 2;
-            _anchor = anchor;
+            _anchor = anchor; 
             _lastPos = anchor.position;
             _item = HSceneInterp.handCtrl.useAreaItems[_itemId].obj.transform;
 
@@ -55,30 +65,25 @@ namespace KK_VR.Grasp
                     Add(bodyPartList[slaveIndex], 0.15f);
                 }
             }
-            //foreach (var test in _linkDic)
-            //{
-            //   //VRPlugin.Logger.LogInfo($"RoughCaress:{test.Key.name} - {test.Value.defaultWeight}");
-            //}
             _poi = chara.objBodyBone.transform.Find(GetPoiName(colliderKind));
             _startDistance = Vector3.SqrMagnitude(_poi.position - anchor.position);
         }
 
-
         internal void Move()
         {
-            var vec = (Vector2)_item.InverseTransformVector(_lastPos - _anchor.position);
+            var curPos = _anchor.position;
+            var vec = _item.InverseTransformVector(_lastPos - curPos);
+            _velocity = vec.sqrMagnitude;
             vec.y = 0f - vec.y;
-            HSceneInterp.hFlag.xy[_itemId] += vec * 10f;
-            _lastPos = _anchor.position;
+            HSceneInterp.hFlag.xy[_itemId] += (Vector2)vec * 10f;
+            _lastPos = curPos;
         }
-        private float _lerp;
-        private Vector2 _midVec = new(0.5f, 0.5f);
-
 
         internal void End()
         {
             _end = true;
         }
+
         internal void Update()
         {
             if (_end)
@@ -104,6 +109,7 @@ namespace KK_VR.Grasp
                 Move();
             }
         }
+
         private int[] GetMasterIndex(AibuColliderKind colliderKind)
         {
             return colliderKind switch
@@ -116,6 +122,7 @@ namespace KK_VR.Grasp
                 _ => null
             };
         }
+
         private int[] GetSlaveIndex(int masterIndex)
         {
             return masterIndex switch
