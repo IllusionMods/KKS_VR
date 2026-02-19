@@ -224,4 +224,7 @@
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Features\SFX\Undress\Cloth\Soft\Undress_Soft_3.wav" />
     <EmbeddedResource Include="$(MSBuildThisFileDirectory)Features\SFX\Undress\Cloth\Soft\Undress_Soft_4.wav" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)Features\SFX\SFXNote.txt" />
+  </ItemGroup>
 </Project>
