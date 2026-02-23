@@ -400,7 +400,7 @@ namespace KK_VR.Settings
                     ));
 
 
-            PovHideHead = config.Bind(SectionPov, "Pov HideHead", PovHideHeadType.Head,
+            PovHideHead = config.Bind(SectionPov, "Pov HideHead", PovHideHeadType.Face | PovHideHeadType.Always,
                 new ConfigDescription(
                     "None   – always show head and face\n" +
                     "Face   – hide face but not hair\n" +
