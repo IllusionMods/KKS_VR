@@ -588,7 +588,7 @@ namespace KK_VR.Handlers
                                     origin.eulerAngles.y,
                                     headPitch ? origin.eulerAngles.z : 0f);
                            // }
-                            lerpMultiplier = GameSettings.FlightSpeed.Value * 30f / Quaternion.Angle(origin.rotation, uprightRot);
+                            lerpMultiplier = GameSettings.PovFlightSpeed.Value * 30f / Quaternion.Angle(origin.rotation, uprightRot);
                         }
                         var sStep = Mathf.SmoothStep(0f, 1f, lerp += Time.deltaTime * lerpMultiplier);
                         origin.rotation = Quaternion.Lerp(startRot, uprightRot, sStep);
