@@ -34,11 +34,11 @@ namespace KK_VR.Settings
         [Flags]
         public enum PovHideHeadType
         {
-            None   = 0,
-            Face   = 1 << 0,
-            Head   = 1 << 1,
-            Always = 1 << 2,
-            Away   = 1 << 3,
+            None       = 0,
+            Face       = 1 << 0,
+            Head       = 1 << 1,
+            Always     = 1 << 2,
+            OnGripMove = 1 << 3,
         }
         public enum HeadEffector
         {
@@ -402,11 +402,11 @@ namespace KK_VR.Settings
 
             PovHideHead = config.Bind(SectionPov, "Pov HideHead", PovHideHeadType.Face | PovHideHeadType.Always,
                 new ConfigDescription(
-                    "None   – always show head and face\n" +
-                    "Face   – hide face but not hair\n" +
-                    "Head   – hide face and hair\n" +
-                    "Always – hide always instead of only when the camera is close\n" +
-                    "Away   – hide when the camera is remotely attached"  ,
+                    "None       – always show head and face\n" +
+                    "Face       – hide face but not hair\n" +
+                    "Head       – hide face and hair\n" +
+                    "Always     – hide always, not when camera is close\n" +
+                    "OnGripMove – hide when moving with grip",
                     null,
                     new ConfigurationManagerAttributes { Order = 40 }
                     ));

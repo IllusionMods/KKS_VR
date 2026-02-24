@@ -369,44 +369,27 @@ namespace KK_VR.Features
             SetHeadActive(_target, true);
 
             var hideHeadAlways = (hideHeadSetting & KoikSettings.PovHideHeadType.Always) != 0;
-            var hideHeadAway = (hideHeadSetting & KoikSettings.PovHideHeadType.Away) != 0;
 
             if (hideHeadAlways)
             {
-                if (_newAttachPoint)
+                if ((hideHeadSetting & KoikSettings.PovHideHeadType.Head) != 0)
                 {
-                    // Setting forces to hide when Away – hide appropriate part.
-                    if (hideHeadAway)
-                        HideCorrespondingPart(false);
-
-                    // Setting doesn't force to hide when Away – show full head because look better.
-                    else
-                        SetHeadActive(_target, true);
+                    SetHeadActive(_target, false);
                 }
-                else
+                else if ((hideHeadSetting & KoikSettings.PovHideHeadType.Face) != 0)
                 {
-                    HideCorrespondingPart(false);
+                    _targetFaceRenderers.SetActive(false);
                 }
             }
 
             // Store settings in instance variables.
-            _hideHead = hideHeadSetting != 0 && !hideHeadAlways;
+            _hideHead = !hideHeadAlways &&
+                ((hideHeadSetting & KoikSettings.PovHideHeadType.Face) != 0 || 
+                (hideHeadSetting & KoikSettings.PovHideHeadType.Head) != 0);
             _hideHeadSetting = hideHeadSetting;
 
             // Invoke delegates.
             Impersonation?.Invoke(true, _target);
-
-            void HideCorrespondingPart(bool show)
-            {
-                if ((hideHeadSetting & KoikSettings.PovHideHeadType.Head) != 0)
-                {
-                    SetHeadActive(_target, show);
-                }
-                else if ((hideHeadSetting & KoikSettings.PovHideHeadType.Face) != 0)
-                {
-                    _targetFaceRenderers.SetActive(show);
-                }
-            }
         }
 
         private void StartMoveToHead(float speed = 1f)
@@ -487,8 +470,8 @@ namespace KK_VR.Features
 
         private void NextChara(bool keepChara = false)
         {
-            // Camera is about to move, proactive head hiding unless 'Setting == Show'
-            // Cached instance field with the setting hasn't been updated yet, use actual settings
+            // Camera is about to move, opt for proactive hiding of the face/head unless completely disabled by the setting.
+            // Cached instance field with the setting hasn't been updated yet, use actual settings.
             _hideHead = KoikSettings.PovHideHead.Value != 0;
 
             // As some may add extra characters with kPlug, we look them all up.
@@ -553,10 +536,10 @@ namespace KK_VR.Features
             if (_active)
             {
                 var hideHeadSetting = _hideHeadSetting;
-                // Away state.
+                // GripMove state.
                 // Start showing the head unless the setting disabled completely, as that would mean we don't engage with the head at all,
-                // or if Away state is enabled, as that implies we need to keep the head hidden even in the Away state.
-                if (hideHeadSetting != 0 && (hideHeadSetting & KoikSettings.PovHideHeadType.Away) == 0)
+                // or if OnGripMove state is enabled, as that means we keep the head hidden during the grip move.
+                if (hideHeadSetting != 0 && (hideHeadSetting & KoikSettings.PovHideHeadType.OnGripMove) == 0)
                 {
                     _hideHead = true;
                     
