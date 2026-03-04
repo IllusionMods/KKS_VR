@@ -100,6 +100,7 @@ namespace KK_VR.Settings
         public static ConfigEntry<ShadowType> ShadowSetting { get; private set; }
         public static ConfigEntry<Vector3> ModelRotation { get; private set; }
         public static ConfigEntry<Vector3> ModelPosition { get; private set; }
+        public static ConfigEntry<bool> StaticDirectionalLight { get; private set; }
 
         #endregion
 
@@ -312,6 +313,14 @@ namespace KK_VR.Settings
 
             EnableBoop = config.Bind(SectionGeneral, "Enable Boop", true,
                 "Add dynamic bone colliders to items that represent vr controllers.\nRequires game restart.");
+
+
+            StaticDirectionalLight = config.Bind(SectionGeneral, "Static directional light", true,
+                new ConfigDescription(
+                    "Adjust orientation and freeze directional light at the beginning of the scene.\n" +
+                    "Currently works in: H, Talk.",
+                    null,
+                    new ConfigurationManagerAttributes { Order = -35 }));
 
 
             #endregion

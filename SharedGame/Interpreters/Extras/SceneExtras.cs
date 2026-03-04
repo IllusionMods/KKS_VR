@@ -2,6 +2,7 @@
 using IllusionUtility.GetUtility;
 using KK_VR.Fixes;
 using KK_VR.Handlers;
+using KK_VR.Settings;
 using Manager;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,8 @@ namespace KK_VR.Interpreters
         private static Transform _oldParent;
         internal static void RepositionDirLight(ChaControl chara)
         {
+            if (!KoikSettings.StaticDirectionalLight.Value) return;
+
 #if KK
             _dirLight = Component.FindObjectsOfType<Light>()
                 .Where(g => g.name.Equals("Directional Light") && g.gameObject.active)
