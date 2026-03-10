@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using BepInEx.Configuration;
+﻿using BepInEx.Configuration;
 using KK_VR.Features;
 using KK_VR.Grasp;
 using KK_VR.Holders;
 using KK_VR.Interpreters;
 using KKAPI.Utilities;
+using System;
 using UnityEngine;
 using VRGIN.Core;
-using static System.Collections.Specialized.BitVector32;
-using static Illusion.Utils;
-using static UnityEngine.UI.ScrollRect;
 
 namespace KK_VR.Settings
 {
@@ -31,14 +26,28 @@ namespace KK_VR.Settings
             Left,
             Right
         }
-        [Flags]
-        public enum PovHideHeadType
+        public enum PovHideObjType
         {
-            None       = 0,
-            Face       = 1 << 0,
-            Head       = 1 << 1,
-            Always     = 1 << 2,
-            OnGripMove = 1 << 3,
+            // Those descriptions only override enum name. Old behavior is gone?
+            //[DescriptionAttribute("Hide nothing, face and hair stay visible")]
+            None,
+            //[Description("Hide face, hair stays visible")]
+            Face,
+            //[DescriptionAttribute("Hide face and hair")]
+            Head
+        }
+        [Flags]
+        public enum PovHideOption
+        {
+            None = 0,
+            //[DescriptionAttribute("Hide when camera is close instead of always")]
+            Proximity = 1 << 0,
+            //[Description("Hide when remotely attached")]
+            Remote = 1 << 1,
+            // One may opt to forcefully show it because reasons.
+            // Otherwise the usual always/inProximity way is used.
+            //[DescriptionAttribute("Hide when in GripMove")]
+            GripMove = 1 << 2,
         }
         public enum HeadEffector
         {
@@ -109,7 +118,8 @@ namespace KK_VR.Settings
         #region Pov
 
         public static ConfigEntry<PovGenders> Pov { get; private set; }
-        public static ConfigEntry<PovHideHeadType> PovHideHead { get; private set; }
+        public static ConfigEntry<PovHideObjType> PovHideObject { get; private set; }
+        public static ConfigEntry<PovHideOption> PovHideOptionMask { get; private set; }
         public static ConfigEntry<bool> PovFlight { get; private set; }
         public static ConfigEntry<float> PovFlightSpeed { get; private set; }
         public static ConfigEntry<int> PovDeviationThreshold { get; private set; }
@@ -400,16 +410,23 @@ namespace KK_VR.Settings
                     ));
 
 
-            PovHideHead = config.Bind(SectionPov, "Pov HideHead", PovHideHeadType.Face | PovHideHeadType.Always,
+            PovHideObject = config.Bind(SectionPov, "Pov Hide", PovHideObjType.Face,
                 new ConfigDescription(
-                    "None       – always show head and face\n" +
-                    "Face       – hide face but not hair\n" +
-                    "Head       – hide face and hair\n" +
-                    "Always     – hide always, not when camera is close\n" +
-                    "OnGripMove – hide when moving with grip",
+                    "Hide character's part during impersonation",
                     null,
                     new ConfigurationManagerAttributes { Order = 40 }
                     ));
+
+
+            PovHideOptionMask = config.Bind(SectionPov, "Pov HideOptions", PovHideOption.Proximity | PovHideOption.Remote | PovHideOption.GripMove,
+                new ConfigDescription(
+                    "Proximity – hide when the camera is in proximity instead of constantly\n" +
+                    "Remote – hide when the camera is remotely attached\n" +
+                    "GripMove – hide when grabbing the world",
+                    null,
+                    new ConfigurationManagerAttributes { Order = 35 }
+                    ));
+
 
             PovAttachment = config.Bind(SectionPov, "Pov AttachmentPoint", PovAttachmentBones.Eyes,
                 new ConfigDescription(

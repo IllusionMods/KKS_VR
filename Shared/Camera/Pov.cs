@@ -115,14 +115,13 @@ namespace KK_VR.Features
         // Cached pov rotation setting
         private bool _rotationSetting;
         // Indicates whether the head(or face) should be hid proactively on the LateUpdate()
-        private bool _hideHead;
+
+        // Small (5 bytes) struct with parameters related to face/head hiding.
+        private Concealment _hide;
 
         // Object with renderers of the face 
         private GameObject _targetFaceRenderers;
         private GameObject _prevTargetFaceRenderers;
-
-        // Cached setting to access on each frame
-        private KoikSettings.PovHideHeadType _hideHeadSetting;
 
         // Indicates whether to stop for climax or not
         private bool _climax;
@@ -155,7 +154,6 @@ namespace KK_VR.Features
             _degPerSec = 30f * (KoikSettings.RotationAngle.Value / 45f);
             _rotDeviationThreshold = KoikSettings.PovDeviationThreshold.Value;
             _rotDeviationHalf = (int)(_rotDeviationThreshold * 0.4f);
-            _hideHeadSetting = KoikSettings.PovHideHead.Value;
             _rotationSetting = (KoikSettings.Pov.Value & KoikSettings.PovGenders.Rotation) != 0;
             if (KoikSettings.PovAttachment.Value == KoikSettings.PovAttachmentBones.Eyes)
             {
@@ -362,34 +360,41 @@ namespace KK_VR.Features
             GirlPoV = isGirl;
             CameraBusy?.Invoke(isGirl);
 
-            var hideHeadSetting = KoikSettings.PovHideHead.Value;
-
-            // Enable everything as a surefire measure against glitches.
-            _targetFaceRenderers.SetActive(true);
-            SetHeadActive(_target, true);
-
-            var hideHeadAlways = (hideHeadSetting & KoikSettings.PovHideHeadType.Always) != 0;
-
-            if (hideHeadAlways)
-            {
-                if ((hideHeadSetting & KoikSettings.PovHideHeadType.Head) != 0)
-                {
-                    SetHeadActive(_target, false);
-                }
-                else if ((hideHeadSetting & KoikSettings.PovHideHeadType.Face) != 0)
-                {
-                    _targetFaceRenderers.SetActive(false);
-                }
-            }
-
-            // Store settings in instance variables.
-            _hideHead = !hideHeadAlways &&
-                ((hideHeadSetting & KoikSettings.PovHideHeadType.Face) != 0 || 
-                (hideHeadSetting & KoikSettings.PovHideHeadType.Head) != 0);
-            _hideHeadSetting = hideHeadSetting;
+            UpdateHideState();
 
             // Invoke delegates.
             Impersonation?.Invoke(true, _target);
+        }
+
+        private void UpdateHideState()
+        {
+            var hide = _hide;
+            var hideObj = KoikSettings.PovHideObject.Value;
+            var hideOptMask = KoikSettings.PovHideOptionMask.Value;
+
+            hide.enable = hideObj != KoikSettings.PovHideObjType.None;
+            hide.head = hideObj == KoikSettings.PovHideObjType.Head;
+            hide.proximity = (hideOptMask & KoikSettings.PovHideOption.Proximity) != 0;
+            hide.grip = (hideOptMask & KoikSettings.PovHideOption.GripMove) != 0;
+            hide.remote = (hideOptMask & KoikSettings.PovHideOption.Remote) != 0;
+
+            _hide = hide;
+
+            // If !proximity (always) then LateUpdate() doesn't hide.
+            if (hide.enable && !hide.proximity)
+            {
+                // If remotely attached and setting specifies to show.
+                var show = _newAttachPoint && !hide.remote;
+
+                if (hide.head)
+                {
+                    SetHeadActive(_target, show);
+                }
+                else
+                {
+                    _targetFaceRenderers.SetActive(show);
+                }
+            }
         }
 
         private void StartMoveToHead(float speed = 1f)
@@ -429,9 +434,9 @@ namespace KK_VR.Features
                 if (_trip.Move(GetEyesPosition) >= 1f)
                 {
                     // When arrived at position
-                    CameraIsNear();
                     _newAttachPoint = false;
                     _trip = null;
+                    CameraIsNear();
                 }
             }
         }
@@ -470,9 +475,6 @@ namespace KK_VR.Features
 
         private void NextChara(bool keepChara = false)
         {
-            // Camera is about to move, opt for proactive hiding of the face/head unless completely disabled by the setting.
-            // Cached instance field with the setting hasn't been updated yet, use actual settings.
-            _hideHead = KoikSettings.PovHideHead.Value != 0;
 
             // As some may add extra characters with kPlug, we look them all up.
             var charas = FindObjectsOfType<ChaControl>()
@@ -521,6 +523,7 @@ namespace KK_VR.Features
 
             // Reset states, store frequently used settings in instance fields
             UpdateSettings();
+            UpdateHideState();
             CameraIsFarAndBusy();
         }
 
@@ -535,22 +538,23 @@ namespace KK_VR.Features
         {
             if (_active)
             {
-                var hideHeadSetting = _hideHeadSetting;
-                // GripMove state.
-                // Start showing the head unless the setting disabled completely, as that would mean we don't engage with the head at all,
-                // or if OnGripMove state is enabled, as that means we keep the head hidden during the grip move.
-                if (hideHeadSetting != 0 && (hideHeadSetting & KoikSettings.PovHideHeadType.OnGripMove) == 0)
+                var hide = _hide;
+                // Opt to show face/head during the grip move,
+                // will get reset on CameraIsNear() when gripMove finishes.
+                if (hide.enable && !hide.grip)
                 {
-                    _hideHead = true;
-                    
-                    // Enable everything to avoid glitches, LateUpdate() will set everything as it has to be.
-                    _targetFaceRenderers.SetActive(true);
-                    SetHeadActive(_target, true);
-
-                    // Start proactively hiding whole head even if the setting specified face only, because otherwise it's ugly.
-                    // Later it will be properly updated on CameraIsNear().
-                    _hideHeadSetting |= KoikSettings.PovHideHeadType.Head;
+                    if (hide.head)
+                    {
+                        SetHeadActive(_target, true);
+                    }
+                    else
+                    {
+                        _targetFaceRenderers.SetActive(true);
+                    }
+                    hide.enable = false;
+                    _hide = hide;
                 }
+
                 if (press)
                 {
                     CameraIsFar();
@@ -588,7 +592,7 @@ namespace KK_VR.Features
             SetVisibility(_prevTarget);
             _mode = Mode.Disable;
             _newAttachPoint = false;
-            _hideHead = false;
+            _hide.enable = false;
             _moveTo = null;
 
             if (_target != null)
@@ -698,16 +702,18 @@ namespace KK_VR.Features
 
         private void LateUpdate()
         {
-            if (_hideHead)
+            var hide = _hide;
+
+            if (hide.enable && hide.proximity)
             {
-                if ((_hideHeadSetting & KoikSettings.PovHideHeadType.Head) != 0)
+                if (hide.head)
                 {
                     HideHead(_target);
 
                     if (_prevTarget != null)
                         HideHead(_prevTarget);
                 }
-                else //if ((_hideHeadSetting & KoikSettings.PovHideHeadType.Face) != 0)
+                else //if (!hide.head)
                 {
                     HideFace(_target, _targetFaceRenderers);
 
@@ -719,19 +725,14 @@ namespace KK_VR.Features
 
         private void HideHead(ChaControl chara)
         {
+            var headClose = IsHeadClose(chara.objHead.transform);
             if (chara.fileStatus.visibleHeadAlways)
             {
-                if (IsHeadClose(chara.objHead.transform))
-                {
-                    SetHeadActive(chara, false);
-                }
+                if (headClose) SetHeadActive(chara, false);
             }
             else
             {
-                if (!IsHeadClose(chara.objHead.transform))
-                {
-                    SetHeadActive(chara, true);
-                }
+                if (!headClose) SetHeadActive(chara, true);
             }
         }
 
@@ -785,7 +786,23 @@ namespace KK_VR.Features
 
         internal void OnLimbSync(bool start)
         {
-            _hideHead = start;
+            _hide.enable = start;
+        }
+
+
+
+        // 5 bytes, Copying is optimal.
+        private struct Concealment
+        {
+            internal bool enable;
+            // Hide always or on proximity.
+            internal bool proximity;
+            // Hide head or face.
+            internal bool head;
+            // Hide when in gripMove.
+            internal bool grip;
+            // Hide when remotely attached (_newAttachPoint).
+            internal bool remote;
         }
     }
 }
