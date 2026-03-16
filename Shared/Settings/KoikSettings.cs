@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using BepInEx.Configuration;
+﻿using BepInEx.Configuration;
 using KK_VR.Features;
 using KK_VR.Grasp;
 using KK_VR.Holders;
 using KK_VR.Interpreters;
 using KKAPI.Utilities;
+using System;
 using UnityEngine;
 using VRGIN.Core;
-using static System.Collections.Specialized.BitVector32;
-using static Illusion.Utils;
-using static UnityEngine.UI.ScrollRect;
 
 namespace KK_VR.Settings
 {
@@ -31,18 +26,28 @@ namespace KK_VR.Settings
             Left,
             Right
         }
-        public enum PovMovementType
+        public enum PovHideObjType
         {
-            Disabled,
-            Straight,
-            Upright
+            // Those descriptions only override enum name. Old behavior is gone?
+            //[DescriptionAttribute("Hide nothing, face and hair stay visible")]
+            None,
+            //[Description("Hide face, hair stays visible")]
+            Face,
+            //[DescriptionAttribute("Hide face and hair")]
+            Head
         }
-        public enum PovHideHeadType
+        [Flags]
+        public enum PovHideOption
         {
-            ShowHead,
-            HideHead,
-            HideHeadAlways,
-            HideFace,
+            None = 0,
+            //[DescriptionAttribute("Hide when camera is close instead of always")]
+            Proximity = 1 << 0,
+            //[Description("Hide when remotely attached")]
+            Remote = 1 << 1,
+            // One may opt to forcefully show it because reasons.
+            // Otherwise the usual always/inProximity way is used.
+            //[DescriptionAttribute("Hide when in GripMove")]
+            GripMove = 1 << 2,
         }
         public enum HeadEffector
         {
@@ -114,9 +119,10 @@ namespace KK_VR.Settings
         #region Pov
 
         public static ConfigEntry<PovGenders> Pov { get; private set; }
-        public static ConfigEntry<PovMovementType> FlyInPov { get; private set; }
-        public static ConfigEntry<PovHideHeadType> PovHideHead { get; private set; }
-        public static ConfigEntry<float> FlightSpeed { get; private set; }
+        public static ConfigEntry<PovHideObjType> PovHideObject { get; private set; }
+        public static ConfigEntry<PovHideOption> PovHideOptionMask { get; private set; }
+        public static ConfigEntry<bool> PovFlight { get; private set; }
+        public static ConfigEntry<float> PovFlightSpeed { get; private set; }
         public static ConfigEntry<int> PovDeviationThreshold { get; private set; }
         public static ConfigEntry<PovAttachmentBones> PovAttachment { get; private set; }
 
@@ -375,90 +381,68 @@ namespace KK_VR.Settings
             #region SectionPov
 
 
-            Pov = config.Bind(SectionPov, "Enable", PovGenders.Boys | PovGenders.Auto | PovGenders.Rotation,
+            Pov = config.Bind(SectionPov, "Pov", PovGenders.Boys | PovGenders.Auto | PovGenders.Rotation,
                 new ConfigDescription(
-                    "Boys – target males for impersonation\n" +
-                    "Girls – target females for impersonation\n" +
-                    "Auto – automatically initiate PoV mode when appropriate\n" +
-                    "Rotation – follow rotation during PoV mode (might be dangerous for the first-day-vr-crew)\n" +
-                    "Climax – continue following during climax (causes violent trembles of the camera)",
+                    "Boys – impersonate males\n" +
+                    "Girls – impersonate females\n" +
+                    "Auto – enable automatically\n" +
+                    "Rotation – adjust rotation\n" +
+                    "Climax – follow during climax (causes violent trembles of the camera)",
                     null,
                     new ConfigurationManagerAttributes { Order = 100 }
                     ));
 
 
-            //PovAutoEnter = config.Bind(SectionPov, "Auto impersonation", true,
-            //    new ConfigDescription(
-            //        "Automatically impersonate on position change if appropriate according to the setting.",
-            //        null,
-            //        new ConfigurationManagerAttributes { Order = 90 }
-            //        ));
-
-
-            //PovNoRotation = config.Bind(SectionPov, "No rotation", false,
-            //    new ConfigDescription(
-            //        "Disable rotation adjustment.",
-            //        null,
-            //        new ConfigurationManagerAttributes { Order = 80 }
-            //        ));
-
-
-            PovDeviationThreshold = config.Bind(SectionPov, "Lazy", 15,
+            PovDeviationThreshold = config.Bind(SectionPov, "Pov Lazy", 15,
                 new ConfigDescription(
-                    "Introduces lazy impersonation when above 0. " +
-                    "Follows camera in less invasive way for as long as the angle deviation is within limit.\n" +
-                    "Changes take place after new impersonation.",
+                    "Camera follows attachment point in a less strict manner\n" +
+                    "0 = disable, changes take place on new impersonation",
                     new AcceptableValueRange<int>(0, 60),
                     new ConfigurationManagerAttributes { Order = 70 }
                     ));
 
 
             // No second mode after rework yet.
-            FlyInPov = config.Bind(SectionPov, "Smooth transition", PovMovementType.Upright,
+            PovFlight = config.Bind(SectionPov, "Pov Transition", true,
                 new ConfigDescription(
-                    "Apply camera's movements smoothly during impersonation.",
+                    "Move towards new target instead of teleporting",
                     null,
                     new ConfigurationManagerAttributes { Order = 60 }
                     ));
 
 
-            FlightSpeed = config.Bind(SectionPov, "Transition speed", 1f,
+            PovFlightSpeed = config.Bind(SectionPov, "Pov TransitionSpeed", 1f,
                 new ConfigDescription(
-                    "Speed of the smooth transition.",
+                    "How fast to move",
                     new AcceptableValueRange<float>(0.1f, 3f),
                     new ConfigurationManagerAttributes { Order = 50 }
                     ));
 
 
-            PovHideHead = config.Bind(SectionPov, "Hide head", PovHideHeadType.HideHead,
+            PovHideObject = config.Bind(SectionPov, "Pov Hide", PovHideObjType.Face,
                 new ConfigDescription(
-                    "Show Head – never hide the head nor the face\n" +
-                    "Hide Head – hide the head when the camera is close to it\n" +
-                    "Hide Head Always – always hide the head\n" +
-                    "Hide Face – hide the face when the camera is close to it, leaves the hair and accessories visible",
+                    "Hide character's part during impersonation",
                     null,
                     new ConfigurationManagerAttributes { Order = 40 }
                     ));
 
-            PovAttachment = config.Bind(SectionPov, "Attachment point", PovAttachmentBones.Eyes,
+
+            PovHideOptionMask = config.Bind(SectionPov, "Pov HideOptions", PovHideOption.Proximity | PovHideOption.Remote | PovHideOption.GripMove,
                 new ConfigDescription(
-                    "The bone that the POV camera follows.",
+                    "Proximity – hide when the camera is in proximity instead of constantly\n" +
+                    "Remote – hide when the camera is remotely attached\n" +
+                    "GripMove – hide when grabbing the world",
+                    null,
+                    new ConfigurationManagerAttributes { Order = 35 }
+                    ));
+
+
+            PovAttachment = config.Bind(SectionPov, "Pov AttachmentPoint", PovAttachmentBones.Eyes,
+                new ConfigDescription(
+                    "Where to attach camera",
                     null,
                     new ConfigurationManagerAttributes { Order = 30 }
                     ));
-
-            //PovStopForClimax = config.Bind(SectionPov, "Stop for climax", true,
-            //    new ConfigDescription(
-            //        "Halt position and rotation adjustment during climax to avoid violent trembling.",
-            //        null,
-            //        new ConfigurationManagerAttributes { Order = 20 }
-            //        ));
-
-
-            // Didn't meet the expectations.
-            //var directImpersonation = config.Bind(SectionPov, "DirectImpersonation", false, "");
-            //Tie(directImpersonation, v => settings.DirectImpersonation = v);
-
 
 
             #endregion

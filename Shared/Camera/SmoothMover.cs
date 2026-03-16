@@ -77,7 +77,7 @@ namespace KK_VR.Camera
                 var head = VR.Camera.Head;
                 var uprightRot = Quaternion.Euler(0f, origin.eulerAngles.y, 0f);
                 //var uprightRot = Quaternion.Euler(0f, head.eulerAngles.y, 0f);
-                var lerpMultiplier = KoikSettings.FlightSpeed.Value * 90f / Quaternion.Angle(head.rotation, uprightRot);
+                var lerpMultiplier = KoikSettings.PovFlightSpeed.Value * 90f / Quaternion.Angle(head.rotation, uprightRot);
                 var lerp = 0f;
                 var startRot = origin.rotation;
                 Vector3 oldPos;
@@ -200,7 +200,7 @@ namespace KK_VR.Camera
 
             }
             var lerp = 0f;
-            var lerpModifier = KoikSettings.FlightSpeed.Value * (spotChange ? 3f : 1f) / Vector3.Distance(head.position, position);
+            var lerpModifier = KoikSettings.PovFlightSpeed.Value * (spotChange ? 3f : 1f) / Vector3.Distance(head.position, position);
             var startPos = head.position;
             var startRot = origin.rotation;
             while (lerp < 1f)

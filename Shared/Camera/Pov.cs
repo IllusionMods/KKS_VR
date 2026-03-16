@@ -115,14 +115,13 @@ namespace KK_VR.Features
         // Cached pov rotation setting
         private bool _rotationSetting;
         // Indicates whether the head(or face) should be hid proactively on the LateUpdate()
-        private bool _hideHead;
+
+        // Small (5 bytes) struct with parameters related to face/head hiding.
+        private Concealment _hide;
 
         // Object with renderers of the face 
         private GameObject _targetFaceRenderers;
         private GameObject _prevTargetFaceRenderers;
-
-        // Cached setting to access on each frame
-        private KoikSettings.PovHideHeadType _hideHeadSetting;
 
         // Indicates whether to stop for climax or not
         private bool _climax;
@@ -155,7 +154,6 @@ namespace KK_VR.Features
             _degPerSec = 30f * (KoikSettings.RotationAngle.Value / 45f);
             _rotDeviationThreshold = KoikSettings.PovDeviationThreshold.Value;
             _rotDeviationHalf = (int)(_rotDeviationThreshold * 0.4f);
-            _hideHeadSetting = KoikSettings.PovHideHead.Value;
             _rotationSetting = (KoikSettings.Pov.Value & KoikSettings.PovGenders.Rotation) != 0;
             if (KoikSettings.PovAttachment.Value == KoikSettings.PovAttachmentBones.Eyes)
             {
@@ -361,38 +359,47 @@ namespace KK_VR.Features
             // Hook for SensibleH, as it does something with this.
             GirlPoV = isGirl;
             CameraBusy?.Invoke(isGirl);
-            //MouthGuide.SetBusy(isGirl);
 
-            var hideHeadSetting = KoikSettings.PovHideHead.Value;
-            // Only Hide mode is always proactive, the rest are proactive only when the camera is on the move
-            var hideHeadProactive = hideHeadSetting == KoikSettings.PovHideHeadType.HideHead;
-
-            // Hide properly non proactive types
-            if (!hideHeadProactive)
-            {
-                switch (hideHeadSetting)
-                {
-                    case KoikSettings.PovHideHeadType.HideHeadAlways:
-                        SetHeadActive(_target, false);
-                        break;
-                    case KoikSettings.PovHideHeadType.HideFace:
-                        HideFace(_target, _targetFaceRenderers);
-                        break;
-                }
-            }
-
-            // Store settings in instance variables
-            _hideHead = hideHeadProactive;
-            _hideHeadSetting = hideHeadSetting;
-
+            UpdateHideState();
 
             // Invoke delegates.
             Impersonation?.Invoke(true, _target);
         }
 
+        private void UpdateHideState()
+        {
+            var hide = _hide;
+            var hideObj = KoikSettings.PovHideObject.Value;
+            var hideOptMask = KoikSettings.PovHideOptionMask.Value;
+
+            hide.enable = hideObj != KoikSettings.PovHideObjType.None;
+            hide.head = hideObj == KoikSettings.PovHideObjType.Head;
+            hide.proximity = (hideOptMask & KoikSettings.PovHideOption.Proximity) != 0;
+            hide.grip = (hideOptMask & KoikSettings.PovHideOption.GripMove) != 0;
+            hide.remote = (hideOptMask & KoikSettings.PovHideOption.Remote) != 0;
+
+            _hide = hide;
+
+            // If !proximity (always) then LateUpdate() doesn't hide.
+            if (hide.enable && !hide.proximity)
+            {
+                // If remotely attached and setting specifies to show.
+                var show = _newAttachPoint && !hide.remote;
+
+                if (hide.head)
+                {
+                    SetHeadActive(_target, show);
+                }
+                else
+                {
+                    _targetFaceRenderers.SetActive(show);
+                }
+            }
+        }
+
         private void StartMoveToHead(float speed = 1f)
         {
-            if (KoikSettings.FlyInPov.Value == KoikSettings.PovMovementType.Disabled)
+            if (!KoikSettings.PovFlight.Value)
             {
                 // Teleport camera to the head, as 'follow' method uses delta vector between frames.
                 VR.Camera.Origin.position += GetEyesPosition - VR.Camera.Head.position;
@@ -404,11 +411,12 @@ namespace KK_VR.Features
             {
                 // Strip rotation if no setting
                 var targetRot = _rotationSetting ? _targetBone.rotation : Quaternion.Euler(0f, _targetBone.eulerAngles.y, 0f);
+                var settingSpeed = KoikSettings.PovFlightSpeed.Value;
                 // Set predetermined destination as SLerp for dynamic
                 // destination will be very chaotic more often then not.
                 _trip = new OneWayTrip(Mathf.Min(
-                    KoikSettings.FlightSpeed.Value * speed / Vector3.Distance(VR.Camera.Head.position, GetEyesPosition),
-                    KoikSettings.FlightSpeed.Value * 60f / Quaternion.Angle(VR.Camera.Origin.rotation, targetRot)),
+                    settingSpeed * speed / Vector3.Distance(VR.Camera.Head.position, GetEyesPosition),
+                    settingSpeed * 60f / Quaternion.Angle(VR.Camera.Origin.rotation, targetRot)),
                     targetRot);
             }
         }
@@ -426,9 +434,9 @@ namespace KK_VR.Features
                 if (_trip.Move(GetEyesPosition) >= 1f)
                 {
                     // When arrived at position
-                    CameraIsNear();
                     _newAttachPoint = false;
                     _trip = null;
+                    CameraIsNear();
                 }
             }
         }
@@ -467,9 +475,6 @@ namespace KK_VR.Features
 
         private void NextChara(bool keepChara = false)
         {
-            // Camera is about to move, proactive head hiding unless 'Setting == Show'
-            // Cached instance field with the setting hasn't been updated yet, use actual settings
-            _hideHead = KoikSettings.PovHideHead.Value != KoikSettings.PovHideHeadType.ShowHead;
 
             // As some may add extra characters with kPlug, we look them all up.
             var charas = FindObjectsOfType<ChaControl>()
@@ -518,6 +523,7 @@ namespace KK_VR.Features
 
             // Reset states, store frequently used settings in instance fields
             UpdateSettings();
+            UpdateHideState();
             CameraIsFarAndBusy();
         }
 
@@ -530,11 +536,25 @@ namespace KK_VR.Features
 
         internal void OnGripMove(bool press)
         {
-            //_gripMove = press;
             if (_active)
             {
-                // Use the proactive head hiding unless 'Setting == Show'
-                _hideHead = _hideHeadSetting != KoikSettings.PovHideHeadType.ShowHead;
+                var hide = _hide;
+                // Opt to show face/head during the grip move,
+                // will get reset on CameraIsNear() when gripMove finishes.
+                if (hide.enable && !hide.grip)
+                {
+                    if (hide.head)
+                    {
+                        SetHeadActive(_target, true);
+                    }
+                    else
+                    {
+                        _targetFaceRenderers.SetActive(true);
+                    }
+                    hide.enable = false;
+                    _hide = hide;
+                }
+
                 if (press)
                 {
                     CameraIsFar();
@@ -572,7 +592,7 @@ namespace KK_VR.Features
             SetVisibility(_prevTarget);
             _mode = Mode.Disable;
             _newAttachPoint = false;
-            _hideHead = false;
+            _hide.enable = false;
             _moveTo = null;
 
             if (_target != null)
@@ -682,55 +702,40 @@ namespace KK_VR.Features
 
         private void LateUpdate()
         {
-            if (_hideHead)
+            var hide = _hide;
+
+            if (hide.enable && hide.proximity)
             {
-                //if (_hideHeadSetting == KoikSettings.PovHideHeadType.ShowHair)
-                //{
-                //    HideHair(_target, _targetHeadRenderers);
-                //    if (_prevTarget != null)
-                //    {
-                //        HideHair(_prevTarget, _prevTargetHeadRenderers);
-                //    }
-                //}
-                //else
-                //{
-                switch (_hideHeadSetting)
+                if (hide.head)
                 {
-                    case KoikSettings.PovHideHeadType.HideFace:
-                        // Hide only face
-                        HideFace(_target, _targetFaceRenderers);
+                    HideHead(_target);
 
-                        if (_prevTarget != null && _prevTargetFaceRenderers != null)
-                            HideFace(_prevTarget, _prevTargetFaceRenderers);
-                        break;
-                    default:
-                        // Hide full head
-                        HideHead(_target);
+                    if (_prevTarget != null)
+                        HideHead(_prevTarget);
+                }
+                else //if (!hide.head)
+                {
+                    HideFace(_target, _targetFaceRenderers);
 
-                        if (_prevTarget != null)
-                            HideHead(_prevTarget);
-                        break;
+                    if (_prevTarget != null && _prevTargetFaceRenderers != null)
+                        HideFace(_prevTarget, _prevTargetFaceRenderers);
                 }
             }
         }
 
         private void HideHead(ChaControl chara)
         {
+            var headClose = IsHeadClose(chara.objHead.transform);
             if (chara.fileStatus.visibleHeadAlways)
             {
-                if (IsHeadClose(chara.objHead.transform))
-                {
-                    SetHeadActive(chara, false);
-                }
+                if (headClose) SetHeadActive(chara, false);
             }
             else
             {
-                if (!IsHeadClose(chara.objHead.transform))
-                {
-                    SetHeadActive(chara, true);
-                }
+                if (!headClose) SetHeadActive(chara, true);
             }
         }
+
         private void HideFace(ChaControl chara, GameObject faceRenderers)
         {
             var headClose = IsHeadClose(chara.objHead.transform);
@@ -757,6 +762,7 @@ namespace KK_VR.Features
                 hair.SetActive(active);
             }
         }
+
         private bool IsHeadClose(Transform head)
         {
             return Vector3.SqrMagnitude(VR.Camera.transform.position - head.TransformPoint(0, 0.12f, -0.04f)) < 0.0361f;
@@ -780,7 +786,23 @@ namespace KK_VR.Features
 
         internal void OnLimbSync(bool start)
         {
-            _hideHead = start;
+            _hide.enable = start;
+        }
+
+
+
+        // 5 bytes, Copying is optimal.
+        private struct Concealment
+        {
+            internal bool enable;
+            // Hide always or on proximity.
+            internal bool proximity;
+            // Hide head or face.
+            internal bool head;
+            // Hide when in gripMove.
+            internal bool grip;
+            // Hide when remotely attached (_newAttachPoint).
+            internal bool remote;
         }
     }
 }
