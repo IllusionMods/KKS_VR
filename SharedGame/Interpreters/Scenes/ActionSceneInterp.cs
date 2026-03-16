@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using VRGIN.Core;
 using StrayTech;
 using KK_VR.Settings;
@@ -15,6 +16,7 @@ using ADV.Commands.Object;
 using WindowsInput.Native;
 using KK_VR.Holders;
 using UnityEngine.SceneManagement;
+using KKAPI.MainGame;
 
 namespace KK_VR.Interpreters
 {
@@ -50,6 +52,10 @@ namespace KK_VR.Interpreters
             {
                 KoikSettings.UpdateShadowSetting(KoikSettings.ShadowType.Average);
             }
+
+            GameAPI.PeriodChange += OnReload;
+            GameAPI.DayChange += OnReload;
+
             base.OnStart();
         }
 
@@ -60,11 +66,21 @@ namespace KK_VR.Interpreters
             HandHolder.SetKinematic(false);
             //ResetState();
             EnableCameraSystem();
+
+            GameAPI.PeriodChange -= OnReload;
+            GameAPI.DayChange -= OnReload;
         }
+
         internal override void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, LoadSceneMode mode)
+        {
+            OnReload(null, null);
+        }
+
+        private void OnReload(object sender, EventArgs e)
         {
             _resetCamera = true;
         }
+
         internal override void OnUpdate()
         {
             if (_resetCamera)
