@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using VRGIN.Core;
 using StrayTech;
 using KK_VR.Settings;
