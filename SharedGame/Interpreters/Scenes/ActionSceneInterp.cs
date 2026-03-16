@@ -52,8 +52,8 @@ namespace KK_VR.Interpreters
                 KoikSettings.UpdateShadowSetting(KoikSettings.ShadowType.Average);
             }
 
-            GameAPI.PeriodChange += (_, _1) => OnReload();
-            GameAPI.DayChange += (_, _1) => OnReload();
+            GameAPI.PeriodChange += OnReload;
+            GameAPI.DayChange += OnReload;
 
             base.OnStart();
         }
@@ -66,16 +66,16 @@ namespace KK_VR.Interpreters
             //ResetState();
             EnableCameraSystem();
 
-            GameAPI.PeriodChange -= (_, _1) => OnReload();
-            GameAPI.DayChange -= (_, _1) => OnReload();
+            GameAPI.PeriodChange -= OnReload;
+            GameAPI.DayChange -= OnReload;
         }
 
         internal override void OnSceneLoaded(UnityEngine.SceneManagement.Scene scene, LoadSceneMode mode)
         {
-            OnReload();
+            OnReload(null, null);
         }
 
-        private void OnReload()
+        private void OnReload(object sender, EventArgs e)
         {
             _resetCamera = true;
         }
