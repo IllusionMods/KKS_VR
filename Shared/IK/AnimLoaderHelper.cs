@@ -42,11 +42,21 @@ namespace KK_VR.IK
                     continue;
                 }
 
-                var baseData = bendGoal.GetComponent<BaseData>();
-                if (baseData == null)
+                var bendGoalBaseData = bendGoal.GetComponent<BaseData>();
+                if (bendGoalBaseData == null)
                 {
-                    VRPlugin.Logger.LogWarning($"FBBIK(native) - {chara.name} - {bodyPart.name} doesn't have BaseData");
-                    continue;
+                    // We might have (most likely did) set in that field our own bend goal,
+                    // and it's now a child of the og bend goal.
+                    bendGoal = bendGoal.parent;
+
+                    if (bendGoal != null)
+                        bendGoalBaseData = bendGoal.GetComponent<BaseData>();
+
+                    if (bendGoalBaseData == null)
+                    {
+                        VRPlugin.Logger.LogWarning($"FBBIK(native) - {chara.name} - {bodyPart.name} doesn't have BaseData (bendGoal)");
+                        continue;
+                    }
                 }
 
                 var ikBeforeProcessBendGoal = bendGoal.GetComponent<IKBeforeProcess>();
@@ -56,13 +66,13 @@ namespace KK_VR.IK
                     continue;
                 }
 
-                baseData.bone = chara.objAnim.transform.Find(cf_pv_bones_bendGoals[i - 5]);
-                if (baseData.bone == null)
+                bendGoalBaseData.bone = chara.objAnim.transform.Find(cf_pv_bones_bendGoals[i - 5]);
+                if (bendGoalBaseData.bone == null)
                 {
                     VRPlugin.Logger.LogWarning($"Failed to find bendGoal bone at {cf_pv_bones_bendGoals[i - 5]}");
                     continue;
                 }
-                baseData.enabled = true;
+                bendGoalBaseData.enabled = true;
                 ikBeforeProcessBendGoal.enabled = true;
                 ikBeforeProcessBendGoal.type = BaseProcess.Type.Sync;
             }
