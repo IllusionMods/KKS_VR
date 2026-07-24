@@ -211,6 +211,12 @@
     <Compile Include="Util\BepInExVrLogBackend.cs" />
     <Compile Include="VRPlugin.cs" />
     <Compile Include="Fixes\LoadFixHook.cs" />
+    <Compile Include="..\Shared\Fixes\Mirror\Manager.cs">
+      <Link>Fixes\Mirror\Manager.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Fixes\Mirror\VRReflection.cs">
+      <Link>Fixes\Mirror\VRReflection.cs</Link>
+    </Compile>
     <Compile Include="Util\MaterialHelper.cs" />
     <Compile Include="Util\MoveableGUIObject.cs" />
     <Compile Include="Controls\ObjMoveHelper.cs" />
@@ -221,6 +227,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Util\ColorZOrderShader" />
+    <EmbeddedResource Include="..\Shared\Fixes\Mirror\mirror-shader" />
     <None Include="Fixes\topmostgui.shader" />
     <None Include="Fixes\topmostguishader" />
     <None Include="packages.config" />
