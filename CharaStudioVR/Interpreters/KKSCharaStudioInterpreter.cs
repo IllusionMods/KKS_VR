@@ -15,11 +15,13 @@ namespace KK_VR.Interpreters
     {
         private readonly List<KKSCharaStudioActor> _Actors = new List<KKSCharaStudioActor>();
         private GameObject CommonSpaceGo;
+        private KK_VR.Fixes.Mirror.Manager _mirrorManager;
         public override IEnumerable<IActor> Actors => _Actors.Cast<IActor>();
 
         protected override void OnAwake()
         {
             base.OnAwake();
+            _mirrorManager = new KK_VR.Fixes.Mirror.Manager();
             SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
@@ -27,6 +29,17 @@ namespace KK_VR.Interpreters
         {
             if (!CommonSpaceGo) CommonSpaceGo = Manager.Scene.commonSpace;
             FixMenuCanvasLayers();
+
+            // don't reflect the studio selection/collider overlays
+            var overlayMask = LayerMask.GetMask("Studio/Col", "Studio/Select");
+            foreach (var reflection in GameObject.FindObjectsOfType<MirrorReflection>())
+            {
+                var go = reflection.gameObject;
+                _mirrorManager.Fix(reflection);
+                var vr = go.GetComponent<KK_VR.Fixes.Mirror.VRReflection>();
+                if (vr != null)
+                    vr.m_ReflectLayers = ~overlayMask;
+            }
         }
 
         protected override void OnStart()
