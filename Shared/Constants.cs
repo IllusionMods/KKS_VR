@@ -2,6 +2,6 @@ namespace KK_VR
 {
     internal static class Constants
     {
-        public const string Version = "2.7";
+        public const string Version = "2.7.1";
     }
 }
