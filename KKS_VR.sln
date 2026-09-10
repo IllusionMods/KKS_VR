@@ -32,6 +32,12 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SharedStudio", "SharedStudi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KK_Studio", "KK_Studio\KK_Studio.csproj", "{4D035737-4A50-4FB8-BD73-7703EDF944BD}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution", "_Solution", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -69,7 +75,6 @@ Global
 		{4D035737-4A50-4FB8-BD73-7703EDF944BD}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{4D035737-4A50-4FB8-BD73-7703EDF944BD}.Debug|x64.Build.0 = Debug|Any CPU
 		{4D035737-4A50-4FB8-BD73-7703EDF944BD}.Release|x64.ActiveCfg = Release|Any CPU
-		{4D035737-4A50-4FB8-BD73-7703EDF944BD}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -88,15 +93,14 @@ Global
 		SolutionGuid = {6A44D8C4-D4F0-4951-A1F2-B64FFDD9A290}
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Shared\Shared.projitems*{07ecd6a8-61d0-4409-a009-c138e76dfa1f}*SharedItemsImports = 4
 		SharedGame\SharedGame.projitems*{0aa55027-91a2-4fc5-b657-8c2a2b96f160}*SharedItemsImports = 13
-		SharedGame\SharedGame.projitems*{1f36ab35-19d3-4553-a166-af8dfca39d50}*SharedItemsImports = 4
-		Shared\Shared.projitems*{1f36ab35-19d3-4553-a166-af8dfca39d50}*SharedItemsImports = 4
+		SharedGame\SharedGame.projitems*{1f36ab35-19d3-4553-a166-af8dfca39d50}*SharedItemsImports = 5
+		Shared\Shared.projitems*{1f36ab35-19d3-4553-a166-af8dfca39d50}*SharedItemsImports = 5
 		Shared\Shared.projitems*{447ca481-4806-48d1-8e95-d545d8294620}*SharedItemsImports = 13
-		SharedStudio\SharedStudio.projitems*{4d035737-4a50-4fb8-bd73-7703edf944bd}*SharedItemsImports = 4
-		Shared\Shared.projitems*{4d035737-4a50-4fb8-bd73-7703edf944bd}*SharedItemsImports = 4
+		SharedStudio\SharedStudio.projitems*{4d035737-4a50-4fb8-bd73-7703edf944bd}*SharedItemsImports = 5
+		Shared\Shared.projitems*{4d035737-4a50-4fb8-bd73-7703edf944bd}*SharedItemsImports = 5
 		SharedStudio\SharedStudio.projitems*{9472fde9-73d0-4f62-adc0-8d0828ee2de6}*SharedItemsImports = 13
-		SharedGame\SharedGame.projitems*{abe9b34c-6644-4e93-a8a1-5cad5fa638ee}*SharedItemsImports = 4
-		Shared\Shared.projitems*{abe9b34c-6644-4e93-a8a1-5cad5fa638ee}*SharedItemsImports = 4
+		SharedGame\SharedGame.projitems*{abe9b34c-6644-4e93-a8a1-5cad5fa638ee}*SharedItemsImports = 5
+		Shared\Shared.projitems*{abe9b34c-6644-4e93-a8a1-5cad5fa638ee}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

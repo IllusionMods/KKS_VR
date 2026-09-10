@@ -4,7 +4,6 @@ using System.Linq;
 using KK_VR.Controls;
 using KK_VR.Features;
 using KK_VR.Settings;
-using UnityEngine.XR;
 using VRGIN.Controls;
 using VRGIN.Modes;
 
