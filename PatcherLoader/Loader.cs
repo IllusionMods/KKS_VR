@@ -37,8 +37,7 @@ namespace PatcherLoader
         {
             var processName = Paths.ProcessName;
             if ((processName != "Koikatu" && processName != "Koikatsu Party")
-                || (!Environment.CommandLine.Contains("--vr") 
-                && !Process.GetProcesses().Where(p => p != null && p.ProcessName == "vrcompositor").Any()))
+                || (!Environment.CommandLine.Contains("--vr") && !IsVRCompositorRunning()))
             {
                 yield break;
             }
@@ -65,6 +64,45 @@ namespace PatcherLoader
             setupAll();
 
             yield break;
+        }
+
+        /// <summary>
+        /// Checks whether SteamVR's compositor is running.
+        ///
+        /// Any exception thrown here would abort the whole BepInEx preloader
+        /// and prevent the game from starting, so failures are ignored.
+        /// Process.ProcessName throws InvalidOperationException for processes
+        /// whose name can't be read (e.g. a process that exited after
+        /// GetProcesses() returned, or one that is stuck while exiting).
+        /// </summary>
+        private static bool IsVRCompositorRunning()
+        {
+            try
+            {
+                var found = false;
+                foreach (var p in Process.GetProcesses())
+                {
+                    try
+                    {
+                        if (!found && p.ProcessName == "vrcompositor")
+                            found = true;
+                    }
+                    catch (Exception)
+                    {
+                        // Skip processes whose name can't be read
+                    }
+                    finally
+                    {
+                        p.Dispose();
+                    }
+                }
+                return found;
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning($"Failed to check whether vrcompositor is running, assuming it is not: {ex.Message}");
+                return false;
+            }
         }
     }
 
